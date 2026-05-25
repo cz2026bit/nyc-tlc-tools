@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>纽约 TLC 车牌违章查询</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: #f5f7f6;
+        color: #13221f;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      }
+
+      .app {
+        min-height: 100vh;
+        padding-bottom: 32px;
+      }
+
+      .top {
+        background: #12312b;
+        color: #fff;
+        padding: 32px 20px 46px;
+      }
+
+      .wrap {
+        width: min(760px, calc(100% - 28px));
+        margin: 0 auto;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 28px;
+        letter-spacing: 0;
+      }
+
+      .sub {
+        margin-top: 10px;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 15px;
+        line-height: 1.5;
+      }
+
+      .search {
+        margin-top: -28px;
+        padding: 16px;
+        background: #fff;
+        border: 1px solid #dde5e2;
+        border-radius: 8px;
+        box-shadow: 0 10px 28px rgba(16, 32, 28, 0.08);
+      }
+
+      .row {
+        display: flex;
+        gap: 10px;
+      }
+
+      input {
+        flex: 1;
+        height: 48px;
+        padding: 0 14px;
+        border: 1px solid #cbd8d4;
+        border-radius: 6px;
+        background: #fbfcfc;
+        color: #13221f;
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      button {
+        width: 96px;
+        border: 0;
+        border-radius: 6px;
+        background: #0f7b68;
+        color: #fff;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      button:disabled {
+        opacity: 0.7;
+        cursor: wait;
+      }
+
+      .hint {
+        margin-top: 12px;
+        color: #6b7672;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .notice {
+        margin-top: 16px;
+        padding: 14px;
+        border-radius: 8px;
+        background: #fff0ed;
+        color: #9b2c1f;
+        border: 1px solid #f1b5aa;
+      }
+
+      .summary {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .summary > div,
+      .card {
+        background: #fff;
+        border: 1px solid #dde5e2;
+        border-radius: 8px;
+      }
+
+      .summary > div {
+        padding: 14px 8px;
+        text-align: center;
+      }
+
+      .num {
+        font-size: 24px;
+        font-weight: 800;
+      }
+
+      .label {
+        margin-top: 4px;
+        color: #68736f;
+        font-size: 13px;
+      }
+
+      h2 {
+        margin: 26px 4px 12px;
+        font-size: 19px;
+      }
+
+      .card {
+        margin-bottom: 12px;
+        padding: 16px;
+      }
+
+      .head {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+      }
+
+      .title {
+        font-size: 18px;
+        font-weight: 800;
+      }
+
+      .meta {
+        margin-top: 4px;
+        color: #68736f;
+        font-size: 13px;
+      }
+
+      .pill {
+        height: 28px;
+        padding: 0 10px;
+        border-radius: 999px;
+        background: #e6f4ef;
+        color: #0f6b56;
+        font-size: 13px;
+        line-height: 28px;
+        white-space: nowrap;
+      }
+
+      .money {
+        color: #9b4d00;
+        font-size: 18px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px 18px;
+        margin-top: 16px;
+      }
+
+      .k {
+        color: #73807b;
+        font-size: 12px;
+      }
+
+      .v {
+        margin-top: 3px;
+        color: #1b2b28;
+        font-size: 14px;
+        line-height: 1.35;
+        word-break: break-word;
+      }
+
+      .details {
+        margin-top: 14px;
+        border-top: 1px solid #edf1ef;
+      }
+
+      .detail {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        padding-top: 10px;
+        font-size: 14px;
+        line-height: 1.45;
+      }
+
+      .detail span:first-child {
+        flex-shrink: 0;
+        color: #73807b;
+      }
+
+      .detail span:last-child {
+        text-align: right;
+      }
+
+      .empty {
+        margin: 36px 0;
+        padding: 28px 16px;
+        text-align: center;
+        color: #6b7672;
+      }
+
+      @media (max-width: 520px) {
+        .row,
+        .head {
+          align-items: stretch;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        button {
+          width: 84px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <section class="top">
+        <div class="wrap">
+          <h1>纽约 TLC 车牌违章查询</h1>
+          <div class="sub">输入车牌号，查询公开车辆资料和停车 / 摄像头违章记录。</div>
+        </div>
+      </section>
+
+      <section class="wrap">
+        <form class="search" id="form">
+          <div class="row">
+            <input id="plate" value="T702139C" maxlength="12" autocomplete="off" />
+            <button id="submit" type="submit">查询</button>
+          </div>
+          <div class="hint">这是网页预览版，微信小程序页面使用同一组 NYC Open Data API。</div>
+        </form>
+
+        <div id="result"></div>
+      </section>
+    </main>
+
+    <script>
+      const API_ROOT = "https://data.cityofnewyork.us/resource";
+      const DATASETS = {
+        fhvVehicles: "ym4f-sp8x",
+        medallionVehicles: "rhe8-mgbb",
+        parkingCameraViolations: "nc67-uf89"
+      };
+
+      const $ = (selector) => document.querySelector(selector);
+      const result = $("#result");
+
+      function cleanPlate(value) {
+        return String(value || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+      }
+
+      function money(value) {
+        return Number(value || 0).toFixed(2);
+      }
+
+      function compact(value, fallback = "-") {
+        return value === undefined || value === null || value === "" ? fallback : value;
+      }
+
+      async function requestDataset(datasetId, params) {
+        const url = new URL(`${API_ROOT}/${datasetId}.json`);
+        Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`NYC Open Data 请求失败 (${response.status})`);
+        return response.json();
+      }
+
+      function vehicleCard(item) {
+        return `
+          <article class="card">
+            <div class="head">
+              <div>
+                <div class="title">${item.plate}</div>
+                <div class="meta">${item.source}</div>
+              </div>
+              <div class="pill">${item.status}</div>
+            </div>
+            <div class="grid">
+              <div><div class="k">TLC 牌照号</div><div class="v">${item.licenseNumber}</div></div>
+              <div><div class="k">类型</div><div class="v">${item.type}</div></div>
+              <div><div class="k">车主 / 公司</div><div class="v">${item.name}</div></div>
+              <div><div class="k">Base</div><div class="v">${item.base}</div></div>
+              <div><div class="k">到期 / 更新</div><div class="v">${item.updated}</div></div>
+            </div>
+          </article>
+        `;
+      }
+
+      function violationCard(item) {
+        return `
+          <article class="card" style="border-left: 4px solid #d59b2d">
+            <div class="head">
+              <div>
+                <div class="title">${item.violation}</div>
+                <div class="meta">罚单号 ${item.summonsNumber}</div>
+              </div>
+              <div class="money">$${item.amountDue}</div>
+            </div>
+            <div class="details">
+              <div class="detail"><span>日期</span><span>${item.issueDate} ${item.violationTime}</span></div>
+              <div class="detail"><span>地点</span><span>${item.county} / Precinct ${item.precinct}</span></div>
+              <div class="detail"><span>机构</span><span>${item.agency}</span></div>
+              <div class="detail"><span>罚金</span><span>Fine $${item.fineAmount} · Penalty $${item.penaltyAmount} · Paid $${item.paymentAmount}</span></div>
+            </div>
+          </article>
+        `;
+      }
+
+      function mapFhv(row) {
+        return {
+          source: "TLC For-Hire Vehicle",
+          plate: compact(row.dmv_license_plate_number),
+          licenseNumber: compact(row.vehicle_license_number),
+          type: compact(row.license_type),
+          name: compact(row.name),
+          base: row.base_number ? `${row.base_number} · ${compact(row.base_name)}` : compact(row.base_name),
+          updated: row.expiration_date ? `到期 ${row.expiration_date.slice(0, 10)}` : compact(row.last_date_updated),
+          status: row.active === "YES" ? "Active" : compact(row.active, "Unknown")
+        };
+      }
+
+      function mapMedallion(row) {
+        return {
+          source: "TLC Medallion Vehicle",
+          plate: compact(row.dmv_license_plate_number),
+          licenseNumber: compact(row.license_number),
+          type: compact(row.medallion_type),
+          name: compact(row.name),
+          base: compact(row.agent_name),
+          updated: row.last_updated_date ? `更新 ${row.last_updated_date.slice(0, 10)}` : "-",
+          status: row.current_status === "CUR" ? "Current" : compact(row.current_status, "Unknown")
+        };
+      }
+
+      function mapViolation(row) {
+        return {
+          summonsNumber: compact(row.summons_number),
+          issueDate: compact(row.issue_date),
+          violationTime: compact(row.violation_time),
+          violation: compact(row.violation, "Unknown violation"),
+          amountDue: money(row.amount_due),
+          fineAmount: money(row.fine_amount),
+          penaltyAmount: money(row.penalty_amount),
+          paymentAmount: money(row.payment_amount),
+          agency: compact(row.issuing_agency),
+          county: compact(row.county),
+          precinct: compact(row.precinct)
+        };
+      }
+
+      async function search(plate) {
+        const submit = $("#submit");
+        submit.disabled = true;
+        submit.textContent = "查询中";
+        result.innerHTML = "";
+
+        try {
+          const [fhvRows, medallionRows, violationRows] = await Promise.all([
+            requestDataset(DATASETS.fhvVehicles, { dmv_license_plate_number: plate, $limit: 20 }),
+            requestDataset(DATASETS.medallionVehicles, { dmv_license_plate_number: plate, $limit: 20 }),
+            requestDataset(DATASETS.parkingCameraViolations, { plate, $limit: 5000, $order: "issue_date DESC" })
+          ]);
+          const vehicles = [...fhvRows.map(mapFhv), ...medallionRows.map(mapMedallion)];
+          const violations = violationRows.map(mapViolation);
+          const totalDue = violations.reduce((sum, item) => sum + Number(item.amountDue || 0), 0);
+          result.innerHTML = `
+            <div class="summary">
+              <div><div class="num">${vehicles.length}</div><div class="label">TLC 车辆记录</div></div>
+              <div><div class="num">${violations.length}</div><div class="label">违章记录</div></div>
+              <div><div class="num">$${totalDue.toFixed(2)}</div><div class="label">未付金额</div></div>
+            </div>
+            ${vehicles.length ? `<h2>TLC 车辆信息</h2>${vehicles.map(vehicleCard).join("")}` : ""}
+            ${violations.length ? `<h2>违章记录</h2>${violations.map(violationCard).join("")}` : ""}
+            ${!vehicles.length && !violations.length ? `<div class="empty"><strong>没有找到公开记录</strong><br />请确认车牌号拼写，或稍后再试。</div>` : ""}
+          `;
+        } catch (error) {
+          result.innerHTML = `<div class="notice">${error.message || "查询失败，请稍后再试。"}</div>`;
+        } finally {
+          submit.disabled = false;
+          submit.textContent = "查询";
+        }
+      }
+
+      $("#plate").addEventListener("input", (event) => {
+        event.target.value = cleanPlate(event.target.value);
+      });
+
+      $("#form").addEventListener("submit", (event) => {
+        event.preventDefault();
+        const plate = cleanPlate($("#plate").value);
+        if (!plate) {
+          result.innerHTML = `<div class="notice">请输入车牌号。</div>`;
+          return;
+        }
+        search(plate);
+      });
+
+      search(cleanPlate($("#plate").value));
+    </script>
+  </body>
+</html>
