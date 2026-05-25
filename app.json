@@ -1,0 +1,13 @@
+{
+  "pages": [
+    "pages/index/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "TLC 违章查询",
+    "navigationBarBackgroundColor": "#12312b",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f7f6"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

@@ -1,0 +1,110 @@
+<view class="page">
+  <view class="top-band">
+    <view class="title">纽约 TLC 车牌违章查询</view>
+    <view class="subtitle">输入车牌号，查询公开车辆资料和停车 / 摄像头违章记录</view>
+  </view>
+
+  <view class="search-panel">
+    <view class="plate-row">
+      <input
+        class="plate-input"
+        value="{{plate}}"
+        maxlength="12"
+        confirm-type="search"
+        placeholder="例如 T702139C"
+        bindinput="onPlateInput"
+        bindconfirm="search"
+      />
+      <button class="search-button" loading="{{loading}}" bindtap="search">查询</button>
+    </view>
+    <view class="hint">数据来自 NYC Open Data。上线前请在微信公众平台配置 request 合法域名：data.cityofnewyork.us。</view>
+  </view>
+
+  <view wx:if="{{error}}" class="notice error">{{error}}</view>
+
+  <view wx:if="{{hasSearched && !loading}}" class="summary">
+    <view class="summary-item">
+      <view class="summary-value">{{vehicleCount}}</view>
+      <view class="summary-label">TLC 车辆记录</view>
+    </view>
+    <view class="summary-item">
+      <view class="summary-value">{{violationCount}}</view>
+      <view class="summary-label">违章记录</view>
+    </view>
+    <view class="summary-item">
+      <view class="summary-value">${{totalDue}}</view>
+      <view class="summary-label">未付金额</view>
+    </view>
+  </view>
+
+  <view wx:if="{{vehicles.length}}" class="section">
+    <view class="section-title">TLC 车辆信息</view>
+    <view wx:for="{{vehicles}}" wx:key="key" class="card">
+      <view class="card-head">
+        <view>
+          <view class="card-title">{{item.plate}}</view>
+          <view class="card-subtitle">{{item.source}}</view>
+        </view>
+        <view class="status {{item.activeClass}}">{{item.status}}</view>
+      </view>
+      <view class="info-grid">
+        <view class="info-cell">
+          <view class="info-label">TLC 牌照号</view>
+          <view class="info-value">{{item.licenseNumber}}</view>
+        </view>
+        <view class="info-cell">
+          <view class="info-label">类型</view>
+          <view class="info-value">{{item.type}}</view>
+        </view>
+        <view class="info-cell">
+          <view class="info-label">车主 / 公司</view>
+          <view class="info-value">{{item.name}}</view>
+        </view>
+        <view class="info-cell">
+          <view class="info-label">Base</view>
+          <view class="info-value">{{item.base}}</view>
+        </view>
+        <view class="info-cell">
+          <view class="info-label">到期 / 更新</view>
+          <view class="info-value">{{item.updated}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{violations.length}}" class="section">
+    <view class="section-title">违章记录</view>
+    <view wx:for="{{violations}}" wx:key="summonsNumber" class="card violation-card">
+      <view class="card-head">
+        <view>
+          <view class="card-title">{{item.violation}}</view>
+          <view class="card-subtitle">罚单号 {{item.summonsNumber}}</view>
+        </view>
+        <view class="money">${{item.amountDue}}</view>
+      </view>
+      <view class="detail-list">
+        <view class="detail-row">
+          <text>日期</text>
+          <text>{{item.issueDate}} {{item.violationTime}}</text>
+        </view>
+        <view class="detail-row">
+          <text>地点</text>
+          <text>{{item.county}} / Precinct {{item.precinct}}</text>
+        </view>
+        <view class="detail-row">
+          <text>机构</text>
+          <text>{{item.agency}}</text>
+        </view>
+        <view class="detail-row">
+          <text>罚金</text>
+          <text>Fine ${{item.fineAmount}} · Penalty ${{item.penaltyAmount}} · Paid ${{item.paymentAmount}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{hasSearched && !loading && !vehicles.length && !violations.length && !error}}" class="empty">
+    <view class="empty-title">没有找到公开记录</view>
+    <view class="empty-text">请确认车牌号拼写，或稍后再试。NYC Open Data 更新可能有延迟。</view>
+  </view>
+</view>
