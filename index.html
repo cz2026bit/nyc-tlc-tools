@@ -291,22 +291,28 @@
         align-items: center;
         justify-content: space-between;
         gap: 12px;
-        margin-bottom: 12px;
+        margin-bottom: 14px;
+        padding: 10px 12px;
+        border: 1px solid #dde5e2;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 10px 28px rgba(16, 32, 28, 0.08);
       }
 
       .back-button {
         width: auto;
-        min-width: 82px;
-        height: 40px;
-        padding: 0 14px;
-        border: 1px solid #cbd8d4;
-        background: #fff;
-        color: #143f37;
+        min-width: 106px;
+        height: 42px;
+        padding: 0 16px;
+        border: 0;
+        background: #e6f4ef;
+        color: #0f6b56;
         font-size: 14px;
+        line-height: 42px;
       }
 
       .module-name {
-        color: #fff;
+        color: #13221f;
         font-size: 15px;
         font-weight: 700;
       }
@@ -614,7 +620,6 @@
         }
 
         #submit,
-        .back-button,
         .small-button,
         .remove-button {
           width: 84px;
@@ -657,7 +662,7 @@
 
       <section class="wrap module hidden" id="tlc-module">
         <div class="module-bar">
-          <button class="back-button" type="button" data-back-home>返回</button>
+          <button class="back-button" type="button" data-back-home>‹ 返回首页</button>
           <div class="module-name">查 TLC 违章</div>
         </div>
         <form class="search" id="form">
@@ -673,7 +678,7 @@
 
       <section class="wrap module hidden" id="receipt-module">
         <div class="module-bar">
-          <button class="back-button" type="button" data-back-home>返回</button>
+          <button class="back-button" type="button" data-back-home>‹ 返回首页</button>
           <div class="module-name">洗车发票</div>
         </div>
         <section class="tool" id="receipt-tool">

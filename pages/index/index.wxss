@@ -85,23 +85,29 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: -28rpx 24rpx 12rpx;
+  gap: 16rpx;
+  margin: -28rpx 24rpx 16rpx;
+  padding: 16rpx 18rpx;
+  border: 1rpx solid #dde5e2;
+  border-radius: 8rpx;
+  background: #fff;
+  box-shadow: 0 10rpx 28rpx rgba(16, 32, 28, 0.08);
 }
 
 .back-button {
-  width: 116rpx;
-  height: 64rpx;
+  width: 180rpx;
+  height: 68rpx;
   margin: 0;
   padding: 0;
-  border: 1rpx solid #cbd8d4;
-  background: #fff;
-  color: #143f37;
+  border: 0;
+  background: #e6f4ef;
+  color: #0f6b56;
   font-size: 24rpx;
-  line-height: 64rpx;
+  line-height: 68rpx;
 }
 
 .module-name {
-  color: #fff;
+  color: #13221f;
   font-size: 25rpx;
   font-weight: 700;
 }

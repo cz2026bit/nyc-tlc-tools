@@ -19,7 +19,7 @@
 
   <block wx:if="{{currentModule === 'tlc'}}">
   <view class="module-bar">
-    <button class="back-button" bindtap="backHome">返回</button>
+    <button class="back-button" bindtap="backHome">‹ 返回首页</button>
     <view class="module-name">查 TLC 违章</view>
   </view>
 
@@ -130,7 +130,7 @@
 
   <block wx:if="{{currentModule === 'receipt'}}">
   <view class="module-bar">
-    <button class="back-button" bindtap="backHome">返回</button>
+    <button class="back-button" bindtap="backHome">‹ 返回首页</button>
     <view class="module-name">洗车发票</view>
   </view>
 
