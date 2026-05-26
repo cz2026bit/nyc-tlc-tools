@@ -1106,7 +1106,8 @@
         link.click();
       });
 
-      search(cleanPlate($("#plate").value));
+      const initialPlate = cleanPlate($("#plate").value);
+      if (initialPlate) search(initialPlate);
       renderReceiptAmounts();
     </script>
   </body>
