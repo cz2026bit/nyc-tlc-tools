@@ -27,6 +27,20 @@ function dollars(value) {
   return (value / 100).toFixed(2)
 }
 
+function receiptOverlayText(totalCents) {
+  const subtotal = Math.round(totalCents * 0.9)
+  const tax = totalCents - subtotal
+  return [
+    `full wash        ${dollars(subtotal).replace(".00", "")}`,
+    "----------------------",
+    `Subtotal      ${dollars(subtotal)}`,
+    `Sales Tax      ${dollars(tax)}`,
+    `Total         ${dollars(totalCents)}`,
+    "----------------------",
+    `Cash          ${dollars(totalCents)}`
+  ].join("\n")
+}
+
 function compact(value, fallback = "-") {
   return value === undefined || value === null || value === "" ? fallback : value
 }
@@ -123,7 +137,7 @@ Page({
     receiptDifference: "0.00",
     receiptDifferencePrefix: "",
     receiptStatus: "上传发票图片并输入最终金额后，可以保存带标记的金额说明图片。",
-    receiptOverlayText: "$0.00"
+    receiptOverlayText: receiptOverlayText(0)
   },
 
   openModule(event) {
@@ -259,7 +273,7 @@ Page({
       receiptTargetDisplay: dollars(target),
       receiptDifference: dollars(Math.abs(diff)),
       receiptDifferencePrefix: diff < 0 ? "-" : "",
-      receiptOverlayText: `调整金额\n$${dollars(target)}`,
+      receiptOverlayText: receiptOverlayText(target),
       receiptStatus: "图片上的金额已更新，可保存带标记的金额说明图片。"
     })
   },

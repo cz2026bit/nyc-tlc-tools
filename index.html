@@ -423,33 +423,35 @@
 
       .receipt-overlay {
         position: absolute;
-        left: 58%;
-        top: 72%;
-        min-width: 128px;
-        padding: 8px 12px;
-        border: 1px solid rgba(19, 34, 31, 0.2);
-        border-radius: 4px;
-        background: rgba(255, 255, 255, 0.94);
-        color: #111;
-        font-size: 24px;
-        font-weight: 800;
-        line-height: 1;
-        text-align: center;
+        left: 62%;
+        top: 54%;
+        min-width: 210px;
+        padding: 10px 12px;
+        color: #202522;
+        font-family: "Courier New", ui-monospace, monospace;
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1.22;
+        text-align: left;
         transform: translate(-50%, -50%);
-        box-shadow: 0 8px 20px rgba(16, 32, 28, 0.14);
         pointer-events: none;
         white-space: pre-line;
+        text-shadow: 0 0 1px rgba(32, 37, 34, 0.32);
       }
 
       .receipt-watermark {
         position: absolute;
-        left: 50%;
-        top: 50%;
-        color: rgba(19, 49, 43, 0.18);
-        font-size: 42px;
+        right: 18px;
+        bottom: 18px;
+        padding: 8px 12px;
+        border: 2px solid rgba(155, 44, 31, 0.8);
+        border-radius: 4px;
+        color: rgba(155, 44, 31, 0.9);
+        background: rgba(255, 255, 255, 0.72);
+        font-size: 20px;
         font-weight: 900;
         letter-spacing: 0;
-        transform: translate(-50%, -50%) rotate(-18deg);
+        transform: rotate(-8deg);
         pointer-events: none;
         white-space: nowrap;
       }
@@ -627,11 +629,11 @@
 
         .receipt-overlay {
           min-width: 112px;
-          font-size: 20px;
+          font-size: 14px;
         }
 
         .receipt-watermark {
-          font-size: 28px;
+          font-size: 16px;
         }
       }
     </style>
@@ -775,7 +777,18 @@
       }
 
       function overlayText() {
-        return `调整金额\n$${dollars(cents(receiptState.targetTotal))}`;
+        const total = cents(receiptState.targetTotal);
+        const subtotal = Math.round(total * 0.9);
+        const tax = total - subtotal;
+        return [
+          `full wash        ${dollars(subtotal).replace(".00", "")}`,
+          "----------------------",
+          `Subtotal      ${dollars(subtotal)}`,
+          `Sales Tax      ${dollars(tax)}`,
+          `Total         ${dollars(total)}`,
+          "----------------------",
+          `Cash          ${dollars(total)}`
+        ].join("\n");
       }
 
       function updateReceiptOverlay() {
@@ -990,7 +1003,7 @@
         $("#receipt-preview").innerHTML = `
           <img src="${receiptState.imageUrl}" alt="洗车发票预览" />
           <div class="receipt-overlay" id="receipt-amount-overlay">${overlayText()}</div>
-          <div class="receipt-watermark">ADJUSTED COPY</div>
+          <div class="receipt-watermark">AI修改效果</div>
           <div class="receipt-preview-tip">点击图片可移动金额位置</div>
         `;
         updateReceiptOverlay();
@@ -1056,26 +1069,35 @@
         const lineHeight = Math.round(fontSize * 1.08);
         const boxHeight = lineHeight * lines.length + padding * 1.45;
 
-        context.fillStyle = "rgba(255,255,255,0.94)";
+        context.fillStyle = "rgba(255,255,245,0.34)";
         context.fillRect(x - boxWidth / 2, y - boxHeight / 2, boxWidth, boxHeight);
-        context.strokeStyle = "rgba(0,0,0,0.22)";
-        context.strokeRect(x - boxWidth / 2, y - boxHeight / 2, boxWidth, boxHeight);
-        context.fillStyle = "#111";
+        context.fillStyle = "#202522";
         context.textAlign = "center";
         context.textBaseline = "middle";
+        context.shadowColor = "rgba(32,37,34,0.28)";
+        context.shadowBlur = 1;
         lines.forEach((line, index) => {
           const offset = (index - (lines.length - 1) / 2) * lineHeight;
           context.fillText(line, x, y + offset);
         });
+        context.shadowBlur = 0;
 
         context.save();
-        context.translate(canvas.width / 2, canvas.height / 2);
-        context.rotate(-Math.PI / 10);
-        context.font = `900 ${Math.max(42, Math.round(canvas.width * 0.08))}px Arial`;
-        context.fillStyle = "rgba(19,49,43,0.18)";
+        context.translate(canvas.width * 0.77, canvas.height * 0.86);
+        context.rotate(-Math.PI / 22);
+        context.font = `900 ${Math.max(28, Math.round(canvas.width * 0.04))}px Arial`;
+        context.fillStyle = "rgba(155,44,31,0.9)";
+        context.strokeStyle = "rgba(155,44,31,0.85)";
+        const stampText = "AI修改效果";
+        const stampWidth = context.measureText(stampText).width + fontSize;
+        const stampHeight = fontSize * 1.35;
+        context.fillStyle = "rgba(255,255,255,0.72)";
+        context.fillRect(-stampWidth / 2, -stampHeight / 2, stampWidth, stampHeight);
+        context.strokeRect(-stampWidth / 2, -stampHeight / 2, stampWidth, stampHeight);
+        context.fillStyle = "rgba(155,44,31,0.9)";
         context.textAlign = "center";
         context.textBaseline = "middle";
-        context.fillText("ADJUSTED COPY", 0, 0);
+        context.fillText(stampText, 0, 0);
         context.restore();
 
         const link = document.createElement("a");

@@ -149,7 +149,7 @@
         <view wx:if="{{receiptImage}}" class="receipt-image-wrap">
           <image class="receipt-image" src="{{receiptImage}}" mode="aspectFit" />
           <view class="receipt-overlay">{{receiptOverlayText}}</view>
-          <view class="receipt-watermark">ADJUSTED COPY</view>
+          <view class="receipt-watermark">AI修改效果</view>
         </view>
         <view wx:else class="receipt-placeholder">图片只在本机预览，不会上传服务器</view>
       </view>
