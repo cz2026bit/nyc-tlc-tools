@@ -1,23 +1,31 @@
 const http = require("http")
-const fs = require("fs/promises")
+const https = require("https")
+const fs = require("fs")
 const path = require("path")
+const fsp = fs.promises
 
 const publicRoot = __dirname
 const dataDir = path.join(__dirname, "data")
 const dataFile = path.join(dataDir, "plate-searches.json")
+const supabaseUrl = process.env.SUPABASE_URL || ""
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ""
+
+function hasSupabaseConfig() {
+  return Boolean(supabaseUrl && supabaseServiceRoleKey)
+}
 
 async function ensureStore() {
-  await fs.mkdir(dataDir, { recursive: true })
+  await fsp.mkdir(dataDir, { recursive: true })
   try {
-    await fs.access(dataFile)
+    await fsp.access(dataFile)
   } catch {
-    await fs.writeFile(dataFile, "[]", "utf8")
+    await fsp.writeFile(dataFile, "[]", "utf8")
   }
 }
 
 async function readStore() {
   await ensureStore()
-  const raw = await fs.readFile(dataFile, "utf8")
+  const raw = await fsp.readFile(dataFile, "utf8")
   try {
     const parsed = JSON.parse(raw)
     return Array.isArray(parsed) ? parsed : []
@@ -27,13 +35,73 @@ async function readStore() {
 }
 
 async function appendSearch(record) {
+  if (hasSupabaseConfig()) {
+    await appendSearchToSupabase(record)
+    return
+  }
+
   const items = await readStore()
   items.unshift({
     id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
     ...record,
     createdAt: new Date().toISOString()
   })
-  await fs.writeFile(dataFile, JSON.stringify(items, null, 2), "utf8")
+  await fsp.writeFile(dataFile, JSON.stringify(items, null, 2), "utf8")
+}
+
+function supabaseRequest(method, table, payload) {
+  const baseUrl = new URL(supabaseUrl)
+  const body = payload ? JSON.stringify(payload) : ""
+  const options = {
+    hostname: baseUrl.hostname,
+    path: `/rest/v1/${table}${method === "GET" ? "?select=*&order=created_at.desc" : ""}`,
+    method,
+    headers: {
+      apikey: supabaseServiceRoleKey,
+      Authorization: `Bearer ${supabaseServiceRoleKey}`,
+      "Content-Type": "application/json",
+      Prefer: "return=minimal"
+    }
+  }
+  if (body) options.headers["Content-Length"] = Buffer.byteLength(body)
+
+  return new Promise((resolve, reject) => {
+    const request = https.request(options, (response) => {
+      let data = ""
+      response.on("data", (chunk) => {
+        data += chunk
+      })
+      response.on("end", () => {
+        if (response.statusCode >= 200 && response.statusCode < 300) {
+          resolve(data ? JSON.parse(data) : null)
+          return
+        }
+        reject(new Error(data || `Supabase request failed (${response.statusCode})`))
+      })
+    })
+    request.on("error", reject)
+    if (body) request.write(body)
+    request.end()
+  })
+}
+
+async function appendSearchToSupabase(record) {
+  await supabaseRequest("POST", "plate_search_logs", {
+    plate: record.plate,
+    module: record.module,
+    vehicle_count: record.vehicleCount,
+    violation_count: record.violationCount,
+    total_due: record.totalDue,
+    status: record.status
+  })
+}
+
+async function readSearches() {
+  if (hasSupabaseConfig()) {
+    const rows = await supabaseRequest("GET", "plate_search_logs")
+    return Array.isArray(rows) ? rows : []
+  }
+  return readStore()
 }
 
 function sendJson(res, statusCode, payload) {
@@ -103,7 +171,7 @@ const server = http.createServer((req, res) => {
   }
 
   if (req.url === "/api/plate-searches" && req.method === "GET") {
-    readStore()
+    readSearches()
       .then((items) => sendJson(res, 200, { ok: true, items }))
       .catch((error) => sendJson(res, 500, { ok: false, error: error.message || "read_failed" }))
     return
@@ -111,7 +179,7 @@ const server = http.createServer((req, res) => {
 
   const urlPath = req.url === "/" ? "/index.html" : req.url.split("?")[0]
   const filePath = path.join(publicRoot, urlPath)
-  fs.readFile(filePath)
+  fsp.readFile(filePath)
     .then((data) => {
       res.writeHead(200, {
         "Content-Type": guessContentType(filePath),

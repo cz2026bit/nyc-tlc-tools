@@ -753,9 +753,11 @@
         return value === undefined || value === null || value === "" ? fallback : value;
       }
 
+      const API_BASE = window.API_BASE_URL || "";
+
       async function savePlateSearchRecord(record) {
         try {
-          const response = await fetch("/api/plate-searches", {
+          const response = await fetch(`${API_BASE}/api/plate-searches`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json"
