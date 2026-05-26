@@ -13,6 +13,25 @@
 3. 在微信公众平台后台把 `https://data.cityofnewyork.us` 加入 request 合法域名。
 4. 编译后输入车牌号测试，例如 `T702139C`。
 
+## 车牌查询入库到云端数据库
+
+如果你想把用户查询的车牌号记录到微信云数据库：
+
+1. 在微信开发者工具里开通云开发。
+2. 把云环境 ID 填到 `app.js` 的 `globalData.cloudEnvId`。
+3. 在云数据库里创建集合 `plate_search_logs`。
+4. 重新编译后，用户每次查询 TLC 车牌都会自动写入一条记录。
+
+会保存的字段包括：
+
+- `plate`
+- `module`
+- `searchedAt`
+- `vehicleCount`
+- `violationCount`
+- `totalDue`
+- `status`
+
 ## 洗车发票金额调整
 
 网页端和小程序端都包含洗车发票金额说明工具：

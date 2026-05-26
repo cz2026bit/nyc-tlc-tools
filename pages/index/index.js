@@ -6,6 +6,23 @@ const DATASETS = {
   parkingCameraViolations: "nc67-uf89"
 }
 
+function getAppConfig() {
+  try {
+    return getApp().globalData || {}
+  } catch (error) {
+    return {}
+  }
+}
+
+function getCloudDatabase() {
+  if (!wx.cloud || !wx.cloud.database) return null
+  try {
+    return wx.cloud.database()
+  } catch (error) {
+    return null
+  }
+}
+
 function cleanPlate(value) {
   return String(value || "")
     .toUpperCase()
@@ -64,6 +81,31 @@ function requestDataset(datasetId, params) {
       }
     })
   })
+}
+
+async function savePlateSearchRecord(record) {
+  const db = getCloudDatabase()
+  if (!db) return { ok: false, reason: "cloud_unavailable" }
+
+  const envId = getAppConfig().cloudEnvId
+  if (!envId) return { ok: false, reason: "env_missing" }
+
+  try {
+    await db.collection("plate_search_logs").add({
+      data: {
+        plate: record.plate,
+        module: "tlc",
+        searchedAt: db.serverDate(),
+        vehicleCount: record.vehicleCount,
+        violationCount: record.violationCount,
+        totalDue: record.totalDue,
+        status: record.status
+      }
+    })
+    return { ok: true }
+  } catch (error) {
+    return { ok: false, reason: error.message || "save_failed" }
+  }
 }
 
 function mapFhvVehicle(row) {
@@ -192,6 +234,13 @@ Page({
       ]
       const violations = violationRows.map(mapViolation)
       const totalDue = violations.reduce((sum, item) => sum + Number(item.amountDue || 0), 0)
+      const saveResult = await savePlateSearchRecord({
+        plate,
+        vehicleCount: vehicles.length,
+        violationCount: violations.length,
+        totalDue: totalDue.toFixed(2),
+        status: "success"
+      })
 
       this.setData({
         loading: false,
@@ -199,9 +248,20 @@ Page({
         violations,
         vehicleCount: vehicles.length,
         violationCount: violations.length,
-        totalDue: totalDue.toFixed(2)
+        totalDue: totalDue.toFixed(2),
+        error:
+          saveResult.ok || saveResult.reason === "env_missing"
+            ? ""
+            : "查询结果已返回，但车牌记录未写入云端数据库。"
       })
     } catch (error) {
+      await savePlateSearchRecord({
+        plate,
+        vehicleCount: 0,
+        violationCount: 0,
+        totalDue: "0.00",
+        status: "failed"
+      })
       this.setData({
         loading: false,
         error: error.message || "查询失败，请稍后再试。"
