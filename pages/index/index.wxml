@@ -1,7 +1,26 @@
 <view class="page">
   <view class="top-band">
     <view class="title">纽约 TLC 车牌违章查询</view>
-    <view class="subtitle">输入车牌号，查询公开车辆资料和停车 / 摄像头违章记录</view>
+    <view class="subtitle">选择功能模块，后续新工具会继续添加在这里</view>
+  </view>
+
+  <view wx:if="{{!currentModule}}" class="home-grid">
+    <button class="feature-card" data-module="tlc" bindtap="openModule">
+      <view class="feature-icon">T</view>
+      <view class="feature-title">查 TLC 违章</view>
+      <view class="feature-desc">输入车牌号，查询 TLC 车辆资料和违章记录</view>
+    </button>
+    <button class="feature-card" data-module="receipt" bindtap="openModule">
+      <view class="feature-icon">$</view>
+      <view class="feature-title">洗车发票</view>
+      <view class="feature-desc">上传发票图片，调整金额并生成预览</view>
+    </button>
+  </view>
+
+  <block wx:if="{{currentModule === 'tlc'}}">
+  <view class="module-bar">
+    <button class="back-button" bindtap="backHome">返回</button>
+    <view class="module-name">查 TLC 违章</view>
   </view>
 
   <view class="search-panel">
@@ -107,8 +126,15 @@
     <view class="empty-title">没有找到公开记录</view>
     <view class="empty-text">请确认车牌号拼写，或稍后再试。NYC Open Data 更新可能有延迟。</view>
   </view>
+  </block>
 
-  <view class="section">
+  <block wx:if="{{currentModule === 'receipt'}}">
+  <view class="module-bar">
+    <button class="back-button" bindtap="backHome">返回</button>
+    <view class="module-name">洗车发票</view>
+  </view>
+
+  <view class="section receipt-section">
     <view class="section-title">洗车发票金额调整</view>
     <view class="card receipt-card">
       <view class="card-head">
@@ -120,7 +146,10 @@
       </view>
 
       <view class="receipt-preview">
-        <image wx:if="{{receiptImage}}" class="receipt-image" src="{{receiptImage}}" mode="aspectFit" />
+        <view wx:if="{{receiptImage}}" class="receipt-image-wrap">
+          <image class="receipt-image" src="{{receiptImage}}" mode="aspectFit" />
+          <view class="receipt-overlay">{{receiptOverlayText}}</view>
+        </view>
         <view wx:else class="receipt-placeholder">图片只在本机预览，不会上传服务器</view>
       </view>
 
@@ -172,4 +201,5 @@
       </view>
     </view>
   </view>
+  </block>
 </view>

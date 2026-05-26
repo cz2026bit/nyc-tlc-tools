@@ -230,8 +230,88 @@
         color: #6b7672;
       }
 
+      .home {
+        margin-top: -28px;
+      }
+
+      .home-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .feature-card {
+        min-height: 150px;
+        padding: 18px;
+        border: 1px solid #dde5e2;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 10px 28px rgba(16, 32, 28, 0.08);
+        text-align: left;
+      }
+
+      .feature-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        border-radius: 8px;
+        background: #e6f4ef;
+        color: #0f6b56;
+        font-size: 22px;
+        font-weight: 800;
+      }
+
+      .feature-title {
+        margin-top: 14px;
+        color: #13221f;
+        font-size: 19px;
+        font-weight: 800;
+      }
+
+      .feature-desc {
+        margin-top: 7px;
+        color: #68736f;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .module {
+        margin-top: -28px;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      .module-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .back-button {
+        width: auto;
+        min-width: 82px;
+        height: 40px;
+        padding: 0 14px;
+        border: 1px solid #cbd8d4;
+        background: #fff;
+        color: #143f37;
+        font-size: 14px;
+      }
+
+      .module-name {
+        color: #fff;
+        font-size: 15px;
+        font-weight: 700;
+      }
+
       .tool {
-        margin-top: 24px;
+        margin-top: 0;
         padding: 16px;
         background: #fff;
         border: 1px solid #dde5e2;
@@ -305,6 +385,7 @@
       }
 
       .receipt-preview {
+        position: relative;
         min-height: 220px;
         overflow: hidden;
         border: 1px dashed #b8c7c2;
@@ -325,6 +406,42 @@
         max-height: 420px;
         object-fit: contain;
         display: block;
+      }
+
+      .receipt-preview.has-image {
+        align-items: stretch;
+        justify-content: stretch;
+        background: #fff;
+      }
+
+      .receipt-overlay {
+        position: absolute;
+        left: 58%;
+        top: 72%;
+        min-width: 128px;
+        padding: 8px 12px;
+        border: 1px solid rgba(19, 34, 31, 0.2);
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.94);
+        color: #111;
+        font-size: 24px;
+        font-weight: 800;
+        line-height: 1;
+        text-align: center;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 8px 20px rgba(16, 32, 28, 0.14);
+        pointer-events: none;
+      }
+
+      .receipt-preview-tip {
+        position: absolute;
+        left: 10px;
+        bottom: 10px;
+        padding: 6px 8px;
+        border-radius: 4px;
+        background: rgba(19, 49, 43, 0.84);
+        color: #fff;
+        font-size: 12px;
       }
 
       .amount-panel {
@@ -413,7 +530,8 @@
 
         .tool-head,
         .receipt-layout,
-        .target-row {
+        .target-row,
+        .home-grid {
           grid-template-columns: 1fr;
         }
 
@@ -444,7 +562,26 @@
         </div>
       </section>
 
-      <section class="wrap">
+      <section class="wrap home" id="home-screen">
+        <div class="home-grid">
+          <button class="feature-card" type="button" data-open-module="tlc">
+            <span class="feature-icon">T</span>
+            <div class="feature-title">查 TLC 违章</div>
+            <div class="feature-desc">输入车牌号，查询 TLC 车辆资料和停车 / 摄像头违章记录。</div>
+          </button>
+          <button class="feature-card" type="button" data-open-module="receipt">
+            <span class="feature-icon">$</span>
+            <div class="feature-title">洗车发票</div>
+            <div class="feature-desc">上传发票图片，调整金额项，并生成最终金额一致的发票预览。</div>
+          </button>
+        </div>
+      </section>
+
+      <section class="wrap module hidden" id="tlc-module">
+        <div class="module-bar">
+          <button class="back-button" type="button" data-back-home>返回</button>
+          <div class="module-name">查 TLC 违章</div>
+        </div>
         <form class="search" id="form">
           <div class="row">
             <input id="plate" value="T702139C" maxlength="12" autocomplete="off" />
@@ -454,12 +591,18 @@
         </form>
 
         <div id="result"></div>
+      </section>
 
+      <section class="wrap module hidden" id="receipt-module">
+        <div class="module-bar">
+          <button class="back-button" type="button" data-back-home>返回</button>
+          <div class="module-name">洗车发票</div>
+        </div>
         <section class="tool" id="receipt-tool">
           <div class="tool-head">
             <div>
               <div class="tool-title">洗车发票金额调整</div>
-              <div class="tool-subtitle">上传洗车发票图片，录入发票里的金额项，再输入最终金额；系统会按比例自动调整每一项，让合计等于最终金额。</div>
+              <div class="tool-subtitle">上传洗车发票图片，录入发票里的金额项，再输入最终金额；系统会按比例自动调整每一项，并把最终金额同步显示到发票图片上。</div>
             </div>
             <label class="upload-button">
               上传发票
@@ -480,6 +623,7 @@
 
               <div class="amount-lines" id="amount-lines"></div>
               <button class="secondary-button" id="add-amount" type="button">添加金额项</button>
+              <button class="secondary-button" id="export-receipt" type="button">导出修改后发票图片</button>
 
               <div class="receipt-summary">
                 <div><div class="num" id="current-total">$0.00</div><div class="label">当前合计</div></div>
@@ -505,8 +649,11 @@
       const result = $("#result");
       const receiptState = {
         imageUrl: "",
+        imageElement: null,
         targetTotal: "",
-        amounts: ["0.00", "0.00"]
+        amounts: ["0.00", "0.00"],
+        overlayX: 58,
+        overlayY: 72
       };
 
       function cleanPlate(value) {
@@ -537,6 +684,25 @@
         return { current, target, diff: target - current };
       }
 
+      function showModule(name) {
+        $("#home-screen").classList.toggle("hidden", Boolean(name));
+        $("#tlc-module").classList.toggle("hidden", name !== "tlc");
+        $("#receipt-module").classList.toggle("hidden", name !== "receipt");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function overlayText() {
+        return `$${dollars(cents(receiptState.targetTotal))}`;
+      }
+
+      function updateReceiptOverlay() {
+        const overlay = $("#receipt-amount-overlay");
+        if (!overlay) return;
+        overlay.textContent = overlayText();
+        overlay.style.left = `${receiptState.overlayX}%`;
+        overlay.style.top = `${receiptState.overlayY}%`;
+      }
+
       function renderReceiptAmounts() {
         const lines = $("#amount-lines");
         lines.innerHTML = receiptState.amounts
@@ -559,6 +725,7 @@
         $("#receipt-status").textContent = diff === 0
           ? "金额已经匹配，所有金额项相加等于最终金额。"
           : `还差 ${diff < 0 ? "-" : ""}$${dollars(Math.abs(diff))}，点击自动调整可重新分配。`;
+        updateReceiptOverlay();
       }
 
       function adjustReceiptAmounts() {
@@ -721,12 +888,36 @@
         search(plate);
       });
 
+      document.querySelectorAll("[data-open-module]").forEach((button) => {
+        button.addEventListener("click", () => showModule(button.dataset.openModule));
+      });
+
+      document.querySelectorAll("[data-back-home]").forEach((button) => {
+        button.addEventListener("click", () => showModule(""));
+      });
+
       $("#receipt-file").addEventListener("change", (event) => {
         const file = event.target.files && event.target.files[0];
         if (!file) return;
         if (receiptState.imageUrl) URL.revokeObjectURL(receiptState.imageUrl);
         receiptState.imageUrl = URL.createObjectURL(file);
-        $("#receipt-preview").innerHTML = `<img src="${receiptState.imageUrl}" alt="洗车发票预览" />`;
+        receiptState.imageElement = new Image();
+        receiptState.imageElement.src = receiptState.imageUrl;
+        $("#receipt-preview").classList.add("has-image");
+        $("#receipt-preview").innerHTML = `
+          <img src="${receiptState.imageUrl}" alt="洗车发票预览" />
+          <div class="receipt-overlay" id="receipt-amount-overlay">${overlayText()}</div>
+          <div class="receipt-preview-tip">点击图片可移动金额位置</div>
+        `;
+        updateReceiptOverlay();
+      });
+
+      $("#receipt-preview").addEventListener("click", (event) => {
+        if (!receiptState.imageUrl) return;
+        const rect = event.currentTarget.getBoundingClientRect();
+        receiptState.overlayX = Math.max(5, Math.min(95, ((event.clientX - rect.left) / rect.width) * 100));
+        receiptState.overlayY = Math.max(5, Math.min(95, ((event.clientY - rect.top) / rect.height) * 100));
+        updateReceiptOverlay();
       });
 
       $("#target-total").addEventListener("input", (event) => {
@@ -755,6 +946,44 @@
       });
 
       $("#adjust-amounts").addEventListener("click", adjustReceiptAmounts);
+
+      $("#export-receipt").addEventListener("click", () => {
+        if (!receiptState.imageElement || !receiptState.imageElement.complete) {
+          $("#receipt-status").textContent = "请先上传发票图片，再导出修改后图片。";
+          return;
+        }
+
+        const image = receiptState.imageElement;
+        const canvas = document.createElement("canvas");
+        canvas.width = image.naturalWidth || image.width;
+        canvas.height = image.naturalHeight || image.height;
+        const context = canvas.getContext("2d");
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+        const text = overlayText();
+        const x = (receiptState.overlayX / 100) * canvas.width;
+        const y = (receiptState.overlayY / 100) * canvas.height;
+        const fontSize = Math.max(28, Math.round(canvas.width * 0.045));
+        context.font = `800 ${fontSize}px Arial`;
+        const metrics = context.measureText(text);
+        const padding = Math.round(fontSize * 0.45);
+        const boxWidth = metrics.width + padding * 2;
+        const boxHeight = fontSize + padding * 1.35;
+
+        context.fillStyle = "rgba(255,255,255,0.94)";
+        context.fillRect(x - boxWidth / 2, y - boxHeight / 2, boxWidth, boxHeight);
+        context.strokeStyle = "rgba(0,0,0,0.22)";
+        context.strokeRect(x - boxWidth / 2, y - boxHeight / 2, boxWidth, boxHeight);
+        context.fillStyle = "#111";
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+        context.fillText(text, x, y);
+
+        const link = document.createElement("a");
+        link.download = "car-wash-receipt-adjusted.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
 
       search(cleanPlate($("#plate").value));
       renderReceiptAmounts();

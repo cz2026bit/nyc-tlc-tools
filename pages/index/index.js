@@ -102,6 +102,7 @@ function mapViolation(row) {
 
 Page({
   data: {
+    currentModule: "",
     plate: "",
     loading: false,
     error: "",
@@ -121,7 +122,16 @@ Page({
     receiptTargetDisplay: "0.00",
     receiptDifference: "0.00",
     receiptDifferencePrefix: "",
-    receiptStatus: "先录入发票上的金额，再输入最终金额。"
+    receiptStatus: "先录入发票上的金额，再输入最终金额。",
+    receiptOverlayText: "$0.00"
+  },
+
+  openModule(event) {
+    this.setData({ currentModule: event.currentTarget.dataset.module })
+  },
+
+  backHome() {
+    this.setData({ currentModule: "" })
   },
 
   onPlateInput(event) {
@@ -249,6 +259,7 @@ Page({
       receiptTargetDisplay: dollars(target),
       receiptDifference: dollars(Math.abs(diff)),
       receiptDifferencePrefix: diff < 0 ? "-" : "",
+      receiptOverlayText: `$${dollars(target)}`,
       receiptStatus: diff === 0
         ? "金额已经匹配，所有金额项相加等于最终金额。"
         : `还差 ${diff < 0 ? "-" : ""}$${dollars(Math.abs(diff))}，点击自动调整可重新分配。`
