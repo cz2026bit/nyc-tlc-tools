@@ -46,3 +46,21 @@ npm start
 - `data/plate-searches.json`
 
 如果配置了 `SUPABASE_URL` 和 `SUPABASE_SERVICE_ROLE_KEY`，记录会写入 Supabase 的 `plate_search_logs` 表，不再写本地 JSON。
+
+## 本地开发环境
+
+1. 复制 `.env.example` 为 `.env`
+2. 填入：
+   - `SUPABASE_URL`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+3. 启动：
+
+```bash
+npm start
+```
+
+本地访问地址：
+
+- `http://127.0.0.1:8787/`
+
+如果 `.env` 留空，后端会退回到本地文件存储，数据写入 `data/plate-searches.json`。

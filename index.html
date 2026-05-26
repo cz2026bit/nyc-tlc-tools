@@ -656,8 +656,8 @@
           </button>
           <button class="feature-card" type="button" data-open-module="receipt">
             <span class="feature-icon">$</span>
-            <div class="feature-title">洗车发票</div>
-            <div class="feature-desc">上传发票图片，输入一个金额，生成带清晰标记的金额说明图。</div>
+            <div class="feature-title">票据训练示例</div>
+            <div class="feature-desc">上传票据图片，输入一个金额，生成带清晰标记的训练示例图。</div>
           </button>
         </div>
       </section>
@@ -681,22 +681,22 @@
       <section class="wrap module hidden" id="receipt-module">
         <div class="module-bar">
           <button class="back-button" type="button" data-back-home>‹ 返回首页</button>
-          <div class="module-name">洗车发票</div>
+          <div class="module-name">票据训练示例</div>
         </div>
         <section class="tool" id="receipt-tool">
           <div class="tool-head">
             <div>
-              <div class="tool-title">洗车发票金额调整</div>
-              <div class="tool-subtitle">上传洗车发票图片，只输入一个最终金额；系统会把该金额显示到图片上，并保留“调整说明”标记，避免冒充原始发票。</div>
+              <div class="tool-title">票据训练示例生成</div>
+              <div class="tool-subtitle">上传票据图片，只输入一个最终金额；系统会生成带训练标记的示例图，仅供训练数据、界面演示和识别测试使用。</div>
             </div>
             <label class="upload-button">
-              上传发票
+              上传票据
               <input class="file-input" id="receipt-file" type="file" accept="image/*" />
             </label>
           </div>
 
           <div class="receipt-layout">
-            <div class="receipt-preview" id="receipt-preview">请选择一张洗车发票图片<br />图片只在本机浏览器预览，不会上传服务器</div>
+            <div class="receipt-preview" id="receipt-preview">请选择一张票据图片<br />图片只在本机浏览器预览，不会上传服务器，仅用于训练示例生成</div>
             <div class="amount-panel">
               <div class="target-row">
                 <label>
@@ -708,14 +708,14 @@
 
               <div class="amount-lines" id="amount-lines"></div>
               <button class="secondary-button" id="add-amount" type="button">添加金额项</button>
-              <button class="secondary-button" id="export-receipt" type="button">保存金额说明图片</button>
+              <button class="secondary-button" id="export-receipt" type="button">保存训练示例图片</button>
 
               <div class="receipt-summary">
                 <div><div class="num" id="current-total">$0.00</div><div class="label">当前合计</div></div>
                 <div><div class="num" id="target-display">$0.00</div><div class="label">最终金额</div></div>
                 <div><div class="num" id="difference-display">$0.00</div><div class="label">差额</div></div>
               </div>
-              <div class="receipt-status" id="receipt-status">上传发票图片并输入最终金额后，可以保存带标记的金额说明图片。</div>
+              <div class="receipt-status" id="receipt-status">上传票据图片并输入最终金额后，可以保存带训练标记的示例图片，仅供训练数据使用。</div>
             </div>
           </div>
         </section>
@@ -836,8 +836,8 @@
         $("#target-display").textContent = `$${dollars(target)}`;
         $("#difference-display").textContent = `${diff < 0 ? "-" : ""}$${dollars(Math.abs(diff))}`;
         $("#receipt-status").textContent = diff === 0
-          ? "图片上的金额已更新，可保存金额说明图片。"
-          : "图片上的金额已更新，可保存金额说明图片。";
+          ? "图片上的金额已更新，可保存训练示例图片，仅供训练数据使用。"
+          : "图片上的金额已更新，可保存训练示例图片，仅供训练数据使用。";
         updateReceiptOverlay();
       }
 
@@ -1034,9 +1034,9 @@
         receiptState.imageElement.src = receiptState.imageUrl;
         $("#receipt-preview").classList.add("has-image");
         $("#receipt-preview").innerHTML = `
-          <img src="${receiptState.imageUrl}" alt="洗车发票预览" />
+          <img src="${receiptState.imageUrl}" alt="票据训练示例预览" />
           <div class="receipt-overlay" id="receipt-amount-overlay">${overlayText()}</div>
-          <div class="receipt-watermark">AI修改效果</div>
+          <div class="receipt-watermark">TRAINING SAMPLE</div>
           <div class="receipt-preview-tip">点击图片可移动金额位置</div>
         `;
         updateReceiptOverlay();
@@ -1079,7 +1079,7 @@
 
       $("#export-receipt").addEventListener("click", () => {
         if (!receiptState.imageElement || !receiptState.imageElement.complete) {
-          $("#receipt-status").textContent = "请先上传发票图片，再导出修改后图片。";
+          $("#receipt-status").textContent = "请先上传票据图片，再导出训练示例图片。";
           return;
         }
 
@@ -1121,7 +1121,7 @@
         context.font = `900 ${Math.max(28, Math.round(canvas.width * 0.04))}px Arial`;
         context.fillStyle = "rgba(155,44,31,0.9)";
         context.strokeStyle = "rgba(155,44,31,0.85)";
-        const stampText = "AI修改效果";
+        const stampText = "TRAINING SAMPLE";
         const stampWidth = context.measureText(stampText).width + fontSize;
         const stampHeight = fontSize * 1.35;
         context.fillStyle = "rgba(255,255,255,0.72)";
@@ -1134,7 +1134,7 @@
         context.restore();
 
         const link = document.createElement("a");
-        link.download = "car-wash-receipt-adjusted.png";
+        link.download = "training-sample-receipt.png";
         link.href = canvas.toDataURL("image/png");
         link.click();
       });

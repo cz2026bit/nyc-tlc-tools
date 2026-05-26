@@ -178,7 +178,7 @@ Page({
     receiptTargetDisplay: "0.00",
     receiptDifference: "0.00",
     receiptDifferencePrefix: "",
-    receiptStatus: "上传发票图片并输入最终金额后，可以保存带标记的金额说明图片。",
+    receiptStatus: "上传票据图片并输入最终金额后，可以保存带训练标记的示例图片，仅供训练数据使用。",
     receiptOverlayText: receiptOverlayText(0)
   },
 
@@ -334,7 +334,7 @@ Page({
       receiptDifference: dollars(Math.abs(diff)),
       receiptDifferencePrefix: diff < 0 ? "-" : "",
       receiptOverlayText: receiptOverlayText(target),
-      receiptStatus: "图片上的金额已更新，可保存带标记的金额说明图片。"
+      receiptStatus: "图片上的金额已更新，可保存带训练标记的示例图片，仅供训练数据使用。"
     })
   },
 

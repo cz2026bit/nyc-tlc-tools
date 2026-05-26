@@ -12,8 +12,8 @@
     </button>
     <button class="feature-card" data-module="receipt" bindtap="openModule">
       <view class="feature-icon">$</view>
-      <view class="feature-title">洗车发票</view>
-      <view class="feature-desc">上传图片，输入金额，生成带标记的金额说明图</view>
+      <view class="feature-title">票据训练示例</view>
+      <view class="feature-desc">上传图片，输入金额，生成带标记的训练示例图</view>
     </button>
   </view>
 
@@ -131,16 +131,16 @@
   <block wx:if="{{currentModule === 'receipt'}}">
   <view class="module-bar">
     <button class="back-button" bindtap="backHome">‹ 返回首页</button>
-    <view class="module-name">洗车发票</view>
+    <view class="module-name">票据训练示例</view>
   </view>
 
   <view class="section receipt-section">
-    <view class="section-title">洗车发票金额调整</view>
+    <view class="section-title">票据训练示例生成</view>
     <view class="card receipt-card">
       <view class="card-head">
         <view>
-          <view class="card-title">上传洗车发票</view>
-          <view class="card-subtitle">只输入最终金额，图片会同步显示带标记的金额说明</view>
+          <view class="card-title">上传票据图片</view>
+          <view class="card-subtitle">只输入最终金额，图片会同步显示带训练标记的示例说明</view>
         </view>
         <button class="mini-button" bindtap="chooseReceiptImage">上传</button>
       </view>
@@ -149,9 +149,9 @@
         <view wx:if="{{receiptImage}}" class="receipt-image-wrap">
           <image class="receipt-image" src="{{receiptImage}}" mode="aspectFit" />
           <view class="receipt-overlay">{{receiptOverlayText}}</view>
-          <view class="receipt-watermark">AI修改效果</view>
+          <view class="receipt-watermark">TRAINING SAMPLE</view>
         </view>
-        <view wx:else class="receipt-placeholder">图片只在本机预览，不会上传服务器</view>
+        <view wx:else class="receipt-placeholder">图片只在本机预览，不会上传服务器，仅用于训练示例生成</view>
       </view>
 
       <view class="receipt-form">

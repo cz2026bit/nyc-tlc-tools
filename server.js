@@ -7,8 +7,39 @@ const fsp = fs.promises
 const publicRoot = __dirname
 const dataDir = path.join(__dirname, "data")
 const dataFile = path.join(dataDir, "plate-searches.json")
+
+loadEnvFile()
+
 const supabaseUrl = process.env.SUPABASE_URL || ""
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ""
+
+function loadEnvFile() {
+  const envPath = path.join(__dirname, ".env")
+  if (!fs.existsSync(envPath)) return
+
+  const content = fs.readFileSync(envPath, "utf8")
+  content.split(/\r?\n/).forEach((line) => {
+    const trimmed = line.trim()
+    if (!trimmed || trimmed.startsWith("#")) return
+
+    const separatorIndex = trimmed.indexOf("=")
+    if (separatorIndex <= 0) return
+
+    const key = trimmed.slice(0, separatorIndex).trim()
+    let value = trimmed.slice(separatorIndex + 1).trim()
+
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1)
+    }
+
+    if (!(key in process.env)) {
+      process.env[key] = value
+    }
+  })
+}
 
 function hasSupabaseConfig() {
   return Boolean(supabaseUrl && supabaseServiceRoleKey)
