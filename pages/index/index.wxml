@@ -107,4 +107,69 @@
     <view class="empty-title">没有找到公开记录</view>
     <view class="empty-text">请确认车牌号拼写，或稍后再试。NYC Open Data 更新可能有延迟。</view>
   </view>
+
+  <view class="section">
+    <view class="section-title">洗车发票金额调整</view>
+    <view class="card receipt-card">
+      <view class="card-head">
+        <view>
+          <view class="card-title">上传洗车发票</view>
+          <view class="card-subtitle">录入发票里的金额项，输入最终金额后自动重新分配</view>
+        </view>
+        <button class="mini-button" bindtap="chooseReceiptImage">上传</button>
+      </view>
+
+      <view class="receipt-preview">
+        <image wx:if="{{receiptImage}}" class="receipt-image" src="{{receiptImage}}" mode="aspectFit" />
+        <view wx:else class="receipt-placeholder">图片只在本机预览，不会上传服务器</view>
+      </view>
+
+      <view class="receipt-form">
+        <view class="field-label">最终金额</view>
+        <view class="target-row">
+          <input
+            class="money-input"
+            type="digit"
+            value="{{receiptTargetTotal}}"
+            placeholder="例如 85.00"
+            bindinput="onReceiptTargetInput"
+          />
+          <button class="adjust-button" bindtap="adjustReceiptAmounts">自动调整</button>
+        </view>
+
+        <view class="amount-list">
+          <view wx:for="{{receiptAmounts}}" wx:key="id" class="amount-row">
+            <view class="amount-index">{{index + 1}}</view>
+            <input
+              class="money-input"
+              type="digit"
+              value="{{item.value}}"
+              data-index="{{index}}"
+              bindinput="onReceiptAmountInput"
+            />
+            <button class="remove-button" data-index="{{index}}" bindtap="removeReceiptAmount">×</button>
+          </view>
+        </view>
+
+        <button class="add-button" bindtap="addReceiptAmount">添加金额项</button>
+
+        <view class="receipt-summary">
+          <view class="summary-item">
+            <view class="summary-value">${{receiptCurrentTotal}}</view>
+            <view class="summary-label">当前合计</view>
+          </view>
+          <view class="summary-item">
+            <view class="summary-value">${{receiptTargetDisplay}}</view>
+            <view class="summary-label">最终金额</view>
+          </view>
+          <view class="summary-item">
+            <view class="summary-value">{{receiptDifferencePrefix}}${{receiptDifference}}</view>
+            <view class="summary-label">差额</view>
+          </view>
+        </view>
+
+        <view class="receipt-status">{{receiptStatus}}</view>
+      </view>
+    </view>
+  </view>
 </view>

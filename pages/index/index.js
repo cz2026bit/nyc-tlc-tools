@@ -17,6 +17,16 @@ function money(value) {
   return number.toFixed(2)
 }
 
+function cents(value) {
+  const number = Number(String(value || "").replace(/[^0-9.-]/g, ""))
+  if (!Number.isFinite(number)) return 0
+  return Math.round(number * 100)
+}
+
+function dollars(value) {
+  return (value / 100).toFixed(2)
+}
+
 function compact(value, fallback = "-") {
   return value === undefined || value === null || value === "" ? fallback : value
 }
@@ -100,7 +110,18 @@ Page({
     violations: [],
     vehicleCount: 0,
     violationCount: 0,
-    totalDue: "0.00"
+    totalDue: "0.00",
+    receiptImage: "",
+    receiptTargetTotal: "",
+    receiptAmounts: [
+      { id: 1, value: "0.00" },
+      { id: 2, value: "0.00" }
+    ],
+    receiptCurrentTotal: "0.00",
+    receiptTargetDisplay: "0.00",
+    receiptDifference: "0.00",
+    receiptDifferencePrefix: "",
+    receiptStatus: "先录入发票上的金额，再输入最终金额。"
   },
 
   onPlateInput(event) {
@@ -162,5 +183,104 @@ Page({
         error: error.message || "查询失败，请稍后再试。"
       })
     }
+  },
+
+  chooseReceiptImage() {
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ["image"],
+      sourceType: ["album", "camera"],
+      success: (res) => {
+        const file = res.tempFiles && res.tempFiles[0]
+        if (file) {
+          this.setData({ receiptImage: file.tempFilePath })
+        }
+      }
+    })
+  },
+
+  onReceiptTargetInput(event) {
+    this.setData({ receiptTargetTotal: event.detail.value }, () => {
+      this.updateReceiptTotals()
+    })
+  },
+
+  onReceiptAmountInput(event) {
+    const index = Number(event.currentTarget.dataset.index)
+    const receiptAmounts = this.data.receiptAmounts.slice()
+    if (!receiptAmounts[index]) return
+    receiptAmounts[index] = {
+      ...receiptAmounts[index],
+      value: event.detail.value
+    }
+    this.setData({ receiptAmounts }, () => {
+      this.updateReceiptTotals()
+    })
+  },
+
+  addReceiptAmount() {
+    const receiptAmounts = this.data.receiptAmounts.concat({
+      id: Date.now(),
+      value: "0.00"
+    })
+    this.setData({ receiptAmounts }, () => {
+      this.updateReceiptTotals()
+    })
+  },
+
+  removeReceiptAmount(event) {
+    const index = Number(event.currentTarget.dataset.index)
+    let receiptAmounts = this.data.receiptAmounts.slice()
+    receiptAmounts.splice(index, 1)
+    if (!receiptAmounts.length) {
+      receiptAmounts = [{ id: Date.now(), value: "0.00" }]
+    }
+    this.setData({ receiptAmounts }, () => {
+      this.updateReceiptTotals()
+    })
+  },
+
+  updateReceiptTotals() {
+    const current = this.data.receiptAmounts.reduce((sum, item) => sum + cents(item.value), 0)
+    const target = cents(this.data.receiptTargetTotal)
+    const diff = target - current
+    this.setData({
+      receiptCurrentTotal: dollars(current),
+      receiptTargetDisplay: dollars(target),
+      receiptDifference: dollars(Math.abs(diff)),
+      receiptDifferencePrefix: diff < 0 ? "-" : "",
+      receiptStatus: diff === 0
+        ? "金额已经匹配，所有金额项相加等于最终金额。"
+        : `还差 ${diff < 0 ? "-" : ""}$${dollars(Math.abs(diff))}，点击自动调整可重新分配。`
+    })
+  },
+
+  adjustReceiptAmounts() {
+    const target = cents(this.data.receiptTargetTotal)
+    let receiptAmounts = this.data.receiptAmounts.slice()
+    if (!receiptAmounts.length) {
+      receiptAmounts = [{ id: Date.now(), value: dollars(target) }]
+    }
+
+    const original = receiptAmounts.map((item) => cents(item.value))
+    const total = original.reduce((sum, value) => sum + value, 0)
+    let adjusted
+
+    if (total <= 0) {
+      const base = Math.floor(target / original.length)
+      adjusted = original.map(() => base)
+    } else {
+      adjusted = original.map((value) => Math.floor((value * target) / total))
+    }
+
+    const adjustedTotal = adjusted.reduce((sum, value) => sum + value, 0)
+    adjusted[adjusted.length - 1] += target - adjustedTotal
+    receiptAmounts = receiptAmounts.map((item, index) => ({
+      ...item,
+      value: dollars(adjusted[index])
+    }))
+    this.setData({ receiptAmounts }, () => {
+      this.updateReceiptTotals()
+    })
   }
 })

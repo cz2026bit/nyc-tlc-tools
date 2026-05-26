@@ -230,10 +230,199 @@
         color: #6b7672;
       }
 
+      .tool {
+        margin-top: 24px;
+        padding: 16px;
+        background: #fff;
+        border: 1px solid #dde5e2;
+        border-radius: 8px;
+      }
+
+      .tool-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: flex-start;
+      }
+
+      .tool-title {
+        font-size: 19px;
+        font-weight: 800;
+      }
+
+      .tool-subtitle {
+        margin-top: 5px;
+        color: #68736f;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .upload-button,
+      .small-button,
+      .secondary-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 42px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .upload-button {
+        flex-shrink: 0;
+        width: 116px;
+        background: #143f37;
+        color: #fff;
+      }
+
+      .small-button,
+      .secondary-button {
+        border: 1px solid #cbd8d4;
+        background: #fff;
+        color: #143f37;
+      }
+
+      .secondary-button {
+        width: 100%;
+        margin-top: 10px;
+      }
+
+      .small-button {
+        width: 72px;
+      }
+
+      .file-input {
+        display: none;
+      }
+
+      .receipt-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+        gap: 16px;
+        margin-top: 16px;
+      }
+
+      .receipt-preview {
+        min-height: 220px;
+        overflow: hidden;
+        border: 1px dashed #b8c7c2;
+        border-radius: 8px;
+        background: #f8faf9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #73807b;
+        text-align: center;
+        font-size: 14px;
+        line-height: 1.45;
+      }
+
+      .receipt-preview img {
+        width: 100%;
+        height: 100%;
+        max-height: 420px;
+        object-fit: contain;
+        display: block;
+      }
+
+      .amount-panel {
+        min-width: 0;
+      }
+
+      .field-label {
+        display: block;
+        margin-bottom: 7px;
+        color: #53605c;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .target-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 120px;
+        gap: 10px;
+        align-items: end;
+      }
+
+      .target-input,
+      .amount-input {
+        width: 100%;
+        text-transform: none;
+      }
+
+      .amount-lines {
+        margin-top: 14px;
+      }
+
+      .amount-line {
+        display: grid;
+        grid-template-columns: 26px minmax(0, 1fr) 42px;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      .line-index {
+        color: #73807b;
+        font-size: 13px;
+        text-align: center;
+      }
+
+      .remove-button {
+        width: 42px;
+        height: 42px;
+        border: 1px solid #e1c3bb;
+        background: #fff8f6;
+        color: #9b2c1f;
+        font-size: 20px;
+        line-height: 42px;
+      }
+
+      .receipt-summary {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      .receipt-summary > div {
+        padding: 12px 8px;
+        border-radius: 8px;
+        background: #f8faf9;
+        border: 1px solid #e2e9e6;
+        text-align: center;
+      }
+
+      .receipt-status {
+        margin-top: 12px;
+        padding: 12px;
+        border-radius: 8px;
+        background: #eef8f5;
+        color: #0f6b56;
+        font-size: 14px;
+        line-height: 1.45;
+      }
+
       @media (max-width: 520px) {
         .row,
         .head {
           align-items: stretch;
+        }
+
+        .tool-head,
+        .receipt-layout,
+        .target-row {
+          grid-template-columns: 1fr;
+        }
+
+        .tool-head {
+          display: grid;
+        }
+
+        .upload-button {
+          width: 100%;
         }
 
         .grid {
@@ -265,6 +454,42 @@
         </form>
 
         <div id="result"></div>
+
+        <section class="tool" id="receipt-tool">
+          <div class="tool-head">
+            <div>
+              <div class="tool-title">洗车发票金额调整</div>
+              <div class="tool-subtitle">上传洗车发票图片，录入发票里的金额项，再输入最终金额；系统会按比例自动调整每一项，让合计等于最终金额。</div>
+            </div>
+            <label class="upload-button">
+              上传发票
+              <input class="file-input" id="receipt-file" type="file" accept="image/*" />
+            </label>
+          </div>
+
+          <div class="receipt-layout">
+            <div class="receipt-preview" id="receipt-preview">请选择一张洗车发票图片<br />图片只在本机浏览器预览，不会上传服务器</div>
+            <div class="amount-panel">
+              <div class="target-row">
+                <label>
+                  <span class="field-label">最终金额</span>
+                  <input class="target-input" id="target-total" type="number" min="0" step="0.01" placeholder="例如 85.00" />
+                </label>
+                <button class="small-button" id="adjust-amounts" type="button">自动调整</button>
+              </div>
+
+              <div class="amount-lines" id="amount-lines"></div>
+              <button class="secondary-button" id="add-amount" type="button">添加金额项</button>
+
+              <div class="receipt-summary">
+                <div><div class="num" id="current-total">$0.00</div><div class="label">当前合计</div></div>
+                <div><div class="num" id="target-display">$0.00</div><div class="label">最终金额</div></div>
+                <div><div class="num" id="difference-display">$0.00</div><div class="label">差额</div></div>
+              </div>
+              <div class="receipt-status" id="receipt-status">先录入发票上的金额，再输入最终金额。</div>
+            </div>
+          </div>
+        </section>
       </section>
     </main>
 
@@ -278,6 +503,11 @@
 
       const $ = (selector) => document.querySelector(selector);
       const result = $("#result");
+      const receiptState = {
+        imageUrl: "",
+        targetTotal: "",
+        amounts: ["0.00", "0.00"]
+      };
 
       function cleanPlate(value) {
         return String(value || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -289,6 +519,68 @@
 
       function compact(value, fallback = "-") {
         return value === undefined || value === null || value === "" ? fallback : value;
+      }
+
+      function cents(value) {
+        const number = Number(String(value || "").replace(/[^0-9.-]/g, ""));
+        if (!Number.isFinite(number)) return 0;
+        return Math.round(number * 100);
+      }
+
+      function dollars(value) {
+        return (value / 100).toFixed(2);
+      }
+
+      function receiptTotals() {
+        const current = receiptState.amounts.reduce((sum, value) => sum + cents(value), 0);
+        const target = cents(receiptState.targetTotal);
+        return { current, target, diff: target - current };
+      }
+
+      function renderReceiptAmounts() {
+        const lines = $("#amount-lines");
+        lines.innerHTML = receiptState.amounts
+          .map((value, index) => `
+            <div class="amount-line">
+              <div class="line-index">${index + 1}</div>
+              <input class="amount-input" data-index="${index}" type="number" min="0" step="0.01" value="${value}" />
+              <button class="remove-button" data-remove="${index}" type="button">×</button>
+            </div>
+          `)
+          .join("");
+        updateReceiptSummary();
+      }
+
+      function updateReceiptSummary() {
+        const { current, target, diff } = receiptTotals();
+        $("#current-total").textContent = `$${dollars(current)}`;
+        $("#target-display").textContent = `$${dollars(target)}`;
+        $("#difference-display").textContent = `${diff < 0 ? "-" : ""}$${dollars(Math.abs(diff))}`;
+        $("#receipt-status").textContent = diff === 0
+          ? "金额已经匹配，所有金额项相加等于最终金额。"
+          : `还差 ${diff < 0 ? "-" : ""}$${dollars(Math.abs(diff))}，点击自动调整可重新分配。`;
+      }
+
+      function adjustReceiptAmounts() {
+        const target = cents(receiptState.targetTotal);
+        if (target < 0) return;
+        if (!receiptState.amounts.length) receiptState.amounts = [dollars(target)];
+
+        const original = receiptState.amounts.map(cents);
+        const total = original.reduce((sum, value) => sum + value, 0);
+        let adjusted;
+
+        if (total <= 0) {
+          const base = Math.floor(target / original.length);
+          adjusted = original.map(() => base);
+        } else {
+          adjusted = original.map((value) => Math.floor((value * target) / total));
+        }
+
+        const adjustedTotal = adjusted.reduce((sum, value) => sum + value, 0);
+        adjusted[adjusted.length - 1] += target - adjustedTotal;
+        receiptState.amounts = adjusted.map(dollars);
+        renderReceiptAmounts();
       }
 
       async function requestDataset(datasetId, params) {
@@ -429,7 +721,43 @@
         search(plate);
       });
 
+      $("#receipt-file").addEventListener("change", (event) => {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        if (receiptState.imageUrl) URL.revokeObjectURL(receiptState.imageUrl);
+        receiptState.imageUrl = URL.createObjectURL(file);
+        $("#receipt-preview").innerHTML = `<img src="${receiptState.imageUrl}" alt="洗车发票预览" />`;
+      });
+
+      $("#target-total").addEventListener("input", (event) => {
+        receiptState.targetTotal = event.target.value;
+        updateReceiptSummary();
+      });
+
+      $("#amount-lines").addEventListener("input", (event) => {
+        const index = Number(event.target.dataset.index);
+        if (!Number.isInteger(index)) return;
+        receiptState.amounts[index] = event.target.value;
+        updateReceiptSummary();
+      });
+
+      $("#amount-lines").addEventListener("click", (event) => {
+        const index = Number(event.target.dataset.remove);
+        if (!Number.isInteger(index)) return;
+        receiptState.amounts.splice(index, 1);
+        if (!receiptState.amounts.length) receiptState.amounts.push("0.00");
+        renderReceiptAmounts();
+      });
+
+      $("#add-amount").addEventListener("click", () => {
+        receiptState.amounts.push("0.00");
+        renderReceiptAmounts();
+      });
+
+      $("#adjust-amounts").addEventListener("click", adjustReceiptAmounts);
+
       search(cleanPlate($("#plate").value));
+      renderReceiptAmounts();
     </script>
   </body>
 </html>
