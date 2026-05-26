@@ -753,6 +753,21 @@
         return value === undefined || value === null || value === "" ? fallback : value;
       }
 
+      async function savePlateSearchRecord(record) {
+        try {
+          const response = await fetch("/api/plate-searches", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(record)
+          });
+          return response.ok;
+        } catch (error) {
+          return false;
+        }
+      }
+
       function cents(value) {
         const number = Number(String(value || "").replace(/[^0-9.-]/g, ""));
         if (!Number.isFinite(number)) return 0;
@@ -952,6 +967,14 @@
           const vehicles = [...fhvRows.map(mapFhv), ...medallionRows.map(mapMedallion)];
           const violations = violationRows.map(mapViolation);
           const totalDue = violations.reduce((sum, item) => sum + Number(item.amountDue || 0), 0);
+          await savePlateSearchRecord({
+            plate,
+            module: "tlc",
+            vehicleCount: vehicles.length,
+            violationCount: violations.length,
+            totalDue: totalDue.toFixed(2),
+            status: "success"
+          });
           result.innerHTML = `
             <div class="summary">
               <div><div class="num">${vehicles.length}</div><div class="label">TLC 车辆记录</div></div>
@@ -963,6 +986,14 @@
             ${!vehicles.length && !violations.length ? `<div class="empty"><strong>没有找到公开记录</strong><br />请确认车牌号拼写，或稍后再试。</div>` : ""}
           `;
         } catch (error) {
+          await savePlateSearchRecord({
+            plate,
+            module: "tlc",
+            vehicleCount: 0,
+            violationCount: 0,
+            totalDue: "0.00",
+            status: "failed"
+          });
           result.innerHTML = `<div class="notice">${error.message || "查询失败，请稍后再试。"}</div>`;
         } finally {
           submit.disabled = false;
