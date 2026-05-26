@@ -1,6 +1,6 @@
 <view class="page">
   <view class="top-band">
-    <view class="title">纽约 TLC 车牌违章查询</view>
+    <view class="title">纽约 TLC 工具箱</view>
     <view class="subtitle">选择功能模块，后续新工具会继续添加在这里</view>
   </view>
 
@@ -13,7 +13,7 @@
     <button class="feature-card" data-module="receipt" bindtap="openModule">
       <view class="feature-icon">$</view>
       <view class="feature-title">洗车发票</view>
-      <view class="feature-desc">上传发票图片，调整金额并生成预览</view>
+      <view class="feature-desc">上传图片，输入金额，生成带标记的金额说明图</view>
     </button>
   </view>
 
@@ -140,7 +140,7 @@
       <view class="card-head">
         <view>
           <view class="card-title">上传洗车发票</view>
-          <view class="card-subtitle">录入发票里的金额项，输入最终金额后自动重新分配</view>
+          <view class="card-subtitle">只输入最终金额，图片会同步显示带标记的金额说明</view>
         </view>
         <button class="mini-button" bindtap="chooseReceiptImage">上传</button>
       </view>
@@ -149,13 +149,14 @@
         <view wx:if="{{receiptImage}}" class="receipt-image-wrap">
           <image class="receipt-image" src="{{receiptImage}}" mode="aspectFit" />
           <view class="receipt-overlay">{{receiptOverlayText}}</view>
+          <view class="receipt-watermark">ADJUSTED COPY</view>
         </view>
         <view wx:else class="receipt-placeholder">图片只在本机预览，不会上传服务器</view>
       </view>
 
       <view class="receipt-form">
         <view class="field-label">最终金额</view>
-        <view class="target-row">
+        <view class="target-row single-target-row">
           <input
             class="money-input"
             type="digit"
@@ -163,10 +164,9 @@
             placeholder="例如 85.00"
             bindinput="onReceiptTargetInput"
           />
-          <button class="adjust-button" bindtap="adjustReceiptAmounts">自动调整</button>
         </view>
 
-        <view class="amount-list">
+        <view class="amount-list hidden-control">
           <view wx:for="{{receiptAmounts}}" wx:key="id" class="amount-row">
             <view class="amount-index">{{index + 1}}</view>
             <input
@@ -180,9 +180,9 @@
           </view>
         </view>
 
-        <button class="add-button" bindtap="addReceiptAmount">添加金额项</button>
+        <button class="add-button hidden-control" bindtap="addReceiptAmount">添加金额项</button>
 
-        <view class="receipt-summary">
+        <view class="receipt-summary hidden-control">
           <view class="summary-item">
             <view class="summary-value">${{receiptCurrentTotal}}</view>
             <view class="summary-label">当前合计</view>

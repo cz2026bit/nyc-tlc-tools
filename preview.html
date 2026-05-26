@@ -431,6 +431,20 @@
         transform: translate(-50%, -50%);
         box-shadow: 0 8px 20px rgba(16, 32, 28, 0.14);
         pointer-events: none;
+        white-space: pre-line;
+      }
+
+      .receipt-watermark {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        color: rgba(19, 49, 43, 0.18);
+        font-size: 42px;
+        font-weight: 900;
+        letter-spacing: 0;
+        transform: translate(-50%, -50%) rotate(-18deg);
+        pointer-events: none;
+        white-space: nowrap;
       }
 
       .receipt-preview-tip {
@@ -470,6 +484,7 @@
       }
 
       .amount-lines {
+        display: none;
         margin-top: 14px;
       }
 
@@ -498,7 +513,7 @@
       }
 
       .receipt-summary {
-        display: grid;
+        display: none;
         grid-template-columns: repeat(3, 1fr);
         gap: 8px;
         margin-top: 14px;
@@ -520,6 +535,55 @@
         color: #0f6b56;
         font-size: 14px;
         line-height: 1.45;
+      }
+
+      #add-amount,
+      #adjust-amounts {
+        display: none;
+      }
+
+      @media (max-width: 680px) {
+        .top {
+          padding: 26px 18px 42px;
+        }
+
+        h1 {
+          font-size: 25px;
+        }
+
+        .wrap {
+          width: min(100% - 24px, 760px);
+        }
+
+        .home-grid {
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+
+        .feature-card {
+          min-height: 136px;
+          padding: 18px;
+          display: grid;
+          grid-template-columns: 48px 1fr;
+          gap: 0 14px;
+          align-items: center;
+        }
+
+        .feature-icon {
+          grid-row: span 2;
+          width: 48px;
+          height: 48px;
+        }
+
+        .feature-title {
+          margin-top: 0;
+          font-size: 20px;
+        }
+
+        .feature-desc {
+          margin-top: 4px;
+          font-size: 14px;
+        }
       }
 
       @media (max-width: 520px) {
@@ -550,6 +614,15 @@
         button {
           width: 84px;
         }
+
+        .receipt-overlay {
+          min-width: 112px;
+          font-size: 20px;
+        }
+
+        .receipt-watermark {
+          font-size: 28px;
+        }
       }
     </style>
   </head>
@@ -557,8 +630,8 @@
     <main class="app">
       <section class="top">
         <div class="wrap">
-          <h1>纽约 TLC 车牌违章查询</h1>
-          <div class="sub">输入车牌号，查询公开车辆资料和停车 / 摄像头违章记录。</div>
+          <h1>纽约 TLC 工具箱</h1>
+          <div class="sub">选择一个功能进入，后续新工具会继续添加在首页。</div>
         </div>
       </section>
 
@@ -572,7 +645,7 @@
           <button class="feature-card" type="button" data-open-module="receipt">
             <span class="feature-icon">$</span>
             <div class="feature-title">洗车发票</div>
-            <div class="feature-desc">上传发票图片，调整金额项，并生成最终金额一致的发票预览。</div>
+            <div class="feature-desc">上传发票图片，输入一个金额，生成带清晰标记的金额说明图。</div>
           </button>
         </div>
       </section>
@@ -602,7 +675,7 @@
           <div class="tool-head">
             <div>
               <div class="tool-title">洗车发票金额调整</div>
-              <div class="tool-subtitle">上传洗车发票图片，录入发票里的金额项，再输入最终金额；系统会按比例自动调整每一项，并把最终金额同步显示到发票图片上。</div>
+              <div class="tool-subtitle">上传洗车发票图片，只输入一个最终金额；系统会把该金额显示到图片上，并保留“调整说明”标记，避免冒充原始发票。</div>
             </div>
             <label class="upload-button">
               上传发票
@@ -623,14 +696,14 @@
 
               <div class="amount-lines" id="amount-lines"></div>
               <button class="secondary-button" id="add-amount" type="button">添加金额项</button>
-              <button class="secondary-button" id="export-receipt" type="button">导出修改后发票图片</button>
+              <button class="secondary-button" id="export-receipt" type="button">保存金额说明图片</button>
 
               <div class="receipt-summary">
                 <div><div class="num" id="current-total">$0.00</div><div class="label">当前合计</div></div>
                 <div><div class="num" id="target-display">$0.00</div><div class="label">最终金额</div></div>
                 <div><div class="num" id="difference-display">$0.00</div><div class="label">差额</div></div>
               </div>
-              <div class="receipt-status" id="receipt-status">先录入发票上的金额，再输入最终金额。</div>
+              <div class="receipt-status" id="receipt-status">上传发票图片并输入最终金额后，可以保存带标记的金额说明图片。</div>
             </div>
           </div>
         </section>
@@ -692,7 +765,7 @@
       }
 
       function overlayText() {
-        return `$${dollars(cents(receiptState.targetTotal))}`;
+        return `调整金额\n$${dollars(cents(receiptState.targetTotal))}`;
       }
 
       function updateReceiptOverlay() {
@@ -723,8 +796,8 @@
         $("#target-display").textContent = `$${dollars(target)}`;
         $("#difference-display").textContent = `${diff < 0 ? "-" : ""}$${dollars(Math.abs(diff))}`;
         $("#receipt-status").textContent = diff === 0
-          ? "金额已经匹配，所有金额项相加等于最终金额。"
-          : `还差 ${diff < 0 ? "-" : ""}$${dollars(Math.abs(diff))}，点击自动调整可重新分配。`;
+          ? "图片上的金额已更新，可保存金额说明图片。"
+          : "图片上的金额已更新，可保存金额说明图片。";
         updateReceiptOverlay();
       }
 
@@ -907,6 +980,7 @@
         $("#receipt-preview").innerHTML = `
           <img src="${receiptState.imageUrl}" alt="洗车发票预览" />
           <div class="receipt-overlay" id="receipt-amount-overlay">${overlayText()}</div>
+          <div class="receipt-watermark">ADJUSTED COPY</div>
           <div class="receipt-preview-tip">点击图片可移动金额位置</div>
         `;
         updateReceiptOverlay();
@@ -964,11 +1038,13 @@
         const x = (receiptState.overlayX / 100) * canvas.width;
         const y = (receiptState.overlayY / 100) * canvas.height;
         const fontSize = Math.max(28, Math.round(canvas.width * 0.045));
+        const lines = text.split("\n");
         context.font = `800 ${fontSize}px Arial`;
-        const metrics = context.measureText(text);
+        const metrics = lines.map((line) => context.measureText(line).width);
         const padding = Math.round(fontSize * 0.45);
-        const boxWidth = metrics.width + padding * 2;
-        const boxHeight = fontSize + padding * 1.35;
+        const boxWidth = Math.max(...metrics) + padding * 2;
+        const lineHeight = Math.round(fontSize * 1.08);
+        const boxHeight = lineHeight * lines.length + padding * 1.45;
 
         context.fillStyle = "rgba(255,255,255,0.94)";
         context.fillRect(x - boxWidth / 2, y - boxHeight / 2, boxWidth, boxHeight);
@@ -977,7 +1053,20 @@
         context.fillStyle = "#111";
         context.textAlign = "center";
         context.textBaseline = "middle";
-        context.fillText(text, x, y);
+        lines.forEach((line, index) => {
+          const offset = (index - (lines.length - 1) / 2) * lineHeight;
+          context.fillText(line, x, y + offset);
+        });
+
+        context.save();
+        context.translate(canvas.width / 2, canvas.height / 2);
+        context.rotate(-Math.PI / 10);
+        context.font = `900 ${Math.max(42, Math.round(canvas.width * 0.08))}px Arial`;
+        context.fillStyle = "rgba(19,49,43,0.18)";
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+        context.fillText("ADJUSTED COPY", 0, 0);
+        context.restore();
 
         const link = document.createElement("a");
         link.download = "car-wash-receipt-adjusted.png";

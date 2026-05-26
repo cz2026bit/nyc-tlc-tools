@@ -122,7 +122,7 @@ Page({
     receiptTargetDisplay: "0.00",
     receiptDifference: "0.00",
     receiptDifferencePrefix: "",
-    receiptStatus: "先录入发票上的金额，再输入最终金额。",
+    receiptStatus: "上传发票图片并输入最终金额后，可以保存带标记的金额说明图片。",
     receiptOverlayText: "$0.00"
   },
 
@@ -259,10 +259,8 @@ Page({
       receiptTargetDisplay: dollars(target),
       receiptDifference: dollars(Math.abs(diff)),
       receiptDifferencePrefix: diff < 0 ? "-" : "",
-      receiptOverlayText: `$${dollars(target)}`,
-      receiptStatus: diff === 0
-        ? "金额已经匹配，所有金额项相加等于最终金额。"
-        : `还差 ${diff < 0 ? "-" : ""}$${dollars(Math.abs(diff))}，点击自动调整可重新分配。`
+      receiptOverlayText: `调整金额\n$${dollars(target)}`,
+      receiptStatus: "图片上的金额已更新，可保存带标记的金额说明图片。"
     })
   },
 

@@ -33,13 +33,17 @@
 
 .home-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr;
   gap: 18rpx;
   margin: -28rpx 24rpx 24rpx;
 }
 
 .feature-card {
-  min-height: 250rpx;
+  display: grid;
+  grid-template-columns: 78rpx 1fr;
+  gap: 0 22rpx;
+  align-items: center;
+  min-height: 190rpx;
   margin: 0;
   padding: 26rpx;
   border: 1rpx solid #dde5e2;
@@ -51,6 +55,7 @@
 }
 
 .feature-icon {
+  grid-row: span 2;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -64,7 +69,7 @@
 }
 
 .feature-title {
-  margin-top: 22rpx;
+  margin-top: 0;
   color: #13221f;
   font-size: 31rpx;
   font-weight: 800;
@@ -369,6 +374,18 @@
   text-align: center;
   transform: translate(-50%, -50%);
   box-shadow: 0 8rpx 20rpx rgba(16, 32, 28, 0.14);
+  white-space: pre-line;
+}
+
+.receipt-watermark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  color: rgba(19, 49, 43, 0.18);
+  font-size: 58rpx;
+  font-weight: 900;
+  transform: translate(-50%, -50%) rotate(-18deg);
+  white-space: nowrap;
 }
 
 .receipt-placeholder {
@@ -390,6 +407,10 @@
   display: flex;
   gap: 14rpx;
   align-items: center;
+}
+
+.single-target-row {
+  display: block;
 }
 
 .money-input {
@@ -473,4 +494,8 @@
   color: #0f6b56;
   font-size: 24rpx;
   line-height: 1.45;
+}
+
+.hidden-control {
+  display: none;
 }
