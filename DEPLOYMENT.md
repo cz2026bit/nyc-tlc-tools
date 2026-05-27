@@ -51,6 +51,7 @@ npm start
 
 1. 复制 `.env.example` 为 `.env`
 2. 填入：
+   - `GEMINI_API_KEY`
    - `SUPABASE_URL`
    - `SUPABASE_SERVICE_ROLE_KEY`
 3. 启动：
@@ -64,3 +65,7 @@ npm start
 - `http://127.0.0.1:8787/`
 
 如果 `.env` 留空，后端会退回到本地文件存储，数据写入 `data/plate-searches.json`。
+
+如果你要启用 Gemini 图片生成接口，还需要填写：
+
+- `GEMINI_API_KEY`

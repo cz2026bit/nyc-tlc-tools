@@ -656,8 +656,8 @@
           </button>
           <button class="feature-card" type="button" data-open-module="receipt">
             <span class="feature-icon">$</span>
-            <div class="feature-title">票据训练示例</div>
-            <div class="feature-desc">上传票据图片，输入一个金额，生成带清晰标记的训练示例图。</div>
+            <div class="feature-title">AI 图片生成</div>
+            <div class="feature-desc">上传任意图片，输入 prompt，调用 Gemini 生成一张新图片。</div>
           </button>
         </div>
       </section>
@@ -681,41 +681,30 @@
       <section class="wrap module hidden" id="receipt-module">
         <div class="module-bar">
           <button class="back-button" type="button" data-back-home>‹ 返回首页</button>
-          <div class="module-name">票据训练示例</div>
+          <div class="module-name">AI 图片生成</div>
         </div>
         <section class="tool" id="receipt-tool">
           <div class="tool-head">
             <div>
-              <div class="tool-title">票据训练示例生成</div>
-              <div class="tool-subtitle">上传票据图片，只输入一个最终金额；系统会生成带训练标记的示例图，仅供训练数据、界面演示和识别测试使用。</div>
+              <div class="tool-title">Gemini 图片生成</div>
+              <div class="tool-subtitle">上传一张你有权处理的图片，填写 prompt，后端会调用 Gemini 生成一张新的图片供你保存。</div>
             </div>
             <label class="upload-button">
-              上传票据
+              上传图片
               <input class="file-input" id="receipt-file" type="file" accept="image/*" />
             </label>
           </div>
 
           <div class="receipt-layout">
-            <div class="receipt-preview" id="receipt-preview">请选择一张票据图片<br />图片只在本机浏览器预览，不会上传服务器，仅用于训练示例生成</div>
+            <div class="receipt-preview" id="receipt-preview">请选择一张图片<br />图片会发送给你配置的 Gemini API 生成新图</div>
             <div class="amount-panel">
-              <div class="target-row">
-                <label>
-                  <span class="field-label">最终金额</span>
-                  <input class="target-input" id="target-total" type="number" min="0" step="0.01" placeholder="例如 85.00" />
-                </label>
-                <button class="small-button" id="adjust-amounts" type="button">自动调整</button>
-              </div>
-
-              <div class="amount-lines" id="amount-lines"></div>
-              <button class="secondary-button" id="add-amount" type="button">添加金额项</button>
-              <button class="secondary-button" id="export-receipt" type="button">保存训练示例图片</button>
-
-              <div class="receipt-summary">
-                <div><div class="num" id="current-total">$0.00</div><div class="label">当前合计</div></div>
-                <div><div class="num" id="target-display">$0.00</div><div class="label">最终金额</div></div>
-                <div><div class="num" id="difference-display">$0.00</div><div class="label">差额</div></div>
-              </div>
-              <div class="receipt-status" id="receipt-status">上传票据图片并输入最终金额后，可以保存带训练标记的示例图片，仅供训练数据使用。</div>
+              <label>
+                <span class="field-label">Prompt</span>
+                <textarea class="target-input" id="image-prompt" rows="8" placeholder="例如：把这张图片改成电影海报风格，保留主体人物，背景换成夜景霓虹。"></textarea>
+              </label>
+              <button class="secondary-button" id="generate-image" type="button">生成新图片</button>
+              <button class="secondary-button" id="export-receipt" type="button" disabled>保存生成图片</button>
+              <div class="receipt-status" id="receipt-status">上传图片并填写 prompt 后，即可生成一张新的图片。</div>
             </div>
           </div>
         </section>
@@ -734,11 +723,11 @@
       const result = $("#result");
       const receiptState = {
         imageUrl: "",
-        imageElement: null,
-        targetTotal: "",
-        amounts: ["0.00", "0.00"],
-        overlayX: 58,
-        overlayY: 72
+        sourceBase64: "",
+        mimeType: "",
+        generatedBase64: "",
+        generatedMimeType: "",
+        prompt: ""
       };
 
       function cleanPlate(value) {
@@ -770,22 +759,6 @@
         }
       }
 
-      function cents(value) {
-        const number = Number(String(value || "").replace(/[^0-9.-]/g, ""));
-        if (!Number.isFinite(number)) return 0;
-        return Math.round(number * 100);
-      }
-
-      function dollars(value) {
-        return (value / 100).toFixed(2);
-      }
-
-      function receiptTotals() {
-        const current = receiptState.amounts.reduce((sum, value) => sum + cents(value), 0);
-        const target = cents(receiptState.targetTotal);
-        return { current, target, diff: target - current };
-      }
-
       function showModule(name) {
         $("#home-screen").classList.toggle("hidden", Boolean(name));
         $("#tlc-module").classList.toggle("hidden", name !== "tlc");
@@ -793,74 +766,53 @@
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
-      function overlayText() {
-        const total = cents(receiptState.targetTotal);
-        const subtotal = Math.round(total * 0.9);
-        const tax = total - subtotal;
-        return [
-          `full wash        ${dollars(subtotal).replace(".00", "")}`,
-          "----------------------",
-          `Subtotal      ${dollars(subtotal)}`,
-          `Sales Tax      ${dollars(tax)}`,
-          `Total         ${dollars(total)}`,
-          "----------------------",
-          `Cash          ${dollars(total)}`
-        ].join("\n");
-      }
-
-      function updateReceiptOverlay() {
-        const overlay = $("#receipt-amount-overlay");
-        if (!overlay) return;
-        overlay.textContent = overlayText();
-        overlay.style.left = `${receiptState.overlayX}%`;
-        overlay.style.top = `${receiptState.overlayY}%`;
-      }
-
-      function renderReceiptAmounts() {
-        const lines = $("#amount-lines");
-        lines.innerHTML = receiptState.amounts
-          .map((value, index) => `
-            <div class="amount-line">
-              <div class="line-index">${index + 1}</div>
-              <input class="amount-input" data-index="${index}" type="number" min="0" step="0.01" value="${value}" />
-              <button class="remove-button" data-remove="${index}" type="button">×</button>
-            </div>
-          `)
-          .join("");
-        updateReceiptSummary();
-      }
-
-      function updateReceiptSummary() {
-        const { current, target, diff } = receiptTotals();
-        $("#current-total").textContent = `$${dollars(current)}`;
-        $("#target-display").textContent = `$${dollars(target)}`;
-        $("#difference-display").textContent = `${diff < 0 ? "-" : ""}$${dollars(Math.abs(diff))}`;
-        $("#receipt-status").textContent = diff === 0
-          ? "图片上的金额已更新，可保存训练示例图片，仅供训练数据使用。"
-          : "图片上的金额已更新，可保存训练示例图片，仅供训练数据使用。";
-        updateReceiptOverlay();
-      }
-
-      function adjustReceiptAmounts() {
-        const target = cents(receiptState.targetTotal);
-        if (target < 0) return;
-        if (!receiptState.amounts.length) receiptState.amounts = [dollars(target)];
-
-        const original = receiptState.amounts.map(cents);
-        const total = original.reduce((sum, value) => sum + value, 0);
-        let adjusted;
-
-        if (total <= 0) {
-          const base = Math.floor(target / original.length);
-          adjusted = original.map(() => base);
-        } else {
-          adjusted = original.map((value) => Math.floor((value * target) / total));
+      async function generateGeminiImage() {
+        if (!receiptState.sourceBase64 || !receiptState.mimeType) {
+          $("#receipt-status").textContent = "请先上传一张图片。";
+          return;
         }
 
-        const adjustedTotal = adjusted.reduce((sum, value) => sum + value, 0);
-        adjusted[adjusted.length - 1] += target - adjustedTotal;
-        receiptState.amounts = adjusted.map(dollars);
-        renderReceiptAmounts();
+        const prompt = $("#image-prompt").value.trim();
+        if (!prompt) {
+          $("#receipt-status").textContent = "请先输入 prompt。";
+          return;
+        }
+
+        receiptState.prompt = prompt;
+        $("#generate-image").disabled = true;
+        $("#generate-image").textContent = "生成中";
+        $("#receipt-status").textContent = "正在调用 Gemini 生成新图片...";
+
+        try {
+          const response = await fetch(`${API_BASE}/api/gemini-image`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              prompt,
+              mimeType: receiptState.mimeType,
+              imageData: receiptState.sourceBase64
+            })
+          });
+          const payload = await response.json();
+          if (!response.ok || !payload.ok) {
+            throw new Error(payload.error || "gemini_request_failed");
+          }
+
+          receiptState.generatedBase64 = payload.imageData;
+          receiptState.generatedMimeType = payload.mimeType || "image/png";
+          const generatedUrl = `data:${receiptState.generatedMimeType};base64,${receiptState.generatedBase64}`;
+          $("#receipt-preview").classList.add("has-image");
+          $("#receipt-preview").innerHTML = `<img src="${generatedUrl}" alt="Gemini 生成图片预览" />`;
+          $("#export-receipt").disabled = false;
+          $("#receipt-status").textContent = "新图片已生成，可以直接保存。";
+        } catch (error) {
+          $("#receipt-status").textContent = `生成失败：${error.message || "请稍后再试。"}`;
+        } finally {
+          $("#generate-image").disabled = false;
+          $("#generate-image").textContent = "生成新图片";
+        }
       }
 
       async function requestDataset(datasetId, params) {
@@ -1030,118 +982,39 @@
         if (!file) return;
         if (receiptState.imageUrl) URL.revokeObjectURL(receiptState.imageUrl);
         receiptState.imageUrl = URL.createObjectURL(file);
-        receiptState.imageElement = new Image();
-        receiptState.imageElement.src = receiptState.imageUrl;
+        receiptState.mimeType = file.type || "image/png";
+        receiptState.generatedBase64 = "";
+        receiptState.generatedMimeType = "";
         $("#receipt-preview").classList.add("has-image");
-        $("#receipt-preview").innerHTML = `
-          <img src="${receiptState.imageUrl}" alt="票据训练示例预览" />
-          <div class="receipt-overlay" id="receipt-amount-overlay">${overlayText()}</div>
-          <div class="receipt-watermark">TRAINING SAMPLE</div>
-          <div class="receipt-preview-tip">点击图片可移动金额位置</div>
-        `;
-        updateReceiptOverlay();
+        $("#receipt-preview").innerHTML = `<img src="${receiptState.imageUrl}" alt="原始上传图片预览" />`;
+        $("#receipt-status").textContent = "图片已上传，填写 prompt 后可以生成新图片。";
+        $("#export-receipt").disabled = true;
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = String(reader.result || "");
+          receiptState.sourceBase64 = result.includes(",") ? result.split(",")[1] : "";
+        };
+        reader.readAsDataURL(file);
       });
 
-      $("#receipt-preview").addEventListener("click", (event) => {
-        if (!receiptState.imageUrl) return;
-        const rect = event.currentTarget.getBoundingClientRect();
-        receiptState.overlayX = Math.max(5, Math.min(95, ((event.clientX - rect.left) / rect.width) * 100));
-        receiptState.overlayY = Math.max(5, Math.min(95, ((event.clientY - rect.top) / rect.height) * 100));
-        updateReceiptOverlay();
-      });
-
-      $("#target-total").addEventListener("input", (event) => {
-        receiptState.targetTotal = event.target.value;
-        updateReceiptSummary();
-      });
-
-      $("#amount-lines").addEventListener("input", (event) => {
-        const index = Number(event.target.dataset.index);
-        if (!Number.isInteger(index)) return;
-        receiptState.amounts[index] = event.target.value;
-        updateReceiptSummary();
-      });
-
-      $("#amount-lines").addEventListener("click", (event) => {
-        const index = Number(event.target.dataset.remove);
-        if (!Number.isInteger(index)) return;
-        receiptState.amounts.splice(index, 1);
-        if (!receiptState.amounts.length) receiptState.amounts.push("0.00");
-        renderReceiptAmounts();
-      });
-
-      $("#add-amount").addEventListener("click", () => {
-        receiptState.amounts.push("0.00");
-        renderReceiptAmounts();
-      });
-
-      $("#adjust-amounts").addEventListener("click", adjustReceiptAmounts);
+      $("#generate-image").addEventListener("click", generateGeminiImage);
 
       $("#export-receipt").addEventListener("click", () => {
-        if (!receiptState.imageElement || !receiptState.imageElement.complete) {
-          $("#receipt-status").textContent = "请先上传票据图片，再导出训练示例图片。";
+        if (!receiptState.generatedBase64 || !receiptState.generatedMimeType) {
+          $("#receipt-status").textContent = "请先生成一张新图片。";
           return;
         }
 
-        const image = receiptState.imageElement;
-        const canvas = document.createElement("canvas");
-        canvas.width = image.naturalWidth || image.width;
-        canvas.height = image.naturalHeight || image.height;
-        const context = canvas.getContext("2d");
-        context.drawImage(image, 0, 0, canvas.width, canvas.height);
-
-        const text = overlayText();
-        const x = (receiptState.overlayX / 100) * canvas.width;
-        const y = (receiptState.overlayY / 100) * canvas.height;
-        const fontSize = Math.max(28, Math.round(canvas.width * 0.045));
-        const lines = text.split("\n");
-        context.font = `800 ${fontSize}px Arial`;
-        const metrics = lines.map((line) => context.measureText(line).width);
-        const padding = Math.round(fontSize * 0.45);
-        const boxWidth = Math.max(...metrics) + padding * 2;
-        const lineHeight = Math.round(fontSize * 1.08);
-        const boxHeight = lineHeight * lines.length + padding * 1.45;
-
-        context.fillStyle = "rgba(255,255,245,0.34)";
-        context.fillRect(x - boxWidth / 2, y - boxHeight / 2, boxWidth, boxHeight);
-        context.fillStyle = "#202522";
-        context.textAlign = "center";
-        context.textBaseline = "middle";
-        context.shadowColor = "rgba(32,37,34,0.28)";
-        context.shadowBlur = 1;
-        lines.forEach((line, index) => {
-          const offset = (index - (lines.length - 1) / 2) * lineHeight;
-          context.fillText(line, x, y + offset);
-        });
-        context.shadowBlur = 0;
-
-        context.save();
-        context.translate(canvas.width * 0.77, canvas.height * 0.86);
-        context.rotate(-Math.PI / 22);
-        context.font = `900 ${Math.max(28, Math.round(canvas.width * 0.04))}px Arial`;
-        context.fillStyle = "rgba(155,44,31,0.9)";
-        context.strokeStyle = "rgba(155,44,31,0.85)";
-        const stampText = "TRAINING SAMPLE";
-        const stampWidth = context.measureText(stampText).width + fontSize;
-        const stampHeight = fontSize * 1.35;
-        context.fillStyle = "rgba(255,255,255,0.72)";
-        context.fillRect(-stampWidth / 2, -stampHeight / 2, stampWidth, stampHeight);
-        context.strokeRect(-stampWidth / 2, -stampHeight / 2, stampWidth, stampHeight);
-        context.fillStyle = "rgba(155,44,31,0.9)";
-        context.textAlign = "center";
-        context.textBaseline = "middle";
-        context.fillText(stampText, 0, 0);
-        context.restore();
-
         const link = document.createElement("a");
-        link.download = "training-sample-receipt.png";
-        link.href = canvas.toDataURL("image/png");
+        const extension = receiptState.generatedMimeType.split("/")[1] || "png";
+        link.download = `gemini-generated-image.${extension}`;
+        link.href = `data:${receiptState.generatedMimeType};base64,${receiptState.generatedBase64}`;
         link.click();
       });
 
       const initialPlate = cleanPlate($("#plate").value);
       if (initialPlate) search(initialPlate);
-      renderReceiptAmounts();
     </script>
   </body>
 </html>

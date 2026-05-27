@@ -10,6 +10,7 @@ const dataFile = path.join(dataDir, "plate-searches.json")
 
 loadEnvFile()
 
+const geminiApiKey = process.env.GEMINI_API_KEY || ""
 const supabaseUrl = process.env.SUPABASE_URL || ""
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ""
 
@@ -43,6 +44,10 @@ function loadEnvFile() {
 
 function hasSupabaseConfig() {
   return Boolean(supabaseUrl && supabaseServiceRoleKey)
+}
+
+function hasGeminiConfig() {
+  return Boolean(geminiApiKey)
 }
 
 async function ensureStore() {
@@ -160,6 +165,76 @@ function guessContentType(filePath) {
   return "application/octet-stream"
 }
 
+function collectRequestBody(req, limit = 15_000_000) {
+  return new Promise((resolve, reject) => {
+    let body = ""
+    req.on("data", (chunk) => {
+      body += chunk
+      if (body.length > limit) {
+        reject(new Error("payload_too_large"))
+        req.destroy()
+      }
+    })
+    req.on("end", () => resolve(body))
+    req.on("error", reject)
+  })
+}
+
+function geminiRequest(payload) {
+  const requestBody = JSON.stringify(payload)
+  const options = {
+    hostname: "generativelanguage.googleapis.com",
+    path: "/v1beta/models/gemini-2.5-flash-image:generateContent",
+    method: "POST",
+    headers: {
+      "x-goog-api-key": geminiApiKey,
+      "Content-Type": "application/json",
+      "Content-Length": Buffer.byteLength(requestBody)
+    }
+  }
+
+  return new Promise((resolve, reject) => {
+    const request = https.request(options, (response) => {
+      let data = ""
+      response.on("data", (chunk) => {
+        data += chunk
+      })
+      response.on("end", () => {
+        if (response.statusCode >= 200 && response.statusCode < 300) {
+          try {
+            resolve(JSON.parse(data))
+          } catch (error) {
+            reject(error)
+          }
+          return
+        }
+        reject(new Error(data || `Gemini request failed (${response.statusCode})`))
+      })
+    })
+    request.on("error", reject)
+    request.write(requestBody)
+    request.end()
+  })
+}
+
+function extractGeneratedImage(response) {
+  const candidates = Array.isArray(response.candidates) ? response.candidates : []
+  for (const candidate of candidates) {
+    const content = candidate.content || {}
+    const parts = Array.isArray(content.parts) ? content.parts : []
+    for (const part of parts) {
+      const inlineData = part.inlineData || part.inline_data
+      if (inlineData && inlineData.data) {
+        return {
+          mimeType: inlineData.mimeType || inlineData.mime_type || "image/png",
+          data: inlineData.data
+        }
+      }
+    }
+  }
+  return null
+}
+
 const server = http.createServer((req, res) => {
   if (req.method === "OPTIONS") {
     res.writeHead(204, {
@@ -172,13 +247,8 @@ const server = http.createServer((req, res) => {
   }
 
   if (req.url === "/api/plate-searches" && req.method === "POST") {
-    let body = ""
-    req.on("data", (chunk) => {
-      body += chunk
-      if (body.length > 1_000_000) req.destroy()
-    })
-    req.on("end", async () => {
-      try {
+    collectRequestBody(req, 1_000_000)
+      .then(async (body) => {
         const payload = JSON.parse(body || "{}")
         const plate = String(payload.plate || "").toUpperCase().replace(/[^A-Z0-9]/g, "")
         if (!plate) {
@@ -194,10 +264,10 @@ const server = http.createServer((req, res) => {
           status: String(payload.status || "success")
         })
         sendJson(res, 200, { ok: true })
-      } catch (error) {
+      })
+      .catch((error) => {
         sendJson(res, 400, { ok: false, error: error.message || "bad_request" })
-      }
-    })
+      })
     return
   }
 
@@ -205,6 +275,65 @@ const server = http.createServer((req, res) => {
     readSearches()
       .then((items) => sendJson(res, 200, { ok: true, items }))
       .catch((error) => sendJson(res, 500, { ok: false, error: error.message || "read_failed" }))
+    return
+  }
+
+  if (req.url === "/api/gemini-image" && req.method === "POST") {
+    if (!hasGeminiConfig()) {
+      sendJson(res, 500, { ok: false, error: "gemini_api_key_missing" })
+      return
+    }
+
+    collectRequestBody(req)
+      .then(async (body) => {
+        const payload = JSON.parse(body || "{}")
+        const prompt = String(payload.prompt || "").trim()
+        const mimeType = String(payload.mimeType || "").trim()
+        const imageData = String(payload.imageData || "").trim()
+
+        if (!prompt) {
+          sendJson(res, 400, { ok: false, error: "prompt_required" })
+          return
+        }
+        if (!mimeType || !imageData) {
+          sendJson(res, 400, { ok: false, error: "image_required" })
+          return
+        }
+
+        const geminiResponse = await geminiRequest({
+          contents: [
+            {
+              parts: [
+                { text: prompt },
+                {
+                  inline_data: {
+                    mime_type: mimeType,
+                    data: imageData
+                  }
+                }
+              ]
+            }
+          ],
+          generationConfig: {
+            responseModalities: ["TEXT", "IMAGE"]
+          }
+        })
+
+        const generatedImage = extractGeneratedImage(geminiResponse)
+        if (!generatedImage) {
+          sendJson(res, 502, { ok: false, error: "image_not_returned" })
+          return
+        }
+
+        sendJson(res, 200, {
+          ok: true,
+          mimeType: generatedImage.mimeType,
+          imageData: generatedImage.data
+        })
+      })
+      .catch((error) => {
+        sendJson(res, 500, { ok: false, error: error.message || "gemini_request_failed" })
+      })
     return
   }
 
