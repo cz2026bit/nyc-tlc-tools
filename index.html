@@ -551,6 +551,252 @@
         display: none;
       }
 
+      .flight-tool {
+        display: grid;
+        gap: 16px;
+      }
+
+      .flight-controls {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .flight-search {
+        flex: 1;
+        min-width: 220px;
+      }
+
+      .flight-search input {
+        width: 100%;
+        height: 42px;
+        font-size: 15px;
+        font-weight: 700;
+      }
+
+      .segmented {
+        display: inline-grid;
+        grid-template-columns: repeat(2, minmax(88px, 1fr));
+        padding: 4px;
+        border: 1px solid #cbd8d4;
+        border-radius: 8px;
+        background: #f6f9f8;
+      }
+
+      .segment-button {
+        width: auto;
+        min-width: 88px;
+        height: 38px;
+        border-radius: 6px;
+        background: transparent;
+        color: #22423b;
+        font-size: 14px;
+      }
+
+      .segment-button.active {
+        background: #0f7b68;
+        color: #fff;
+      }
+
+      .refresh-note {
+        color: #68736f;
+        font-size: 13px;
+      }
+
+      .flight-summary {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .flight-summary-card,
+      .chart-card,
+      .arrivals-card {
+        border: 1px solid #dde5e2;
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .flight-summary-card {
+        padding: 14px 12px;
+      }
+
+      .flight-summary-label {
+        color: #68736f;
+        font-size: 13px;
+      }
+
+      .flight-summary-value {
+        margin-top: 8px;
+        font-size: 28px;
+        font-weight: 800;
+      }
+
+      .chart-card,
+      .arrivals-card {
+        padding: 16px;
+      }
+
+      .panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .panel-title {
+        font-size: 18px;
+        font-weight: 800;
+      }
+
+      .panel-subtitle {
+        margin-top: 4px;
+        color: #68736f;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .date-chips {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      .date-chip {
+        width: auto;
+        min-width: 0;
+        height: 54px;
+        padding: 6px 8px;
+        border: 1px solid #d5e0dc;
+        border-radius: 8px;
+        background: #f8faf9;
+        color: #163730;
+        font-size: 12px;
+        line-height: 1.2;
+      }
+
+      .date-chip strong {
+        display: block;
+        margin-top: 6px;
+        font-size: 17px;
+      }
+
+      .date-chip.active {
+        border-color: #0f7b68;
+        background: #e8f6f2;
+      }
+
+      .hour-chart {
+        display: grid;
+        grid-template-columns: repeat(24, minmax(10px, 1fr));
+        align-items: end;
+        gap: 6px;
+        height: 220px;
+        margin-top: 18px;
+        padding: 12px 10px 28px;
+        border-radius: 8px;
+        background: linear-gradient(180deg, #f8fbfa 0%, #eef5f2 100%);
+      }
+
+      .hour-bar {
+        position: relative;
+        display: flex;
+        align-items: end;
+        justify-content: center;
+        height: 100%;
+      }
+
+      .hour-bar-fill {
+        width: 100%;
+        min-height: 4px;
+        border-radius: 6px 6px 2px 2px;
+        background: linear-gradient(180deg, #1ea58a 0%, #0f7b68 100%);
+      }
+
+      .hour-bar-label {
+        position: absolute;
+        bottom: -22px;
+        color: #73807b;
+        font-size: 11px;
+      }
+
+      .hour-bar-value {
+        position: absolute;
+        top: -18px;
+        color: #22423b;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .arrivals-list {
+        display: grid;
+        gap: 10px;
+        margin-top: 16px;
+      }
+
+      .arrival-item {
+        padding: 14px;
+        border: 1px solid #e1e9e6;
+        border-radius: 8px;
+        background: #fbfcfc;
+      }
+
+      .arrival-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: flex-start;
+      }
+
+      .arrival-flight {
+        font-size: 18px;
+        font-weight: 800;
+      }
+
+      .arrival-airline {
+        margin-top: 4px;
+        color: #68736f;
+        font-size: 13px;
+      }
+
+      .arrival-status {
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #eef6f3;
+        color: #0f6b56;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .arrival-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 14px;
+      }
+
+      .arrival-grid .k {
+        font-size: 11px;
+      }
+
+      .arrival-grid .v {
+        font-size: 14px;
+      }
+
+      .flight-empty {
+        margin-top: 14px;
+        padding: 20px 14px;
+        border-radius: 8px;
+        background: #f7faf8;
+        color: #68736f;
+        text-align: center;
+        font-size: 14px;
+      }
+
       @media (max-width: 680px) {
         .top {
           padding: 26px 18px 42px;
@@ -621,6 +867,34 @@
           grid-template-columns: 1fr;
         }
 
+        .flight-summary,
+        .arrival-grid,
+        .date-chips {
+          grid-template-columns: 1fr;
+        }
+
+        .flight-controls,
+        .panel-head,
+        .arrival-top {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .segmented {
+          width: 100%;
+        }
+
+        .segment-button,
+        .date-chip {
+          width: 100%;
+        }
+
+        .hour-chart {
+          gap: 4px;
+          padding-inline: 6px;
+          overflow-x: auto;
+        }
+
         #submit,
         .small-button,
         .remove-button {
@@ -654,10 +928,15 @@
             <div class="feature-title">查 TLC 违章</div>
             <div class="feature-desc">输入车牌号，查询 TLC 车辆资料和停车 / 摄像头违章记录。</div>
           </button>
+          <button class="feature-card" type="button" data-open-module="flights">
+            <span class="feature-icon">F</span>
+            <div class="feature-title">航班信息</div>
+            <div class="feature-desc">查看 JFK / LGA 当前到港航班、航站楼、预计 / 实际到达时间，以及最近 7 天按小时统计。</div>
+          </button>
           <button class="feature-card" type="button" data-open-module="receipt">
             <span class="feature-icon">$</span>
             <div class="feature-title">AI 图片生成</div>
-            <div class="feature-desc">上传任意图片，输入 prompt，调用 Gemini 生成一张新图片。</div>
+            <div class="feature-desc">上传任意图片，输入 prompt，调用 OpenAI 生成一张新图片。</div>
           </button>
         </div>
       </section>
@@ -678,6 +957,65 @@
         <div id="result"></div>
       </section>
 
+      <section class="wrap module hidden" id="flights-module">
+        <div class="module-bar">
+          <button class="back-button" type="button" data-back-home>‹ 返回首页</button>
+          <div class="module-name">航班信息</div>
+        </div>
+        <section class="tool flight-tool">
+          <div class="flight-controls">
+            <div class="segmented" role="tablist" aria-label="机场选择">
+              <button class="segment-button active" type="button" data-airport="JFK">JFK</button>
+              <button class="segment-button" type="button" data-airport="LGA">LGA</button>
+            </div>
+            <label class="flight-search">
+              <input id="flight-search" maxlength="12" autocomplete="off" placeholder="搜索航班号，例如 DL1034" />
+            </label>
+            <div>
+              <button class="small-button" id="refresh-flights" type="button">刷新</button>
+              <div class="refresh-note" id="flight-updated-at">每分钟自动刷新一次</div>
+            </div>
+          </div>
+
+          <div class="flight-summary" id="flight-summary">
+            <div class="flight-summary-card">
+              <div class="flight-summary-label">实时到港</div>
+              <div class="flight-summary-value" id="flight-total">-</div>
+            </div>
+            <div class="flight-summary-card">
+              <div class="flight-summary-label">已落地</div>
+              <div class="flight-summary-value" id="flight-landed">-</div>
+            </div>
+            <div class="flight-summary-card">
+              <div class="flight-summary-label">延误航班</div>
+              <div class="flight-summary-value" id="flight-delayed">-</div>
+            </div>
+          </div>
+
+          <section class="chart-card">
+            <div class="panel-head">
+              <div>
+                <div class="panel-title">最近 7 天到港统计</div>
+                <div class="panel-subtitle">按小时统计到达数量。选择具体日期后，下方图表会切到该日 24 小时分布。</div>
+              </div>
+              <div class="refresh-note" id="chart-total">-</div>
+            </div>
+            <div class="date-chips" id="flight-date-chips"></div>
+            <div class="hour-chart" id="hour-chart"></div>
+          </section>
+
+          <section class="arrivals-card">
+            <div class="panel-head">
+              <div>
+                <div class="panel-title">当前到港航班</div>
+                <div class="panel-subtitle">显示当前列表中的航班号、预计到达、实际到达、航站楼和登机口。数据会随页面每分钟自动刷新。</div>
+              </div>
+            </div>
+            <div class="arrivals-list" id="arrivals-list"></div>
+          </section>
+        </section>
+      </section>
+
       <section class="wrap module hidden" id="receipt-module">
         <div class="module-bar">
           <button class="back-button" type="button" data-back-home>‹ 返回首页</button>
@@ -686,8 +1024,8 @@
         <section class="tool" id="receipt-tool">
           <div class="tool-head">
             <div>
-              <div class="tool-title">Gemini 图片生成</div>
-              <div class="tool-subtitle">上传一张你有权处理的图片，填写 prompt，后端会调用 Gemini 生成一张新的图片供你保存。</div>
+              <div class="tool-title">OpenAI 图片生成</div>
+              <div class="tool-subtitle">上传一张你有权处理的图片，填写 prompt，后端会调用 OpenAI 图片接口生成一张新的图片供你保存。</div>
             </div>
             <label class="upload-button">
               上传图片
@@ -696,7 +1034,7 @@
           </div>
 
           <div class="receipt-layout">
-            <div class="receipt-preview" id="receipt-preview">请选择一张图片<br />图片会发送给你配置的 Gemini API 生成新图</div>
+            <div class="receipt-preview" id="receipt-preview">请选择一张图片<br />图片会发送给你配置的 OpenAI 图片接口生成新图</div>
             <div class="amount-panel">
               <label>
                 <span class="field-label">Prompt</span>
@@ -721,6 +1059,15 @@
 
       const $ = (selector) => document.querySelector(selector);
       const result = $("#result");
+      const flightState = {
+        airport: "JFK",
+        history: [],
+        flights: [],
+        query: "",
+        selectedDate: "",
+        timer: null,
+        loading: false
+      };
       const receiptState = {
         imageUrl: "",
         sourceBase64: "",
@@ -743,6 +1090,9 @@
       }
 
       const API_BASE = window.API_BASE_URL || "";
+      const HAS_LOCAL_API = ["127.0.0.1", "localhost"].includes(window.location.hostname);
+      const OPENAI_API_URL = API_BASE ? `${API_BASE}/api/openai-image` : (HAS_LOCAL_API ? "/api/openai-image" : "");
+      const FLIGHTS_API_URL = API_BASE ? `${API_BASE}/api/flights` : (HAS_LOCAL_API ? "/api/flights" : "");
 
       async function savePlateSearchRecord(record) {
         try {
@@ -762,13 +1112,181 @@
       function showModule(name) {
         $("#home-screen").classList.toggle("hidden", Boolean(name));
         $("#tlc-module").classList.toggle("hidden", name !== "tlc");
+        $("#flights-module").classList.toggle("hidden", name !== "flights");
         $("#receipt-module").classList.toggle("hidden", name !== "receipt");
+        if (name === "flights") {
+          loadFlights();
+          startFlightRefresh();
+        } else {
+          stopFlightRefresh();
+        }
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
-      async function generateGeminiImage() {
+      function stopFlightRefresh() {
+        if (flightState.timer) {
+          window.clearInterval(flightState.timer);
+          flightState.timer = null;
+        }
+      }
+
+      function startFlightRefresh() {
+        stopFlightRefresh();
+        flightState.timer = window.setInterval(() => {
+          if (!$("#flights-module").classList.contains("hidden")) {
+            loadFlights(true);
+          }
+        }, 60_000);
+      }
+
+      function renderFlightHistory() {
+        const chips = $("#flight-date-chips");
+        const chart = $("#hour-chart");
+        chips.innerHTML = "";
+        chart.innerHTML = "";
+
+        if (!flightState.history.length) {
+          chips.innerHTML = `<div class="flight-empty">最近 7 天统计暂时不可用。</div>`;
+          chart.innerHTML = "";
+          $("#chart-total").textContent = "-";
+          return;
+        }
+
+        const selected =
+          flightState.history.find((item) => item.date === flightState.selectedDate) || flightState.history[flightState.history.length - 1];
+        flightState.selectedDate = selected.date;
+        $("#chart-total").textContent = `${selected.label} · 共 ${selected.total} 架到港`;
+
+        chips.innerHTML = flightState.history
+          .map(
+            (item) => `
+              <button class="date-chip ${item.date === selected.date ? "active" : ""}" type="button" data-flight-date="${item.date}">
+                ${item.label}
+                <strong>${item.total}</strong>
+              </button>
+            `
+          )
+          .join("");
+
+        const maxValue = Math.max(...selected.hourly, 1);
+        chart.innerHTML = selected.hourly
+          .map((value, hour) => {
+            const height = Math.max(4, Math.round((value / maxValue) * 160));
+            const label = hour % 3 === 0 ? `${String(hour).padStart(2, "0")}` : "";
+            return `
+              <div class="hour-bar">
+                <span class="hour-bar-value">${value || ""}</span>
+                <div class="hour-bar-fill" style="height:${height}px"></div>
+                <span class="hour-bar-label">${label}</span>
+              </div>
+            `;
+          })
+          .join("");
+
+        chips.querySelectorAll("[data-flight-date]").forEach((button) => {
+          button.addEventListener("click", () => {
+            flightState.selectedDate = button.dataset.flightDate;
+            renderFlightHistory();
+          });
+        });
+      }
+
+      function renderFlightList() {
+        const root = $("#arrivals-list");
+        const flights = flightState.query
+          ? flightState.flights.filter((item) => String(item.flightNumber || "").toUpperCase().includes(flightState.query))
+          : flightState.flights;
+
+        if (!flights.length) {
+          root.innerHTML = `<div class="flight-empty">${flightState.query ? "没有匹配的航班号。" : "当前没有抓取到航班到港数据，请稍后刷新。"}</div>`;
+          return;
+        }
+
+        root.innerHTML = flights
+          .map(
+            (item) => `
+              <article class="arrival-item">
+                <div class="arrival-top">
+                  <div>
+                    <div class="arrival-flight">${item.flightNumber}</div>
+                    <div class="arrival-airline">${compact(item.airline)}${item.gate ? ` · Gate ${item.gate}` : ""}</div>
+                  </div>
+                  <div class="arrival-status">${compact(item.status)}</div>
+                </div>
+                <div class="arrival-grid">
+                  <div><div class="k">预计到达</div><div class="v">${compact(item.estimatedArrival)}</div></div>
+                  <div><div class="k">实际到达</div><div class="v">${compact(item.actualArrival)}</div></div>
+                  <div><div class="k">计划到达</div><div class="v">${compact(item.scheduledArrival)}</div></div>
+                  <div><div class="k">航站楼</div><div class="v">${compact(item.terminal)}</div></div>
+                  <div><div class="k">航班号</div><div class="v">${compact(item.flightNumber)}</div></div>
+                </div>
+              </article>
+            `
+          )
+          .join("");
+      }
+
+      function formatUpdatedAt(value) {
+        if (!value) return "每分钟自动刷新一次";
+        const date = new Date(value);
+        return `更新于 ${date.toLocaleString("zh-CN", {
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          timeZone: "America/New_York"
+        })}`;
+      }
+
+      async function loadFlights(silent = false) {
+        if (!FLIGHTS_API_URL) {
+          $("#arrivals-list").innerHTML = `<div class="flight-empty">当前页面没有配置航班后端地址。本地开发可直接使用 /api/flights。</div>`;
+          return;
+        }
+        if (flightState.loading) return;
+        flightState.loading = true;
+        $("#refresh-flights").disabled = true;
+        $("#refresh-flights").textContent = "刷新中";
+        if (!silent) {
+          $("#arrivals-list").innerHTML = `<div class="flight-empty">正在加载 ${flightState.airport} 到港航班...</div>`;
+        }
+
+        try {
+          const response = await fetch(`${FLIGHTS_API_URL}?airport=${flightState.airport}`);
+          const payload = await response.json();
+          if (!response.ok || !payload.ok) {
+            throw new Error(payload.error || "flight_fetch_failed");
+          }
+
+          $("#flight-total").textContent = payload.live.total;
+          $("#flight-landed").textContent = payload.live.landed;
+          $("#flight-delayed").textContent = payload.live.delayed;
+          $("#flight-updated-at").textContent = formatUpdatedAt(payload.updatedAt);
+          flightState.history = payload.history || [];
+          flightState.flights = payload.live.flights || [];
+          if (!flightState.selectedDate || !flightState.history.some((item) => item.date === flightState.selectedDate)) {
+            flightState.selectedDate = flightState.history.length ? flightState.history[flightState.history.length - 1].date : "";
+          }
+          renderFlightHistory();
+          renderFlightList();
+        } catch (error) {
+          $("#arrivals-list").innerHTML = `<div class="flight-empty">航班数据加载失败：${error.message || "请稍后再试。"}</div>`;
+          $("#chart-total").textContent = "加载失败";
+        } finally {
+          flightState.loading = false;
+          $("#refresh-flights").disabled = false;
+          $("#refresh-flights").textContent = "刷新";
+        }
+      }
+
+      async function generateOpenAIImage() {
         if (!receiptState.sourceBase64 || !receiptState.mimeType) {
           $("#receipt-status").textContent = "请先上传一张图片。";
+          return;
+        }
+
+        if (!OPENAI_API_URL) {
+          $("#receipt-status").textContent = "当前页面还没有配置 OpenAI 后端地址。GitHub Pages 只能展示前端，生成图片需要单独部署后端并设置 API_BASE_URL。";
           return;
         }
 
@@ -781,10 +1299,10 @@
         receiptState.prompt = prompt;
         $("#generate-image").disabled = true;
         $("#generate-image").textContent = "生成中";
-        $("#receipt-status").textContent = "正在调用 Gemini 生成新图片...";
+        $("#receipt-status").textContent = "正在调用 OpenAI 生成新图片...";
 
         try {
-          const response = await fetch(`${API_BASE}/api/gemini-image`, {
+          const response = await fetch(OPENAI_API_URL, {
             method: "POST",
             headers: {
               "Content-Type": "application/json"
@@ -804,11 +1322,12 @@
           receiptState.generatedMimeType = payload.mimeType || "image/png";
           const generatedUrl = `data:${receiptState.generatedMimeType};base64,${receiptState.generatedBase64}`;
           $("#receipt-preview").classList.add("has-image");
-          $("#receipt-preview").innerHTML = `<img src="${generatedUrl}" alt="Gemini 生成图片预览" />`;
+          $("#receipt-preview").innerHTML = `<img src="${generatedUrl}" alt="OpenAI 生成图片预览" />`;
           $("#export-receipt").disabled = false;
           $("#receipt-status").textContent = "新图片已生成，可以直接保存。";
         } catch (error) {
-          $("#receipt-status").textContent = `生成失败：${error.message || "请稍后再试。"}`;
+          const message = error && error.message ? error.message : "请稍后再试。";
+          $("#receipt-status").textContent = `生成失败：${message}`;
         } finally {
           $("#generate-image").disabled = false;
           $("#generate-image").textContent = "生成新图片";
@@ -977,6 +1496,24 @@
         button.addEventListener("click", () => showModule(""));
       });
 
+      document.querySelectorAll("[data-airport]").forEach((button) => {
+        button.addEventListener("click", () => {
+          flightState.airport = button.dataset.airport;
+          flightState.query = "";
+          $("#flight-search").value = "";
+          document.querySelectorAll("[data-airport]").forEach((item) => item.classList.toggle("active", item === button));
+          loadFlights();
+        });
+      });
+
+      $("#refresh-flights").addEventListener("click", () => loadFlights());
+
+      $("#flight-search").addEventListener("input", (event) => {
+        event.target.value = cleanPlate(event.target.value);
+        flightState.query = event.target.value;
+        renderFlightList();
+      });
+
       $("#receipt-file").addEventListener("change", (event) => {
         const file = event.target.files && event.target.files[0];
         if (!file) return;
@@ -998,7 +1535,7 @@
         reader.readAsDataURL(file);
       });
 
-      $("#generate-image").addEventListener("click", generateGeminiImage);
+      $("#generate-image").addEventListener("click", generateOpenAIImage);
 
       $("#export-receipt").addEventListener("click", () => {
         if (!receiptState.generatedBase64 || !receiptState.generatedMimeType) {
@@ -1008,7 +1545,7 @@
 
         const link = document.createElement("a");
         const extension = receiptState.generatedMimeType.split("/")[1] || "png";
-        link.download = `gemini-generated-image.${extension}`;
+        link.download = `openai-generated-image.${extension}`;
         link.href = `data:${receiptState.generatedMimeType};base64,${receiptState.generatedBase64}`;
         link.click();
       });

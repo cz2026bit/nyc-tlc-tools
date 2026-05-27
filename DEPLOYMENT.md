@@ -51,7 +51,9 @@ npm start
 
 1. 复制 `.env.example` 为 `.env`
 2. 填入：
-   - `GEMINI_API_KEY`
+   - `OPENAI_API_KEY`
+   - `OPENAI_IMAGE_MODEL`
+   - `OPENAI_IMAGE_QUALITY`
    - `SUPABASE_URL`
    - `SUPABASE_SERVICE_ROLE_KEY`
 3. 启动：
@@ -66,6 +68,8 @@ npm start
 
 如果 `.env` 留空，后端会退回到本地文件存储，数据写入 `data/plate-searches.json`。
 
-如果你要启用 Gemini 图片生成接口，还需要填写：
+如果你要启用 OpenAI 图片生成接口，还需要填写：
 
-- `GEMINI_API_KEY`
+- `OPENAI_API_KEY`
+- `OPENAI_IMAGE_MODEL`，默认建议先用 `gpt-image-1`
+- `OPENAI_IMAGE_QUALITY`，默认建议先用 `low`
