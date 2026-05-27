@@ -7,6 +7,8 @@ const fsp = fs.promises
 const publicRoot = __dirname
 const dataDir = path.join(__dirname, "data")
 const dataFile = path.join(dataDir, "plate-searches.json")
+const serverHost = process.env.HOST || "0.0.0.0"
+const serverPort = Number(process.env.PORT || 8787)
 
 loadEnvFile()
 
@@ -695,8 +697,11 @@ const server = http.createServer((req, res) => {
 
 ensureStore()
   .then(() => {
-    server.listen(8787, "127.0.0.1", () => {
-      console.log("http://127.0.0.1:8787/")
+    server.listen(serverPort, serverHost, () => {
+      console.log(`http://127.0.0.1:${serverPort}/`)
+      if (serverHost === "0.0.0.0") {
+        console.log(`Listening on local network port ${serverPort}`)
+      }
     })
   })
   .catch((error) => {
