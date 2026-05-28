@@ -260,6 +260,14 @@ function getAirportConfig(code) {
   throw new Error("unsupported_airport")
 }
 
+function getArrivalPeriodUrls(airport) {
+  return [0, 6, 12, 18].map((period) => {
+    const url = new URL(airport.liveUrl)
+    url.searchParams.set("tp", String(period))
+    return url.toString()
+  })
+}
+
 function extractJsonArray(source, marker) {
   const endMarker = '],"showCodeshares"'
   const endIndex = source.lastIndexOf(endMarker)
@@ -383,11 +391,12 @@ async function fetchLiveAirportArrivals(code) {
   const cached = flightCache.get(cacheKey)
   if (cached && cached.expiresAt > Date.now()) return cached.value
 
-  const html = await fetchText(airport.liveUrl)
-  const rows = html
-    .split('<div class="flight-row">')
-    .slice(1, 19)
+  const pages = await Promise.all(getArrivalPeriodUrls(airport).map((url) => fetchText(url)))
+  const seen = new Set()
+  const rows = pages
+    .flatMap((html) => html.split('<div class="flight-row">').slice(1))
     .map((chunk) => {
+      const originMatch = chunk.match(/flight-col__dest-term">([\s\S]*?)<\/div>/i)
       const timeMatch = chunk.match(/flight-col__hour">([\s\S]*?)<\/div>/i)
       const flightMatch = chunk.match(/flight-col__flight">\s*<a href="([^"]+)"[^>]*>([^<]+)<\/a>/i)
       const terminalMatch = chunk.match(/flight-col__terminal">([\s\S]*?)<\/div>/i)
@@ -395,19 +404,32 @@ async function fetchLiveAirportArrivals(code) {
       const airlineMatch = chunk.match(/flight-col__airline[\s\S]*?<a[^>]*>([\s\S]*?)<\/a>/i)
       if (!flightMatch) return null
 
+      const flightNumber = stripTags(flightMatch[2])
+      const scheduledArrival = stripTags(timeMatch ? timeMatch[1] : "")
+      const detailUrl = new URL(flightMatch[1], airport.liveRoot).toString()
+      const rowKey = `${flightNumber}:${scheduledArrival}:${detailUrl}`
+      if (seen.has(rowKey)) return null
+      seen.add(rowKey)
+
       return {
-        flightNumber: stripTags(flightMatch[2]),
-        detailUrl: new URL(flightMatch[1], airport.liveRoot).toString(),
-        scheduledArrival: stripTags(timeMatch ? timeMatch[1] : ""),
+        flightNumber,
+        detailUrl,
+        origin: stripTags(originMatch ? originMatch[1] : ""),
+        scheduledArrival,
         terminal: stripTags(terminalMatch ? terminalMatch[1] : ""),
         status: stripTags(statusMatch ? statusMatch[1] : ""),
         airline: stripTags(airlineMatch ? airlineMatch[1] : "")
       }
     })
     .filter(Boolean)
+    .sort((a, b) => toMinutes(a.scheduledArrival) - toMinutes(b.scheduledArrival))
 
   const enriched = await Promise.all(
-    rows.map(async (item) => {
+    rows.map(async (item, index) => {
+      if (index >= 48) {
+        return withFallbackArrivalTimes(item)
+      }
+
       try {
         const detailHtml = await fetchText(item.detailUrl)
         const detail = parseAirportDetailPage(detailHtml)
@@ -422,12 +444,7 @@ async function fetchLiveAirportArrivals(code) {
           actualArrival: detail.actualArrival || (/landed/i.test(detail.status || item.status) ? fallbackObserved : "")
         }
       } catch (error) {
-        return {
-          ...item,
-          gate: "",
-          estimatedArrival: "",
-          actualArrival: ""
-        }
+        return withFallbackArrivalTimes(item)
       }
     })
   )
@@ -438,6 +455,27 @@ async function fetchLiveAirportArrivals(code) {
   }
   flightCache.set(cacheKey, { expiresAt: Date.now() + 60_000, value })
   return value
+}
+
+function toMinutes(value) {
+  const match = String(value || "").trim().match(/^(\d{1,2}):(\d{2})\s*(am|pm)?$/i)
+  if (!match) return 0
+  let hour = Number(match[1])
+  const minute = Number(match[2])
+  const suffix = String(match[3] || "").toLowerCase()
+  if (suffix === "pm" && hour < 12) hour += 12
+  if (suffix === "am" && hour === 12) hour = 0
+  return hour * 60 + minute
+}
+
+function withFallbackArrivalTimes(item) {
+  const isLanded = /landed/i.test(item.status)
+  return {
+    ...item,
+    gate: item.gate || "",
+    estimatedArrival: isLanded ? "" : item.estimatedArrival || item.scheduledArrival,
+    actualArrival: isLanded ? item.actualArrival || item.scheduledArrival : ""
+  }
 }
 
 async function buildFlightOverview(code) {
