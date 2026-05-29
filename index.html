@@ -709,6 +709,38 @@
         background: linear-gradient(180deg, #f8fbfa 0%, #eef5f2 100%);
       }
 
+      .chart-toolbar {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 12px;
+      }
+
+      .metric-toggle {
+        display: inline-grid;
+        grid-template-columns: repeat(2, minmax(84px, 1fr));
+        gap: 4px;
+        padding: 4px;
+        border: 1px solid #cad9d4;
+        border-radius: 8px;
+        background: #f8fbfa;
+      }
+
+      .metric-button {
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        color: #52645f;
+        font-size: 13px;
+        font-weight: 800;
+        padding: 8px 12px;
+        cursor: pointer;
+      }
+
+      .metric-button.active {
+        background: #0f7b68;
+        color: #fff;
+      }
+
       .hour-bar {
         display: grid;
         grid-template-rows: 26px minmax(0, 1fr) 22px;
@@ -1268,6 +1300,10 @@
               <div class="flight-summary-label">延误航班</div>
               <div class="flight-summary-value" id="flight-delayed">-</div>
             </div>
+            <div class="flight-summary-card">
+              <div class="flight-summary-label">预估到港人数</div>
+              <div class="flight-summary-value" id="flight-passengers">-</div>
+            </div>
           </div>
 
           <div class="terminal-stats" id="terminal-stats"></div>
@@ -1279,6 +1315,12 @@
                 <div class="panel-subtitle">按纽约时间 0 点到 24 点统计当天每小时到达航班数量。点击小时列查看该时段完整列表。</div>
               </div>
               <div class="refresh-note" id="chart-total">-</div>
+            </div>
+            <div class="chart-toolbar" role="group" aria-label="统计方式">
+              <div class="metric-toggle">
+                <button class="metric-button active" type="button" data-chart-metric="flights">航班数</button>
+                <button class="metric-button" type="button" data-chart-metric="passengers">人数</button>
+              </div>
             </div>
             <div class="hour-chart" id="hour-chart"></div>
           </section>
@@ -1345,6 +1387,7 @@
         flights: [],
         query: "",
         selectedHour: null,
+        chartMetric: "flights",
         page: 1,
         pageSize: 20,
         timer: null,
@@ -1467,6 +1510,23 @@
         return `${start}:00-${end}:59`;
       }
 
+      function formatChartNumber(value) {
+        const number = Number(value || 0);
+        return number >= 1000 ? `${Math.round(number / 100) / 10}K` : String(number);
+      }
+
+      function getChartValues(stats) {
+        return flightState.chartMetric === "passengers" ? (stats.hourlyPassengers || []) : stats.hourly;
+      }
+
+      function getChartUnit() {
+        return flightState.chartMetric === "passengers" ? "人" : "架";
+      }
+
+      function sumPassengers(items) {
+        return items.reduce((sum, item) => sum + Number(item.passengerCount || 0), 0);
+      }
+
       function renderFlightHistory() {
         const chart = $("#hour-chart");
         chart.innerHTML = "";
@@ -1478,20 +1538,24 @@
         }
 
         const stats = flightState.todayStats;
+        const values = getChartValues(stats);
+        const unit = getChartUnit();
+        const metricTotal = flightState.chartMetric === "passengers" ? (stats.totalPassengers || sumPassengers(flightState.flights)) : stats.total;
         if (flightState.selectedHour === null) {
-          const upcomingTotal = flightState.flights.filter((item) => getArrivalMinutes(item) >= getNewYorkMinutes()).length;
-          $("#chart-total").textContent = `今天 · 共 ${stats.total} 架到港 · 当前时间之后 ${upcomingTotal} 架`;
+          const upcomingFlights = flightState.flights.filter((item) => getArrivalMinutes(item) >= getNewYorkMinutes());
+          const upcomingTotal = flightState.chartMetric === "passengers" ? sumPassengers(upcomingFlights) : upcomingFlights.length;
+          $("#chart-total").textContent = `今天 · 共 ${formatChartNumber(metricTotal)} ${unit} · 当前时间之后 ${formatChartNumber(upcomingTotal)} ${unit}`;
         } else {
-          const selectedHourTotal = stats.hourly[flightState.selectedHour] || 0;
-          $("#chart-total").textContent = `今天 · 共 ${stats.total} 架到港 · ${formatHourRange(flightState.selectedHour)} 共 ${selectedHourTotal} 架`;
+          const selectedHourTotal = values[flightState.selectedHour] || 0;
+          $("#chart-total").textContent = `今天 · 共 ${formatChartNumber(metricTotal)} ${unit} · ${formatHourRange(flightState.selectedHour)} 共 ${formatChartNumber(selectedHourTotal)} ${unit}`;
         }
-        const maxValue = Math.max(...stats.hourly, 1);
-        chart.innerHTML = stats.hourly
+        const maxValue = Math.max(...values, 1);
+        chart.innerHTML = values
           .map((value, hour) => {
             const height = Math.max(4, Math.round((value / maxValue) * 160));
             return `
-              <button class="hour-bar ${hour === flightState.selectedHour ? "active" : ""}" type="button" data-flight-hour="${hour}" aria-label="${formatHourRange(hour)} 到港 ${value} 架">
-                <span class="hour-bar-value">${value || ""}</span>
+              <button class="hour-bar ${hour === flightState.selectedHour ? "active" : ""}" type="button" data-flight-hour="${hour}" aria-label="${formatHourRange(hour)} 到港 ${formatChartNumber(value)} ${unit}">
+                <span class="hour-bar-value">${value ? formatChartNumber(value) : ""}</span>
                 <span class="hour-bar-track"><span class="hour-bar-fill" style="height:${height}px"></span></span>
                 <span class="hour-bar-label">${String(hour).padStart(2, "0")}</span>
               </button>
@@ -1547,7 +1611,7 @@
                 </div>
                 <div class="arrival-grid">
                   <div class="arrival-terminal"><div class="k">航站楼</div><div class="v">${compact(item.terminal)}</div></div>
-                  <div class="time-field"><div class="k">${timeHelpLabel("预估人数", "当前公开航班源不提供实际乘客数；这里按货运识别和航线类型做粗略估算，只用于运营参考。")}</div><div class="v">${compact(item.passengerLabel || item.passengerCount)}</div></div>
+                  <div class="time-field"><div class="k">${timeHelpLabel("预估人数", compact(item.passengerNote, "按机型座位容量估算，非实际登机人数。"))}</div><div class="v">${compact(item.passengerLabel || item.passengerCount)}</div></div>
                   <div class="time-field"><div class="k">${timeHelpLabel("预计到达", "根据实时飞行状态更新后的到达预测时间，可能会随延误、提前或飞行状态变化。")}</div><div class="v">${compact(item.estimatedArrival)}</div></div>
                   <div class="time-field"><div class="k">${timeHelpLabel("实际到达", "航班已经落地后的真实到达时间。未落地时通常为空。")}</div><div class="v">${compact(item.actualArrival)}</div></div>
                   <div class="time-field"><div class="k">${timeHelpLabel("计划到达", "航司原始排班或时刻表中的到达时间，也就是原定到达时间。")}</div><div class="v">${compact(item.scheduledArrival)}</div></div>
@@ -1648,6 +1712,7 @@
           $("#flight-total").textContent = payload.live.total;
           $("#flight-landed").textContent = payload.live.landed;
           $("#flight-delayed").textContent = payload.live.delayed;
+          $("#flight-passengers").textContent = formatChartNumber(payload.live.passengers || 0);
           $("#flight-updated-at").textContent = formatUpdatedAt(payload.updatedAt);
           flightState.todayStats = payload.today || null;
           flightState.flights = payload.live.flights || [];
@@ -1965,6 +2030,16 @@
       });
 
       $("#refresh-flights").addEventListener("click", () => loadFlights());
+
+      document.querySelectorAll("[data-chart-metric]").forEach((button) => {
+        button.addEventListener("click", () => {
+          flightState.chartMetric = button.dataset.chartMetric;
+          document.querySelectorAll("[data-chart-metric]").forEach((item) => {
+            item.classList.toggle("active", item === button);
+          });
+          renderFlightHistory();
+        });
+      });
 
       $("#flight-search").addEventListener("input", (event) => {
         event.target.value = cleanPlate(event.target.value);

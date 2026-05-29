@@ -400,10 +400,60 @@ function parseAirportDetailPage(html) {
     status,
     terminal: extractInfoValue(section, "Terminal"),
     gate: extractInfoValue(section, "Gate"),
+    aircraft: extractInfoValue(html, "Aircraft") || extractInfoValue(html, "Equipment") || extractInfoValue(html, "Plane"),
     scheduledArrival: scheduledArrivalMatch ? stripTags(scheduledArrivalMatch[1]) : "",
     estimatedArrival: timeType === "estimated" ? observedArrival : "",
     actualArrival: timeType === "actual" ? observedArrival : /landed/i.test(status) ? observedArrival : ""
   }
+}
+
+function aircraftCapacity(value) {
+  const aircraft = String(value || "").toUpperCase()
+  const rules = [
+    [/A380|A388|AIRBUS 380/, 575],
+    [/B77W|777-300|BOEING 777/, 300],
+    [/B789|787-9|DREAMLINER/, 300],
+    [/B788|787-8/, 240],
+    [/A359|A350/, 300],
+    [/A339|A330-900|A333|A330/, 280],
+    [/A321|AIRBUS 321/, 180],
+    [/A320|AIRBUS 320/, 160],
+    [/A319|AIRBUS 319/, 128],
+    [/B739|737-900/, 178],
+    [/B738|737-800|MAX 8/, 160],
+    [/B737|737-700/, 140],
+    [/E75|E175|EMBRAER 175/, 78],
+    [/CRJ|CR9|CANADAIR/, 76]
+  ]
+  const match = rules.find(([pattern]) => pattern.test(aircraft))
+  return match ? match[1] : null
+}
+
+function inferAircraftType(item) {
+  const flightNumber = String(item.flightNumber || "").toUpperCase()
+  const airline = String(item.airline || "").toUpperCase()
+  const origin = String(item.origin || "").toUpperCase()
+  const exact = {
+    EK205: "A380",
+    B61852: "A320",
+    B61568: "A321",
+    B61802: "A321",
+    AA4390: "E175",
+    AA1044: "B737-900",
+    DL5713: "E175",
+    DL213: "A350",
+    DL4: "A350",
+    AY15: "A350"
+  }
+  if (exact[flightNumber]) return exact[flightNumber]
+  if (/^(FX|5X|QY|8C|D0)/.test(flightNumber)) return "Cargo"
+  if (/^(AA|DL|UA)\d{4}$/.test(flightNumber) && Number(flightNumber.replace(/^[A-Z]+/, "")) >= 4000) return "E175"
+  if (/EMIRATES/.test(airline) || /^EK/.test(flightNumber)) return "A380"
+  if (/FINNAIR|AIR FRANCE|VIRGIN ATLANTIC|TURKISH|ASIANA|EL AL|QATAR|ETIHAD|ANA/.test(airline)) return "A350"
+  if (/JETBLUE/.test(airline) || /^B6/.test(flightNumber)) return /LAX|SFO|LAS|SAN|SEA/.test(origin) ? "A321" : "A320"
+  if (/AMERICAN/.test(airline) || /^AA/.test(flightNumber)) return /LAX|SFO|PHX|DFW|MIA/.test(origin) ? "B737-900" : "B737-800"
+  if (/DELTA/.test(airline) || /^DL/.test(flightNumber)) return /LHR|CDG|FCO|AMS|MAD|GRU|HND|ICN|TLV/.test(origin) ? "A350" : "A320"
+  return ""
 }
 
 function estimatePassengerCount(item) {
@@ -416,7 +466,19 @@ function estimatePassengerCount(item) {
     return {
       passengerCount: 0,
       passengerLabel: "0",
-      passengerNote: "货运航班"
+      passengerNote: "货运航班",
+      aircraftType: "Cargo"
+    }
+  }
+
+  const aircraftType = item.aircraft || inferAircraftType(item)
+  const aircraftPassengers = aircraftCapacity(aircraftType)
+  if (aircraftPassengers) {
+    return {
+      passengerCount: aircraftPassengers,
+      passengerLabel: `${aircraftPassengers}`,
+      passengerNote: `按机型 ${aircraftType} 估算，非实际登机人数`,
+      aircraftType
     }
   }
 
@@ -462,7 +524,8 @@ function estimatePassengerCount(item) {
   return {
     passengerCount,
     passengerLabel: `约 ${passengerCount}`,
-    passengerNote: "按航线类型估算，非实际登机人数"
+    passengerNote: "未取得机型，按航线类型估算，非实际登机人数",
+    aircraftType: aircraftType || ""
   }
 }
 
@@ -519,6 +582,7 @@ async function fetchLiveAirportArrivals(code) {
           status: detail.status || item.status,
           terminal: detail.terminal || item.terminal,
           gate: detail.gate || "",
+          aircraft: detail.aircraft || "",
           scheduledArrival: detail.scheduledArrival || item.scheduledArrival,
           estimatedArrival: detail.estimatedArrival || (/landed/i.test(detail.status || item.status) ? "" : fallbackObserved),
           actualArrival: detail.actualArrival || (/landed/i.test(detail.status || item.status) ? fallbackObserved : "")
@@ -578,6 +642,18 @@ function buildHourlyFromFlights(flights) {
   return hourly
 }
 
+function buildHourlyPassengersFromFlights(flights) {
+  const hourly = Array.from({ length: 24 }, () => 0)
+  flights.forEach((item) => {
+    const minutes = getArrivalSortMinutes(item)
+    const hour = Math.floor(minutes / 60)
+    if (hour >= 0 && hour < 24) {
+      hourly[hour] += Number(item.passengerCount || 0)
+    }
+  })
+  return hourly
+}
+
 async function buildFlightOverview(code) {
   const airport = getAirportConfig(code)
   const live = await fetchLiveAirportArrivals(airport.code)
@@ -585,6 +661,8 @@ async function buildFlightOverview(code) {
   const delayedCount = live.flights.filter((item) => /delay/i.test(item.status)).length
   const landedCount = live.flights.filter((item) => /landed/i.test(item.status)).length
   const hourly = buildHourlyFromFlights(live.flights)
+  const hourlyPassengers = buildHourlyPassengersFromFlights(live.flights)
+  const totalPassengers = live.flights.reduce((sum, item) => sum + Number(item.passengerCount || 0), 0)
 
   return {
     airport: airport.code,
@@ -594,13 +672,16 @@ async function buildFlightOverview(code) {
       total: live.flights.length,
       landed: landedCount,
       delayed: delayedCount,
+      passengers: totalPassengers,
       flights: live.flights
     },
     today: {
       date: formatDateYmd(new Date()),
       label: "今天",
       total: live.flights.length,
-      hourly
+      totalPassengers,
+      hourly,
+      hourlyPassengers
     }
   }
 }
