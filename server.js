@@ -422,7 +422,6 @@ async function fetchLiveAirportArrivals(code) {
       }
     })
     .filter(Boolean)
-    .sort((a, b) => toMinutes(a.scheduledArrival) - toMinutes(b.scheduledArrival))
 
   const enriched = await Promise.all(
     rows.map(async (item, index) => {
@@ -449,12 +448,17 @@ async function fetchLiveAirportArrivals(code) {
     })
   )
 
+  const flights = enriched.sort((a, b) => getArrivalSortMinutes(b) - getArrivalSortMinutes(a))
   const value = {
     updatedAt: new Date().toISOString(),
-    flights: enriched
+    flights
   }
   flightCache.set(cacheKey, { expiresAt: Date.now() + 60_000, value })
   return value
+}
+
+function getArrivalSortMinutes(item) {
+  return toMinutes(item.estimatedArrival || item.actualArrival || item.scheduledArrival)
 }
 
 function toMinutes(value) {
@@ -478,16 +482,25 @@ function withFallbackArrivalTimes(item) {
   }
 }
 
+function buildHourlyFromFlights(flights) {
+  const hourly = Array.from({ length: 24 }, () => 0)
+  flights.forEach((item) => {
+    const minutes = getArrivalSortMinutes(item)
+    const hour = Math.floor(minutes / 60)
+    if (hour >= 0 && hour < 24) {
+      hourly[hour] += 1
+    }
+  })
+  return hourly
+}
+
 async function buildFlightOverview(code) {
   const airport = getAirportConfig(code)
-  const dates = createDateSeries(7)
-  const [live, history] = await Promise.all([
-    fetchLiveAirportArrivals(airport.code),
-    Promise.all(dates.map((date) => fetchFlightStatsDay(airport.code, date)))
-  ])
+  const live = await fetchLiveAirportArrivals(airport.code)
 
   const delayedCount = live.flights.filter((item) => /delay/i.test(item.status)).length
   const landedCount = live.flights.filter((item) => /landed/i.test(item.status)).length
+  const hourly = buildHourlyFromFlights(live.flights)
 
   return {
     airport: airport.code,
@@ -499,7 +512,12 @@ async function buildFlightOverview(code) {
       delayed: delayedCount,
       flights: live.flights
     },
-    history
+    today: {
+      date: formatDateYmd(new Date()),
+      label: "今天",
+      total: live.flights.length,
+      hourly
+    }
   }
 }
 
