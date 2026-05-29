@@ -707,6 +707,10 @@
         align-items: end;
         justify-content: center;
         height: 100%;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        padding: 0;
       }
 
       .hour-bar-fill {
@@ -714,6 +718,15 @@
         min-height: 4px;
         border-radius: 6px 6px 2px 2px;
         background: linear-gradient(180deg, #1ea58a 0%, #0f7b68 100%);
+      }
+
+      .hour-bar.active .hour-bar-fill {
+        background: linear-gradient(180deg, #f2b84b 0%, #c56f14 100%);
+      }
+
+      .hour-bar.active .hour-bar-label,
+      .hour-bar.active .hour-bar-value {
+        color: #7a3c08;
       }
 
       .hour-bar-label {
@@ -1090,6 +1103,7 @@
         todayStats: null,
         flights: [],
         query: "",
+        selectedHour: null,
         page: 1,
         pageSize: 40,
         timer: null,
@@ -1179,6 +1193,25 @@
         return hour * 60 + minute;
       }
 
+      function getArrivalHour(item) {
+        const minutes = getArrivalMinutes(item);
+        return minutes >= 0 ? Math.floor(minutes / 60) : -1;
+      }
+
+      function getNewYorkHour() {
+        return Number(new Intl.DateTimeFormat("en-US", {
+          hour: "2-digit",
+          hourCycle: "h23",
+          timeZone: "America/New_York"
+        }).format(new Date()));
+      }
+
+      function formatHourRange(hour) {
+        const start = String(hour).padStart(2, "0");
+        const end = String(hour).padStart(2, "0");
+        return `${start}:00-${end}:59`;
+      }
+
       function renderFlightHistory() {
         const chart = $("#hour-chart");
         chart.innerHTML = "";
@@ -1190,29 +1223,46 @@
         }
 
         const stats = flightState.todayStats;
-        $("#chart-total").textContent = `今天 · 共 ${stats.total} 架到港`;
+        if (flightState.selectedHour === null) {
+          flightState.selectedHour = getNewYorkHour();
+        }
+        const selectedHourTotal = stats.hourly[flightState.selectedHour] || 0;
+        $("#chart-total").textContent = `今天 · 共 ${stats.total} 架到港 · 当前 ${formatHourRange(flightState.selectedHour)} 共 ${selectedHourTotal} 架`;
         const maxValue = Math.max(...stats.hourly, 1);
         chart.innerHTML = stats.hourly
           .map((value, hour) => {
             const height = Math.max(4, Math.round((value / maxValue) * 160));
             const label = hour % 3 === 0 ? `${String(hour).padStart(2, "0")}` : "";
             return `
-              <div class="hour-bar">
+              <button class="hour-bar ${hour === flightState.selectedHour ? "active" : ""}" type="button" data-flight-hour="${hour}" aria-label="${formatHourRange(hour)} 到港 ${value} 架">
                 <span class="hour-bar-value">${value || ""}</span>
                 <div class="hour-bar-fill" style="height:${height}px"></div>
                 <span class="hour-bar-label">${label}</span>
-              </div>
+              </button>
             `;
           })
           .join("");
+
+        chart.querySelectorAll("[data-flight-hour]").forEach((button) => {
+          button.addEventListener("click", () => {
+            flightState.selectedHour = Number(button.dataset.flightHour);
+            flightState.page = 1;
+            renderFlightHistory();
+            renderFlightList();
+          });
+        });
       }
 
       function renderFlightList() {
         const root = $("#arrivals-list");
         const pager = $("#flight-pagination");
+        if (flightState.selectedHour === null) {
+          flightState.selectedHour = getNewYorkHour();
+        }
+        const hourFlights = flightState.flights.filter((item) => getArrivalHour(item) === flightState.selectedHour);
         const filteredFlights = flightState.query
-          ? flightState.flights.filter((item) => String(item.flightNumber || "").toUpperCase().includes(flightState.query))
-          : flightState.flights;
+          ? hourFlights.filter((item) => String(item.flightNumber || "").toUpperCase().includes(flightState.query))
+          : hourFlights;
         const flights = [...filteredFlights].sort((a, b) => getArrivalMinutes(b) - getArrivalMinutes(a));
         const totalPages = Math.max(1, Math.ceil(flights.length / flightState.pageSize));
         flightState.page = Math.min(Math.max(1, flightState.page), totalPages);
@@ -1220,7 +1270,7 @@
         const pageFlights = flights.slice(start, start + flightState.pageSize);
 
         if (!flights.length) {
-          root.innerHTML = `<div class="flight-empty">${flightState.query ? "没有匹配的航班号。" : "当前没有抓取到航班到港数据，请稍后刷新。"}</div>`;
+          root.innerHTML = `<div class="flight-empty">${flightState.query ? "该小时段没有匹配的航班号。" : `${formatHourRange(flightState.selectedHour)} 暂无到港航班。`}</div>`;
           pager.innerHTML = "";
           return;
         }
