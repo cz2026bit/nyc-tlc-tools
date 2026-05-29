@@ -127,14 +127,26 @@ function supabaseRequest(method, table, payload) {
 }
 
 async function appendSearchToSupabase(record) {
-  await supabaseRequest("POST", "plate_search_logs", {
+  const fullRecord = {
     plate: record.plate,
     module: record.module,
     vehicle_count: record.vehicleCount,
     violation_count: record.violationCount,
     total_due: record.totalDue,
     status: record.status
-  })
+  }
+
+  try {
+    await supabaseRequest("POST", "plate_search_logs", fullRecord)
+  } catch (error) {
+    if (!String(error.message || "").includes("PGRST204")) {
+      throw error
+    }
+    await supabaseRequest("POST", "plate_search_logs", {
+      plate: record.plate,
+      source: record.module || "tlc"
+    })
+  }
 }
 
 async function readSearches() {
