@@ -691,21 +691,21 @@
 
       .hour-chart {
         display: grid;
-        grid-template-columns: repeat(24, minmax(10px, 1fr));
-        align-items: end;
+        grid-template-columns: repeat(24, minmax(24px, 1fr));
+        align-items: stretch;
         gap: 6px;
-        height: 220px;
+        height: 260px;
         margin-top: 18px;
-        padding: 12px 10px 28px;
+        padding: 10px;
         border-radius: 8px;
         background: linear-gradient(180deg, #f8fbfa 0%, #eef5f2 100%);
       }
 
       .hour-bar {
-        position: relative;
-        display: flex;
-        align-items: end;
-        justify-content: center;
+        display: grid;
+        grid-template-rows: 26px minmax(0, 1fr) 22px;
+        gap: 6px;
+        align-items: stretch;
         justify-self: stretch;
         align-self: stretch;
         height: 100%;
@@ -714,7 +714,15 @@
         cursor: pointer;
         padding: 0;
         appearance: none;
+        width: 100%;
         min-width: 0;
+      }
+
+      .hour-bar-track {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        min-height: 0;
       }
 
       .hour-bar-fill {
@@ -735,18 +743,44 @@
       }
 
       .hour-bar-label {
-        position: absolute;
-        bottom: -22px;
         color: #73807b;
         font-size: 11px;
+        line-height: 22px;
+        text-align: center;
       }
 
       .hour-bar-value {
-        position: absolute;
-        top: -18px;
         color: #22423b;
         font-size: 11px;
         font-weight: 700;
+        line-height: 26px;
+        text-align: center;
+      }
+
+      .terminal-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+        gap: 10px;
+      }
+
+      .terminal-card {
+        padding: 12px;
+        border: 1px solid #dde5e2;
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .terminal-label {
+        color: #68736f;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .terminal-count {
+        margin-top: 6px;
+        color: #0b211d;
+        font-size: 24px;
+        font-weight: 900;
       }
 
       .arrivals-list {
@@ -941,6 +975,7 @@
 
         .hour-chart {
           gap: 4px;
+          grid-template-columns: repeat(24, 32px);
           padding-inline: 6px;
           overflow-x: auto;
         }
@@ -1042,11 +1077,13 @@
             </div>
           </div>
 
+          <div class="terminal-stats" id="terminal-stats"></div>
+
           <section class="chart-card">
             <div class="panel-head">
               <div>
                 <div class="panel-title">今日到港分时统计</div>
-                <div class="panel-subtitle">按纽约时间 0 点到 24 点统计当天每小时到达航班数量。</div>
+                <div class="panel-subtitle">按纽约时间 0 点到 24 点统计当天每小时到达航班数量。点击小时列查看该时段完整列表。</div>
               </div>
               <div class="refresh-note" id="chart-total">-</div>
             </div>
@@ -1235,20 +1272,21 @@
 
         const stats = flightState.todayStats;
         if (flightState.selectedHour === null) {
-          flightState.selectedHour = getNewYorkHour();
+          const upcomingTotal = flightState.flights.filter((item) => getArrivalMinutes(item) >= getNewYorkMinutes()).length;
+          $("#chart-total").textContent = `今天 · 共 ${stats.total} 架到港 · 当前时间之后 ${upcomingTotal} 架`;
+        } else {
+          const selectedHourTotal = stats.hourly[flightState.selectedHour] || 0;
+          $("#chart-total").textContent = `今天 · 共 ${stats.total} 架到港 · ${formatHourRange(flightState.selectedHour)} 共 ${selectedHourTotal} 架`;
         }
-        const selectedHourTotal = stats.hourly[flightState.selectedHour] || 0;
-        $("#chart-total").textContent = `今天 · 共 ${stats.total} 架到港 · 当前 ${formatHourRange(flightState.selectedHour)} 共 ${selectedHourTotal} 架`;
         const maxValue = Math.max(...stats.hourly, 1);
         chart.innerHTML = stats.hourly
           .map((value, hour) => {
             const height = Math.max(4, Math.round((value / maxValue) * 160));
-            const label = hour % 3 === 0 ? `${String(hour).padStart(2, "0")}` : "";
             return `
               <button class="hour-bar ${hour === flightState.selectedHour ? "active" : ""}" type="button" data-flight-hour="${hour}" aria-label="${formatHourRange(hour)} 到港 ${value} 架">
                 <span class="hour-bar-value">${value || ""}</span>
-                <div class="hour-bar-fill" style="height:${height}px"></div>
-                <span class="hour-bar-label">${label}</span>
+                <span class="hour-bar-track"><span class="hour-bar-fill" style="height:${height}px"></span></span>
+                <span class="hour-bar-label">${String(hour).padStart(2, "0")}</span>
               </button>
             `;
           })
@@ -1256,7 +1294,8 @@
 
         chart.querySelectorAll("[data-flight-hour]").forEach((button) => {
           button.addEventListener("click", () => {
-            flightState.selectedHour = Number(button.dataset.flightHour);
+            const nextHour = Number(button.dataset.flightHour);
+            flightState.selectedHour = flightState.selectedHour === nextHour ? null : nextHour;
             flightState.page = 1;
             renderFlightHistory();
             renderFlightList();
@@ -1267,13 +1306,12 @@
       function renderFlightList() {
         const root = $("#arrivals-list");
         const pager = $("#flight-pagination");
-        if (flightState.selectedHour === null) {
-          flightState.selectedHour = getNewYorkHour();
-        }
-        const hourFlights = flightState.flights.filter((item) => getArrivalHour(item) === flightState.selectedHour);
+        const baseFlights = flightState.selectedHour === null
+          ? flightState.flights.filter((item) => getArrivalMinutes(item) >= getNewYorkMinutes())
+          : flightState.flights.filter((item) => getArrivalHour(item) === flightState.selectedHour);
         const filteredFlights = flightState.query
-          ? hourFlights.filter((item) => String(item.flightNumber || "").toUpperCase().includes(flightState.query))
-          : hourFlights;
+          ? baseFlights.filter((item) => String(item.flightNumber || "").toUpperCase().includes(flightState.query))
+          : baseFlights;
         const flights = [...filteredFlights].sort((a, b) => getArrivalMinutes(a) - getArrivalMinutes(b));
         const totalPages = Math.max(1, Math.ceil(flights.length / flightState.pageSize));
         flightState.page = Math.min(Math.max(1, flightState.page), totalPages);
@@ -1281,7 +1319,10 @@
         const pageFlights = flights.slice(start, start + flightState.pageSize);
 
         if (!flights.length) {
-          root.innerHTML = `<div class="flight-empty">${flightState.query ? "该小时段没有匹配的航班号。" : `${formatHourRange(flightState.selectedHour)} 暂无到港航班。`}</div>`;
+          const emptyText = flightState.selectedHour === null
+            ? "当前时间之后暂无到港航班。"
+            : `${formatHourRange(flightState.selectedHour)} 暂无到港航班。`;
+          root.innerHTML = `<div class="flight-empty">${flightState.query ? "当前列表没有匹配的航班号。" : emptyText}</div>`;
           pager.innerHTML = "";
           return;
         }
@@ -1325,6 +1366,45 @@
         });
       }
 
+      function getNewYorkMinutes() {
+        const parts = new Intl.DateTimeFormat("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hourCycle: "h23",
+          timeZone: "America/New_York"
+        }).formatToParts(new Date());
+        const hour = Number(parts.find((item) => item.type === "hour")?.value || 0);
+        const minute = Number(parts.find((item) => item.type === "minute")?.value || 0);
+        return hour * 60 + minute;
+      }
+
+      function renderTerminalStats() {
+        const root = $("#terminal-stats");
+        const counts = new Map();
+        flightState.flights
+          .filter((item) => /landed/i.test(item.status))
+          .forEach((item) => {
+            const rawTerminal = compact(item.terminal, "未知");
+            const terminal = rawTerminal === "-" ? "未知" : rawTerminal;
+            counts.set(terminal, (counts.get(terminal) || 0) + 1);
+          });
+
+        const entries = [...counts.entries()].sort((a, b) => String(a[0]).localeCompare(String(b[0]), "en", { numeric: true }));
+        if (!entries.length) {
+          root.innerHTML = "";
+          return;
+        }
+
+        root.innerHTML = entries
+          .map(([terminal, count]) => `
+            <div class="terminal-card">
+              <div class="terminal-label">航站楼 ${terminal}</div>
+              <div class="terminal-count">${count}</div>
+            </div>
+          `)
+          .join("");
+      }
+
       function formatUpdatedAt(value) {
         if (!value) return "每分钟自动刷新一次";
         const date = new Date(value);
@@ -1363,6 +1443,7 @@
           $("#flight-updated-at").textContent = formatUpdatedAt(payload.updatedAt);
           flightState.todayStats = payload.today || null;
           flightState.flights = payload.live.flights || [];
+          renderTerminalStats();
           renderFlightHistory();
           renderFlightList();
         } catch (error) {
@@ -1596,6 +1677,7 @@
         button.addEventListener("click", () => {
           flightState.airport = button.dataset.airport;
           flightState.query = "";
+          flightState.selectedHour = null;
           flightState.page = 1;
           $("#flight-search").value = "";
           document.querySelectorAll("[data-airport]").forEach((item) => item.classList.toggle("active", item === button));
