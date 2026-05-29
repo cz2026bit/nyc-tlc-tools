@@ -1089,8 +1089,9 @@
         return value === undefined || value === null || value === "" ? fallback : value;
       }
 
-      const API_BASE = window.API_BASE_URL || "";
       const HAS_LOCAL_API = ["127.0.0.1", "localhost"].includes(window.location.hostname);
+      const RENDER_API_BASE = "https://nyc-tlc-violations.onrender.com";
+      const API_BASE = window.API_BASE_URL || (HAS_LOCAL_API ? "" : RENDER_API_BASE);
       const OPENAI_API_URL = API_BASE ? `${API_BASE}/api/openai-image` : (HAS_LOCAL_API ? "/api/openai-image" : "");
       const FLIGHTS_API_URL = API_BASE ? `${API_BASE}/api/flights` : (HAS_LOCAL_API ? "/api/flights" : "");
 
