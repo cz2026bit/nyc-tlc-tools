@@ -257,6 +257,15 @@ function getAirportConfig(code) {
       flightStatsCode: "LGA"
     }
   }
+  if (normalized === "EWR") {
+    return {
+      code: "EWR",
+      name: "Newark Liberty International Airport",
+      liveUrl: "https://www.airport-ewr.com/newark-arrivals",
+      liveRoot: "https://www.airport-ewr.com",
+      flightStatsCode: "EWR"
+    }
+  }
   throw new Error("unsupported_airport")
 }
 

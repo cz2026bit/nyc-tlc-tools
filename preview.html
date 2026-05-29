@@ -584,7 +584,7 @@
 
       .segmented {
         display: inline-grid;
-        grid-template-columns: repeat(2, minmax(88px, 1fr));
+        grid-template-columns: repeat(3, minmax(76px, 1fr));
         padding: 4px;
         border: 1px solid #cbd8d4;
         border-radius: 8px;
@@ -593,7 +593,7 @@
 
       .segment-button {
         width: auto;
-        min-width: 88px;
+        min-width: 76px;
         height: 38px;
         border-radius: 6px;
         background: transparent;
@@ -1208,7 +1208,7 @@
           <button class="feature-card" type="button" data-open-module="flights">
             <span class="feature-icon">F</span>
             <div class="feature-title">航班信息</div>
-          <div class="feature-desc">查看 JFK / LGA 当前到港航班、航站楼、预计 / 实际到达时间，以及当天按小时统计。</div>
+          <div class="feature-desc">查看 JFK / LGA / EWR 当前到港航班、航站楼、预计 / 实际到达时间，以及当天按小时统计。</div>
           </button>
           <button class="feature-card" type="button" data-open-module="receipt">
             <span class="feature-icon">$</span>
@@ -1244,6 +1244,7 @@
             <div class="segmented" role="tablist" aria-label="机场选择">
               <button class="segment-button active" type="button" data-airport="JFK">JFK</button>
               <button class="segment-button" type="button" data-airport="LGA">LGA</button>
+              <button class="segment-button" type="button" data-airport="EWR">EWR</button>
             </div>
             <label class="flight-search">
               <input id="flight-search" maxlength="12" autocomplete="off" placeholder="搜索航班号，例如 DL1034" />
