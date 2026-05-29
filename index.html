@@ -706,15 +706,20 @@
         display: flex;
         align-items: end;
         justify-content: center;
+        justify-self: stretch;
+        align-self: stretch;
         height: 100%;
         border: 0;
         background: transparent;
         cursor: pointer;
         padding: 0;
+        appearance: none;
+        min-width: 0;
       }
 
       .hour-bar-fill {
-        width: 100%;
+        width: 18px;
+        max-width: 100%;
         min-height: 4px;
         border-radius: 6px 6px 2px 2px;
         background: linear-gradient(180deg, #1ea58a 0%, #0f7b68 100%);
@@ -822,6 +827,12 @@
 
       .arrival-grid .v {
         font-size: 14px;
+      }
+
+      .arrival-terminal .v {
+        color: #0b211d;
+        font-size: 24px;
+        font-weight: 900;
       }
 
       .flight-empty {
@@ -970,7 +981,7 @@
           <button class="feature-card" type="button" data-open-module="flights">
             <span class="feature-icon">F</span>
             <div class="feature-title">航班信息</div>
-            <div class="feature-desc">查看 JFK / LGA 当前到港航班、航站楼、预计 / 实际到达时间，以及最近 7 天按小时统计。</div>
+          <div class="feature-desc">查看 JFK / LGA 当前到港航班、航站楼、预计 / 实际到达时间，以及当天按小时统计。</div>
           </button>
           <button class="feature-card" type="button" data-open-module="receipt">
             <span class="feature-icon">$</span>
@@ -1287,10 +1298,10 @@
                   <div class="arrival-status">${compact(item.status)}</div>
                 </div>
                 <div class="arrival-grid">
+                  <div class="arrival-terminal"><div class="k">航站楼</div><div class="v">${compact(item.terminal)}</div></div>
                   <div><div class="k">预计到达</div><div class="v">${compact(item.estimatedArrival)}</div></div>
                   <div><div class="k">实际到达</div><div class="v">${compact(item.actualArrival)}</div></div>
                   <div><div class="k">计划到达</div><div class="v">${compact(item.scheduledArrival)}</div></div>
-                  <div><div class="k">航站楼</div><div class="v">${compact(item.terminal)}</div></div>
                   <div><div class="k">航班号</div><div class="v">${compact(item.flightNumber)}</div></div>
                 </div>
               </article>
