@@ -1371,6 +1371,10 @@
         return value === undefined || value === null || value === "" ? fallback : value;
       }
 
+      function dateOnly(value) {
+        return value ? String(value).slice(0, 10) : "";
+      }
+
       function timeHelpLabel(label, helpText) {
         return `
           <div class="time-label">
@@ -1733,11 +1737,20 @@
               <div class="pill">${item.status}</div>
             </div>
             <div class="grid">
-              <div><div class="k">TLC 牌照号</div><div class="v">${item.licenseNumber}</div></div>
-              <div><div class="k">类型</div><div class="v">${item.type}</div></div>
               <div><div class="k">车主 / 公司</div><div class="v">${item.name}</div></div>
-              <div><div class="k">Base</div><div class="v">${item.base}</div></div>
-              <div><div class="k">到期 / 更新</div><div class="v">${item.updated}</div></div>
+              <div><div class="k">TLC 牌照号</div><div class="v">${item.licenseNumber}</div></div>
+              <div><div class="k">车辆类型</div><div class="v">${item.vehicleType}</div></div>
+              <div><div class="k">车辆年份</div><div class="v">${item.vehicleYear}</div></div>
+              <div><div class="k">VIN</div><div class="v">${item.vin}</div></div>
+              <div><div class="k">License 类型</div><div class="v">${item.licenseType}</div></div>
+              <div><div class="k">Base 编号</div><div class="v">${item.baseNumber}</div></div>
+              <div><div class="k">Base 名称</div><div class="v">${item.baseName}</div></div>
+              <div><div class="k">Base 类型</div><div class="v">${item.baseType}</div></div>
+              <div><div class="k">Base 电话</div><div class="v">${item.basePhone}</div></div>
+              <div><div class="k">Base 地址</div><div class="v">${item.baseAddress}</div></div>
+              <div><div class="k">Base 网站 / 邮箱</div><div class="v">${item.baseWebsite}</div></div>
+              <div><div class="k">到期日期</div><div class="v">${item.expirationDate}</div></div>
+              <div><div class="k">最后更新</div><div class="v">${item.updated}</div></div>
             </div>
           </article>
         `;
@@ -1768,10 +1781,19 @@
           source: "TLC For-Hire Vehicle",
           plate: compact(row.dmv_license_plate_number),
           licenseNumber: compact(row.vehicle_license_number),
-          type: compact(row.license_type),
+          licenseType: compact(row.license_type),
+          vehicleType: compact(row.vehicle_type),
+          vehicleYear: compact(row.vehicle_year),
+          vin: compact(row.vehicle_vin_number),
           name: compact(row.name),
-          base: row.base_number ? `${row.base_number} · ${compact(row.base_name)}` : compact(row.base_name),
-          updated: row.expiration_date ? `到期 ${row.expiration_date.slice(0, 10)}` : compact(row.last_date_updated),
+          baseNumber: compact(row.base_number),
+          baseName: compact(row.base_name),
+          baseType: compact(row.base_type),
+          basePhone: compact(row.base_telephone_number),
+          baseAddress: compact(row.base_address),
+          baseWebsite: compact(row.website),
+          expirationDate: compact(dateOnly(row.expiration_date)),
+          updated: compact(`${dateOnly(row.last_date_updated)} ${compact(row.last_time_updated, "")}`.trim()),
           status: row.active === "YES" ? "Active" : compact(row.active, "Unknown")
         };
       }
@@ -1781,10 +1803,19 @@
           source: "TLC Medallion Vehicle",
           plate: compact(row.dmv_license_plate_number),
           licenseNumber: compact(row.license_number),
-          type: compact(row.medallion_type),
+          licenseType: compact(row.medallion_type),
+          vehicleType: compact(row.vehicle_type),
+          vehicleYear: compact(row.model_year),
+          vin: compact(row.vehicle_vin_number),
           name: compact(row.name),
-          base: compact(row.agent_name),
-          updated: row.last_updated_date ? `更新 ${row.last_updated_date.slice(0, 10)}` : "-",
+          baseNumber: "-",
+          baseName: compact(row.agent_name),
+          baseType: "Medallion Agent",
+          basePhone: "-",
+          baseAddress: "-",
+          baseWebsite: "-",
+          expirationDate: compact(dateOnly(row.type)),
+          updated: compact(`${dateOnly(row.last_updated_date)} ${compact(row.last_updated_time, "")}`.trim()),
           status: row.current_status === "CUR" ? "Current" : compact(row.current_status, "Unknown")
         };
       }

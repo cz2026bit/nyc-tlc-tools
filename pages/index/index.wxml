@@ -72,19 +72,55 @@
           <view class="info-value">{{item.licenseNumber}}</view>
         </view>
         <view class="info-cell">
-          <view class="info-label">类型</view>
-          <view class="info-value">{{item.type}}</view>
-        </view>
-        <view class="info-cell">
           <view class="info-label">车主 / 公司</view>
           <view class="info-value">{{item.name}}</view>
         </view>
         <view class="info-cell">
-          <view class="info-label">Base</view>
-          <view class="info-value">{{item.base}}</view>
+          <view class="info-label">车辆类型</view>
+          <view class="info-value">{{item.vehicleType}}</view>
         </view>
         <view class="info-cell">
-          <view class="info-label">到期 / 更新</view>
+          <view class="info-label">车辆年份</view>
+          <view class="info-value">{{item.vehicleYear}}</view>
+        </view>
+        <view class="info-cell">
+          <view class="info-label">VIN</view>
+          <view class="info-value">{{item.vin}}</view>
+        </view>
+        <view class="info-cell">
+          <view class="info-label">License 类型</view>
+          <view class="info-value">{{item.licenseType}}</view>
+        </view>
+        <view class="info-cell">
+          <view class="info-label">Base 编号</view>
+          <view class="info-value">{{item.baseNumber}}</view>
+        </view>
+        <view class="info-cell">
+          <view class="info-label">Base 名称</view>
+          <view class="info-value">{{item.baseName}}</view>
+        </view>
+        <view class="info-cell">
+          <view class="info-label">Base 类型</view>
+          <view class="info-value">{{item.baseType}}</view>
+        </view>
+        <view class="info-cell">
+          <view class="info-label">Base 电话</view>
+          <view class="info-value">{{item.basePhone}}</view>
+        </view>
+        <view class="info-cell">
+          <view class="info-label">Base 地址</view>
+          <view class="info-value">{{item.baseAddress}}</view>
+        </view>
+        <view class="info-cell">
+          <view class="info-label">Base 网站 / 邮箱</view>
+          <view class="info-value">{{item.baseWebsite}}</view>
+        </view>
+        <view class="info-cell">
+          <view class="info-label">到期日期</view>
+          <view class="info-value">{{item.expirationDate}}</view>
+        </view>
+        <view class="info-cell">
+          <view class="info-label">最后更新</view>
           <view class="info-value">{{item.updated}}</view>
         </view>
       </view>

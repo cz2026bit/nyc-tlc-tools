@@ -62,6 +62,10 @@ function compact(value, fallback = "-") {
   return value === undefined || value === null || value === "" ? fallback : value
 }
 
+function dateOnly(value) {
+  return value ? String(value).slice(0, 10) : ""
+}
+
 function requestDataset(datasetId, params) {
   return new Promise((resolve, reject) => {
     wx.request({
@@ -115,10 +119,19 @@ function mapFhvVehicle(row) {
     source: "TLC For-Hire Vehicle",
     plate: compact(row.dmv_license_plate_number),
     licenseNumber: compact(row.vehicle_license_number),
-    type: compact(row.license_type),
+    licenseType: compact(row.license_type),
+    vehicleType: compact(row.vehicle_type),
+    vehicleYear: compact(row.vehicle_year),
+    vin: compact(row.vehicle_vin_number),
     name: compact(row.name),
-    base: row.base_number ? `${row.base_number} · ${compact(row.base_name)}` : compact(row.base_name),
-    updated: row.expiration_date ? `到期 ${row.expiration_date.slice(0, 10)}` : compact(row.last_date_updated),
+    baseNumber: compact(row.base_number),
+    baseName: compact(row.base_name),
+    baseType: compact(row.base_type),
+    basePhone: compact(row.base_telephone_number),
+    baseAddress: compact(row.base_address),
+    baseWebsite: compact(row.website),
+    expirationDate: compact(dateOnly(row.expiration_date)),
+    updated: compact(`${dateOnly(row.last_date_updated)} ${compact(row.last_time_updated, "")}`.trim()),
     status,
     activeClass: status === "Active" ? "status-active" : "status-other"
   }
@@ -131,10 +144,19 @@ function mapMedallionVehicle(row) {
     source: "TLC Medallion Vehicle",
     plate: compact(row.dmv_license_plate_number),
     licenseNumber: compact(row.license_number),
-    type: compact(row.medallion_type),
+    licenseType: compact(row.medallion_type),
+    vehicleType: compact(row.vehicle_type),
+    vehicleYear: compact(row.model_year),
+    vin: compact(row.vehicle_vin_number),
     name: compact(row.name),
-    base: compact(row.agent_name),
-    updated: row.last_updated_date ? `更新 ${row.last_updated_date.slice(0, 10)}` : "-",
+    baseNumber: "-",
+    baseName: compact(row.agent_name),
+    baseType: "Medallion Agent",
+    basePhone: "-",
+    baseAddress: "-",
+    baseWebsite: "-",
+    expirationDate: compact(dateOnly(row.type)),
+    updated: compact(`${dateOnly(row.last_updated_date)} ${compact(row.last_updated_time, "")}`.trim()),
     status,
     activeClass: status === "Current" ? "status-active" : "status-other"
   }
