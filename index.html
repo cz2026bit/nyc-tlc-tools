@@ -1116,7 +1116,7 @@
         query: "",
         selectedHour: null,
         page: 1,
-        pageSize: 40,
+        pageSize: 20,
         timer: null,
         loading: false
       };
@@ -1274,7 +1274,7 @@
         const filteredFlights = flightState.query
           ? hourFlights.filter((item) => String(item.flightNumber || "").toUpperCase().includes(flightState.query))
           : hourFlights;
-        const flights = [...filteredFlights].sort((a, b) => getArrivalMinutes(b) - getArrivalMinutes(a));
+        const flights = [...filteredFlights].sort((a, b) => getArrivalMinutes(a) - getArrivalMinutes(b));
         const totalPages = Math.max(1, Math.ceil(flights.length / flightState.pageSize));
         flightState.page = Math.min(Math.max(1, flightState.page), totalPages);
         const start = (flightState.page - 1) * flightState.pageSize;
