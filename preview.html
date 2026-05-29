@@ -863,6 +863,52 @@
         font-size: 14px;
       }
 
+      .time-field {
+        position: relative;
+      }
+
+      .time-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .help-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: 16px;
+        border: 1px solid #b8c8c3;
+        border-radius: 50%;
+        background: #fff;
+        color: #0f6b56;
+        font-size: 11px;
+        font-weight: 900;
+        line-height: 1;
+      }
+
+      .help-popover {
+        display: none;
+        position: absolute;
+        left: 0;
+        top: 25px;
+        z-index: 5;
+        width: min(230px, 78vw);
+        padding: 10px;
+        border: 1px solid #cbd8d4;
+        border-radius: 8px;
+        background: #fff;
+        color: #243b36;
+        box-shadow: 0 12px 30px rgba(16, 32, 28, 0.14);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .time-field.show-help .help-popover {
+        display: block;
+      }
+
       .arrival-terminal .v {
         color: #0b211d;
         font-size: 24px;
@@ -922,6 +968,43 @@
           margin-top: 4px;
           font-size: 14px;
         }
+
+        .tool {
+          padding: 12px;
+        }
+
+        .flight-controls {
+          display: grid;
+          grid-template-columns: 1fr;
+          align-items: stretch;
+        }
+
+        .flight-search {
+          min-width: 0;
+        }
+
+        .flight-controls .small-button {
+          width: 100%;
+        }
+
+        .chart-card,
+        .arrivals-card {
+          padding: 12px;
+        }
+
+        .terminal-stats {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .arrival-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .hour-chart {
+          grid-template-columns: repeat(24, 34px);
+          height: 230px;
+          overflow-x: auto;
+        }
       }
 
       @media (max-width: 520px) {
@@ -950,9 +1033,13 @@
         }
 
         .flight-summary,
-        .arrival-grid,
         .date-chips {
           grid-template-columns: 1fr;
+        }
+
+        .terminal-stats,
+        .arrival-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
         .flight-controls,
@@ -978,6 +1065,10 @@
           grid-template-columns: repeat(24, 32px);
           padding-inline: 6px;
           overflow-x: auto;
+        }
+
+        .help-popover {
+          width: min(220px, 86vw);
         }
 
         #submit,
@@ -1178,6 +1269,16 @@
         return value === undefined || value === null || value === "" ? fallback : value;
       }
 
+      function timeHelpLabel(label, helpText) {
+        return `
+          <div class="time-label">
+            <span>${label}</span>
+            <button class="help-button" type="button" data-help-toggle aria-label="${label}说明">?</button>
+          </div>
+          <div class="help-popover">${helpText}</div>
+        `;
+      }
+
       const HAS_LOCAL_API = ["127.0.0.1", "localhost"].includes(window.location.hostname);
       const RENDER_API_BASE = "https://nyc-tlc-violations.onrender.com";
       const API_BASE = window.API_BASE_URL || (HAS_LOCAL_API ? "" : RENDER_API_BASE);
@@ -1340,9 +1441,9 @@
                 </div>
                 <div class="arrival-grid">
                   <div class="arrival-terminal"><div class="k">航站楼</div><div class="v">${compact(item.terminal)}</div></div>
-                  <div><div class="k">预计到达</div><div class="v">${compact(item.estimatedArrival)}</div></div>
-                  <div><div class="k">实际到达</div><div class="v">${compact(item.actualArrival)}</div></div>
-                  <div><div class="k">计划到达</div><div class="v">${compact(item.scheduledArrival)}</div></div>
+                  <div class="time-field"><div class="k">${timeHelpLabel("预计到达", "根据实时飞行状态更新后的到达预测时间，可能会随延误、提前或飞行状态变化。")}</div><div class="v">${compact(item.estimatedArrival)}</div></div>
+                  <div class="time-field"><div class="k">${timeHelpLabel("实际到达", "航班已经落地后的真实到达时间。未落地时通常为空。")}</div><div class="v">${compact(item.actualArrival)}</div></div>
+                  <div class="time-field"><div class="k">${timeHelpLabel("计划到达", "航司原始排班或时刻表中的到达时间，也就是原定到达时间。")}</div><div class="v">${compact(item.scheduledArrival)}</div></div>
                   <div><div class="k">航班号</div><div class="v">${compact(item.flightNumber)}</div></div>
                 </div>
               </article>
@@ -1692,6 +1793,18 @@
         flightState.query = event.target.value;
         flightState.page = 1;
         renderFlightList();
+      });
+
+      document.addEventListener("click", (event) => {
+        const helpButton = event.target.closest("[data-help-toggle]");
+        document.querySelectorAll(".time-field.show-help").forEach((field) => {
+          if (!helpButton || field !== helpButton.closest(".time-field")) {
+            field.classList.remove("show-help");
+          }
+        });
+        if (helpButton) {
+          helpButton.closest(".time-field").classList.toggle("show-help");
+        }
       });
 
       $("#receipt-file").addEventListener("change", (event) => {
