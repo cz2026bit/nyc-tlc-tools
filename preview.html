@@ -1740,6 +1740,8 @@
               <div><div class="k">车主 / 公司</div><div class="v">${item.name}</div></div>
               <div><div class="k">TLC 牌照号</div><div class="v">${item.licenseNumber}</div></div>
               <div><div class="k">车辆类型</div><div class="v">${item.vehicleType}</div></div>
+              <div><div class="k">车辆品牌</div><div class="v">${item.make || "-"}</div></div>
+              <div><div class="k">登记州</div><div class="v">${item.state || "-"}</div></div>
               <div><div class="k">车辆年份</div><div class="v">${item.vehicleYear}</div></div>
               <div><div class="k">VIN</div><div class="v">${item.vin}</div></div>
               <div><div class="k">License 类型</div><div class="v">${item.licenseType}</div></div>
@@ -1751,6 +1753,8 @@
               <div><div class="k">Base 网站 / 邮箱</div><div class="v">${item.baseWebsite}</div></div>
               <div><div class="k">到期日期</div><div class="v">${item.expirationDate}</div></div>
               <div><div class="k">最后更新</div><div class="v">${item.updated}</div></div>
+              <div><div class="k">首次公开记录</div><div class="v">${item.firstSeen || "-"}</div></div>
+              <div><div class="k">最近公开记录</div><div class="v">${item.lastSeen || "-"}</div></div>
             </div>
           </article>
         `;
@@ -1822,6 +1826,11 @@
 
       function mapViolation(row) {
         return {
+          plate: compact(row.plate),
+          state: compact(row.state),
+          plateType: compact(row.license_type),
+          vehicleBodyType: compact(row.vehicle_body_type),
+          vehicleMake: compact(row.vehicle_make),
           summonsNumber: compact(row.summons_number),
           issueDate: compact(row.issue_date),
           violationTime: compact(row.violation_time),
@@ -1833,6 +1842,34 @@
           agency: compact(row.issuing_agency),
           county: compact(row.county),
           precinct: compact(row.precinct)
+        };
+      }
+
+      function mapViolationVehicle(plate, rows) {
+        const latest = rows[0] || {};
+        const oldest = rows[rows.length - 1] || {};
+        return {
+          source: "NYC Parking / Camera Violation Vehicle",
+          plate,
+          licenseNumber: "-",
+          licenseType: compact(latest.license_type),
+          vehicleType: compact(latest.vehicle_body_type),
+          vehicleYear: "-",
+          vin: "-",
+          name: "违章公开记录不提供车主姓名",
+          baseNumber: "-",
+          baseName: "未命中 TLC 车辆库，无法显示所属基地",
+          baseType: "-",
+          basePhone: "-",
+          baseAddress: "-",
+          baseWebsite: "-",
+          expirationDate: "-",
+          updated: compact(latest.issue_date),
+          status: rows.length ? `${rows.length} 条公开违章记录` : "Public record",
+          state: compact(latest.state),
+          make: compact(latest.vehicle_make),
+          firstSeen: compact(oldest.issue_date),
+          lastSeen: compact(latest.issue_date)
         };
       }
 
@@ -1850,6 +1887,7 @@
           ]);
           const vehicles = [...fhvRows.map(mapFhv), ...medallionRows.map(mapMedallion)];
           const violations = violationRows.map(mapViolation);
+          const vehicleRecords = vehicles.length ? vehicles : (violationRows.length ? [mapViolationVehicle(plate, violationRows)] : []);
           const totalDue = violations.reduce((sum, item) => sum + Number(item.amountDue || 0), 0);
           await savePlateSearchRecord({
             plate,
@@ -1865,7 +1903,7 @@
               <div><div class="num">${violations.length}</div><div class="label">违章记录</div></div>
               <div><div class="num">$${totalDue.toFixed(2)}</div><div class="label">未付金额</div></div>
             </div>
-            ${vehicles.length ? `<h2>TLC 车辆信息</h2>${vehicles.map(vehicleCard).join("")}` : ""}
+            ${vehicleRecords.length ? `<h2>${vehicles.length ? "TLC 车辆信息" : "车辆公开信息"}</h2>${vehicleRecords.map(vehicleCard).join("")}` : ""}
             ${violations.length ? `<h2>违章记录</h2>${violations.map(violationCard).join("")}` : ""}
             ${!vehicles.length && !violations.length ? `<div class="empty"><strong>没有找到公开记录</strong><br />请确认车牌号拼写，或稍后再试。</div>` : ""}
           `;
