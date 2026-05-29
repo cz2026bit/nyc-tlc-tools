@@ -861,7 +861,7 @@
 
       .arrival-grid {
         display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-columns: repeat(6, minmax(0, 1fr));
         gap: 12px;
         margin-top: 14px;
       }
@@ -1547,6 +1547,7 @@
                 </div>
                 <div class="arrival-grid">
                   <div class="arrival-terminal"><div class="k">航站楼</div><div class="v">${compact(item.terminal)}</div></div>
+                  <div class="time-field"><div class="k">${timeHelpLabel("预估人数", "当前公开航班源不提供实际乘客数；这里按货运识别和航线类型做粗略估算，只用于运营参考。")}</div><div class="v">${compact(item.passengerLabel || item.passengerCount)}</div></div>
                   <div class="time-field"><div class="k">${timeHelpLabel("预计到达", "根据实时飞行状态更新后的到达预测时间，可能会随延误、提前或飞行状态变化。")}</div><div class="v">${compact(item.estimatedArrival)}</div></div>
                   <div class="time-field"><div class="k">${timeHelpLabel("实际到达", "航班已经落地后的真实到达时间。未落地时通常为空。")}</div><div class="v">${compact(item.actualArrival)}</div></div>
                   <div class="time-field"><div class="k">${timeHelpLabel("计划到达", "航司原始排班或时刻表中的到达时间，也就是原定到达时间。")}</div><div class="v">${compact(item.scheduledArrival)}</div></div>

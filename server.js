@@ -406,6 +406,66 @@ function parseAirportDetailPage(html) {
   }
 }
 
+function estimatePassengerCount(item) {
+  const airline = String(item.airline || "")
+  const flightNumber = String(item.flightNumber || "").toUpperCase()
+  const origin = String(item.origin || "").toUpperCase()
+  const cargoPattern = /\b(FEDEX|UPS|DHL|CARGO|AIR TRANSPORT INTERNATIONAL|ATLAS AIR|AMERIJET)\b/i
+
+  if (cargoPattern.test(airline) || /^(FX|5X|QY|8C|D0)/.test(flightNumber)) {
+    return {
+      passengerCount: 0,
+      passengerLabel: "0",
+      passengerNote: "货运航班"
+    }
+  }
+
+  const regionalOrigins = ["BOS", "DCA", "IAD", "ROC", "BUF", "SYR", "PIT", "RDU", "CLE", "CMH", "ORF"]
+  const longHaulOrigins = [
+    "LHR",
+    "CDG",
+    "FCO",
+    "MAD",
+    "AMS",
+    "FRA",
+    "MUC",
+    "ZRH",
+    "IST",
+    "TLV",
+    "DXB",
+    "DOH",
+    "AUH",
+    "HND",
+    "NRT",
+    "ICN",
+    "PEK",
+    "PVG",
+    "HKG",
+    "TPE",
+    "SIN",
+    "GRU",
+    "EZE",
+    "SCL",
+    "LOS",
+    "ACC"
+  ]
+
+  let passengerCount = 160
+  if (longHaulOrigins.some((code) => origin.includes(`(${code})`))) {
+    passengerCount = 260
+  } else if (regionalOrigins.some((code) => origin.includes(`(${code})`))) {
+    passengerCount = 76
+  } else if (/JFK|EWR/.test(String(item.detailUrl || "")) && /\([A-Z]{3}\)/.test(origin)) {
+    passengerCount = 180
+  }
+
+  return {
+    passengerCount,
+    passengerLabel: `约 ${passengerCount}`,
+    passengerNote: "按航线类型估算，非实际登机人数"
+  }
+}
+
 async function fetchLiveAirportArrivals(code) {
   const airport = getAirportConfig(code)
   const cacheKey = `live:${airport.code}`
@@ -472,7 +532,10 @@ async function fetchLiveAirportArrivals(code) {
   const flights = enriched.sort((a, b) => getArrivalSortMinutes(b) - getArrivalSortMinutes(a))
   const value = {
     updatedAt: new Date().toISOString(),
-    flights
+    flights: flights.map((item) => ({
+      ...item,
+      ...estimatePassengerCount(item)
+    }))
   }
   flightCache.set(cacheKey, { expiresAt: Date.now() + 60_000, value })
   return value
