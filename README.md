@@ -2,7 +2,7 @@
 
 这是一个微信小程序项目。用户输入车牌号后，小程序会直接查询 NYC Open Data：
 
-- `ym4f-sp8x`：TLC 当前 For-Hire Vehicle 车辆资料
+- `8wbx-tsch`：TLC 当前 For-Hire Vehicle 车辆资料
 - `rhe8-mgbb`：TLC Medallion Vehicles - Authorized
 - `nc67-uf89`：NYC Open Parking and Camera Violations
 

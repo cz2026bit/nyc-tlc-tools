@@ -1332,7 +1332,7 @@
     <script>
       const API_ROOT = "https://data.cityofnewyork.us/resource";
       const DATASETS = {
-        fhvVehicles: "ym4f-sp8x",
+        fhvVehicles: "8wbx-tsch",
         medallionVehicles: "rhe8-mgbb",
         parkingCameraViolations: "nc67-uf89"
       };
@@ -1739,7 +1739,10 @@
             <div class="grid">
               <div><div class="k">车主 / 公司</div><div class="v">${item.name}</div></div>
               <div><div class="k">TLC 牌照号</div><div class="v">${item.licenseNumber}</div></div>
+              <div><div class="k">Permit 牌照号</div><div class="v">${item.permitLicenseNumber || "-"}</div></div>
               <div><div class="k">车辆类型</div><div class="v">${item.vehicleType}</div></div>
+              <div><div class="k">车辆类别代码</div><div class="v">${item.vehicleCode || "-"}</div></div>
+              <div><div class="k">无障碍状态</div><div class="v">${item.wheelchairAccessible || "-"}</div></div>
               <div><div class="k">车辆品牌</div><div class="v">${item.make || "-"}</div></div>
               <div><div class="k">登记州</div><div class="v">${item.state || "-"}</div></div>
               <div><div class="k">车辆年份</div><div class="v">${item.vehicleYear}</div></div>
@@ -1785,8 +1788,11 @@
           source: "TLC For-Hire Vehicle",
           plate: compact(row.dmv_license_plate_number),
           licenseNumber: compact(row.vehicle_license_number),
+          permitLicenseNumber: compact(row.permit_license_number),
           licenseType: compact(row.license_type),
           vehicleType: compact(row.vehicle_type),
+          vehicleCode: compact(row.veh),
+          wheelchairAccessible: compact(row.wheelchair_accessible),
           vehicleYear: compact(row.vehicle_year),
           vin: compact(row.vehicle_vin_number),
           name: compact(row.name),

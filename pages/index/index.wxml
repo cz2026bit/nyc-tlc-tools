@@ -72,12 +72,24 @@
           <view class="info-value">{{item.licenseNumber}}</view>
         </view>
         <view class="info-cell">
+          <view class="info-label">Permit 牌照号</view>
+          <view class="info-value">{{item.permitLicenseNumber}}</view>
+        </view>
+        <view class="info-cell">
           <view class="info-label">车主 / 公司</view>
           <view class="info-value">{{item.name}}</view>
         </view>
         <view class="info-cell">
           <view class="info-label">车辆类型</view>
           <view class="info-value">{{item.vehicleType}}</view>
+        </view>
+        <view class="info-cell">
+          <view class="info-label">车辆类别代码</view>
+          <view class="info-value">{{item.vehicleCode}}</view>
+        </view>
+        <view class="info-cell">
+          <view class="info-label">无障碍状态</view>
+          <view class="info-value">{{item.wheelchairAccessible}}</view>
         </view>
         <view class="info-cell">
           <view class="info-label">车辆年份</view>

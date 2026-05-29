@@ -1,7 +1,7 @@
 const API_ROOT = "https://data.cityofnewyork.us/resource"
 
 const DATASETS = {
-  fhvVehicles: "ym4f-sp8x",
+  fhvVehicles: "8wbx-tsch",
   medallionVehicles: "rhe8-mgbb",
   parkingCameraViolations: "nc67-uf89"
 }
@@ -119,8 +119,11 @@ function mapFhvVehicle(row) {
     source: "TLC For-Hire Vehicle",
     plate: compact(row.dmv_license_plate_number),
     licenseNumber: compact(row.vehicle_license_number),
+    permitLicenseNumber: compact(row.permit_license_number),
     licenseType: compact(row.license_type),
     vehicleType: compact(row.vehicle_type),
+    vehicleCode: compact(row.veh),
+    wheelchairAccessible: compact(row.wheelchair_accessible),
     vehicleYear: compact(row.vehicle_year),
     vin: compact(row.vehicle_vin_number),
     name: compact(row.name),
