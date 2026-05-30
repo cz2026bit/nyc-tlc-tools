@@ -18,6 +18,13 @@ const openaiImageQuality = process.env.OPENAI_IMAGE_QUALITY || "low"
 const supabaseUrl = process.env.SUPABASE_URL || ""
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ""
 const flightCache = new Map()
+const defaultFareRates = [
+  { id: "uberx", name: "UberX", inside: { mile: 1.28, minute: 0.68 }, outside: { mile: 1.55, minute: 0.75 } },
+  { id: "comfort", name: "Comfort", inside: { mile: 1.55, minute: 0.78 }, outside: { mile: 1.85, minute: 0.88 } },
+  { id: "xl", name: "UberXL", inside: { mile: 2.05, minute: 0.95 }, outside: { mile: 2.45, minute: 1.08 } },
+  { id: "black", name: "Black", inside: { mile: 3.1, minute: 1.25 }, outside: { mile: 3.65, minute: 1.45 } },
+  { id: "black-suv", name: "Black SUV", inside: { mile: 3.65, minute: 1.45 }, outside: { mile: 4.25, minute: 1.7 } }
+]
 
 function loadEnvFile() {
   const envPath = path.join(__dirname, ".env")
@@ -90,12 +97,13 @@ async function appendSearch(record) {
   await fsp.writeFile(dataFile, JSON.stringify(items, null, 2), "utf8")
 }
 
-function supabaseRequest(method, table, payload) {
+function supabaseRequest(method, table, payload, query = "") {
   const baseUrl = new URL(supabaseUrl)
   const body = payload ? JSON.stringify(payload) : ""
+  const defaultQuery = method === "GET" ? "?select=*&order=created_at.desc" : ""
   const options = {
     hostname: baseUrl.hostname,
-    path: `/rest/v1/${table}${method === "GET" ? "?select=*&order=created_at.desc" : ""}`,
+    path: `/rest/v1/${table}${query || defaultQuery}`,
     method,
     headers: {
       apikey: supabaseServiceRoleKey,
@@ -155,6 +163,49 @@ async function readSearches() {
     return Array.isArray(rows) ? rows : []
   }
   return readStore()
+}
+
+function normalizeFareRates(rows) {
+  if (!Array.isArray(rows) || !rows.length) return defaultFareRates
+  const byService = new Map()
+  rows
+    .filter((row) => row && row.active !== false)
+    .sort((a, b) => Number(a.sort_order || 0) - Number(b.sort_order || 0))
+    .forEach((row) => {
+      const id = String(row.service_id || "").trim()
+      const zone = String(row.zone || "").trim()
+      if (!id || !["inside", "outside"].includes(zone)) return
+      if (!byService.has(id)) {
+        byService.set(id, {
+          id,
+          name: String(row.service_name || id),
+          inside: null,
+          outside: null
+        })
+      }
+      byService.get(id)[zone] = {
+        mile: Number(row.mile_rate || 0),
+        minute: Number(row.minute_rate || 0)
+      }
+    })
+
+  const rates = [...byService.values()].filter((item) => item.inside && item.outside)
+  return rates.length ? rates : defaultFareRates
+}
+
+async function readFareRates() {
+  if (!hasSupabaseConfig()) return defaultFareRates
+  try {
+    const rows = await supabaseRequest(
+      "GET",
+      "fare_rates",
+      null,
+      "?select=service_id,service_name,zone,mile_rate,minute_rate,sort_order,active&order=sort_order.asc"
+    )
+    return normalizeFareRates(rows)
+  } catch (error) {
+    return defaultFareRates
+  }
 }
 
 function sendJson(res, statusCode, payload) {
@@ -840,6 +891,13 @@ const server = http.createServer((req, res) => {
     readSearches()
       .then((items) => sendJson(res, 200, { ok: true, items }))
       .catch((error) => sendJson(res, 500, { ok: false, error: error.message || "read_failed" }))
+    return
+  }
+
+  if (req.url === "/api/fare-rates" && req.method === "GET") {
+    readFareRates()
+      .then((rates) => sendJson(res, 200, { ok: true, rates }))
+      .catch((error) => sendJson(res, 500, { ok: false, error: error.message || "fare_rates_failed" }))
     return
   }
 

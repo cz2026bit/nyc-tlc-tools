@@ -637,6 +637,33 @@
         line-height: 1.5;
       }
 
+      .borough-map-card {
+        border: 1px solid #dde5e2;
+        border-radius: 8px;
+        background: #fff;
+        padding: 16px;
+      }
+
+      .borough-map {
+        width: 100%;
+        max-width: 560px;
+        height: auto;
+        display: block;
+        margin-top: 12px;
+      }
+
+      .borough-map text {
+        fill: #0b211d;
+        font-size: 13px;
+        font-weight: 900;
+      }
+
+      .borough-map path,
+      .borough-map polygon {
+        stroke: #0f6b56;
+        stroke-width: 2;
+      }
+
       .flight-tool {
         display: grid;
         gap: 16px;
@@ -1452,6 +1479,22 @@
             </label>
           </div>
           <div class="fare-rate-grid" id="fare-results"></div>
+          <div class="borough-map-card">
+            <div class="panel-title">纽约五区范围示意</div>
+            <div class="panel-subtitle">大概示意：Manhattan、Bronx、Queens、Brooklyn、Staten Island 属于五区内。Uber 实际分区通常按经纬度围栏判断。</div>
+            <svg class="borough-map" viewBox="0 0 560 360" role="img" aria-label="纽约五区范围示意图">
+              <path d="M245 45 L278 86 L262 190 L226 287 L204 275 L224 168 Z" fill="#d9f0ea"></path>
+              <text x="211" y="160">Manhattan</text>
+              <path d="M260 26 L358 32 L390 106 L350 154 L280 125 Z" fill="#e8f6f2"></path>
+              <text x="309" y="85">Bronx</text>
+              <path d="M322 142 L500 118 L526 214 L452 300 L330 252 L282 198 Z" fill="#d6ece6"></path>
+              <text x="395" y="204">Queens</text>
+              <path d="M220 224 L312 210 L382 282 L326 334 L188 318 L154 264 Z" fill="#c8e4dc"></path>
+              <text x="235" y="286">Brooklyn</text>
+              <path d="M70 252 L150 230 L188 284 L150 334 L62 322 Z" fill="#eaf7f3"></path>
+              <text x="82" y="291">Staten Island</text>
+            </svg>
+          </div>
           <div class="fare-note">费率为参考计算，不包含动态加价、过路费、机场费、小费、等待费、平台服务费和优惠。Uber 实际价格以 App 显示为准。</div>
         </section>
       </section>
@@ -1511,7 +1554,7 @@
         timer: null,
         loading: false
       };
-      const fareRates = [
+      const defaultFareRates = [
         {
           id: "uberx",
           name: "UberX",
@@ -1543,6 +1586,7 @@
           outside: { mile: 4.25, minute: 1.7 }
         }
       ];
+      let fareRates = defaultFareRates;
       const receiptState = {
         imageUrl: "",
         sourceBase64: "",
@@ -1608,14 +1652,38 @@
           .join("");
       }
 
-      function initFareCalculator() {
+      async function loadFareRates() {
+        if (!FARE_RATES_API_URL) {
+          fareRates = defaultFareRates;
+          return;
+        }
+        try {
+          const response = await fetch(FARE_RATES_API_URL);
+          const payload = await response.json();
+          if (response.ok && payload.ok && Array.isArray(payload.rates) && payload.rates.length) {
+            fareRates = payload.rates;
+          } else {
+            fareRates = defaultFareRates;
+          }
+        } catch (error) {
+          fareRates = defaultFareRates;
+        }
+      }
+
+      async function initFareCalculator() {
         const select = $("#fare-type");
-        if (!select || select.options.length) return;
+        if (!select) return;
+        await loadFareRates();
+        const currentValue = select.value || fareRates[0]?.id || "";
         select.innerHTML = fareRates.map((item) => `<option value="${item.id}">${item.name}</option>`).join("");
-        ["fare-type", "fare-miles", "fare-minutes"].forEach((id) => {
-          $(`#${id}`).addEventListener("input", renderFareCalculator);
-          $(`#${id}`).addEventListener("change", renderFareCalculator);
-        });
+        if (fareRates.some((item) => item.id === currentValue)) select.value = currentValue;
+        if (!select.dataset.ready) {
+          ["fare-type", "fare-miles", "fare-minutes"].forEach((id) => {
+            $(`#${id}`).addEventListener("input", renderFareCalculator);
+            $(`#${id}`).addEventListener("change", renderFareCalculator);
+          });
+          select.dataset.ready = "true";
+        }
         renderFareCalculator();
       }
 
@@ -1638,6 +1706,7 @@
       const API_BASE = window.API_BASE_URL || (HAS_LOCAL_API ? "" : RENDER_API_BASE);
       const OPENAI_API_URL = API_BASE ? `${API_BASE}/api/openai-image` : (HAS_LOCAL_API ? "/api/openai-image" : "");
       const FLIGHTS_API_URL = API_BASE ? `${API_BASE}/api/flights` : (HAS_LOCAL_API ? "/api/flights" : "");
+      const FARE_RATES_API_URL = API_BASE ? `${API_BASE}/api/fare-rates` : (HAS_LOCAL_API ? "/api/fare-rates" : "");
 
       async function savePlateSearchRecord(record) {
         try {
