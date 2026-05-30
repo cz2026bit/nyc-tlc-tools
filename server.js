@@ -19,7 +19,7 @@ const supabaseUrl = process.env.SUPABASE_URL || ""
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ""
 const flightCache = new Map()
 const defaultFareRates = [
-  { id: "uberx", name: "UberX", inside: { mile: 1.28, minute: 0.68 }, outside: { mile: 1.55, minute: 0.75 } },
+  { id: "uberx", name: "UberX", inside: { mile: 1.283, minute: 0.681 }, outside: { mile: 1.55, minute: 0.75 } },
   { id: "comfort", name: "Comfort", inside: { mile: 1.55, minute: 0.78 }, outside: { mile: 1.85, minute: 0.88 } },
   { id: "xl", name: "UberXL", inside: { mile: 2.05, minute: 0.95 }, outside: { mile: 2.45, minute: 1.08 } },
   { id: "black", name: "Black", inside: { mile: 3.1, minute: 1.25 }, outside: { mile: 3.65, minute: 1.45 } },

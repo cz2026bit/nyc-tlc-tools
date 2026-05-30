@@ -557,75 +557,133 @@
 
       .fare-tool {
         display: grid;
-        gap: 16px;
+        gap: 18px;
       }
 
       .fare-controls {
         display: grid;
-        grid-template-columns: 1.2fr 1fr 1fr;
-        gap: 12px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0;
+        background: #f3f3f3;
+        border: 1px solid #ecefee;
+        border-radius: 8px;
+        overflow: hidden;
       }
 
       .fare-controls label {
         display: grid;
-        gap: 6px;
-        color: #52645f;
-        font-size: 13px;
+        gap: 22px;
+        color: #0b0f0e;
+        font-size: 18px;
         font-weight: 800;
+        padding: 28px 32px;
       }
 
-      .fare-controls select,
-      .fare-controls input {
+      .fare-controls select {
         width: 100%;
-        height: 42px;
-        font-size: 15px;
-        font-weight: 800;
+        height: 48px;
+        border: 0;
+        background: transparent;
+        color: #080808;
+        font-size: 25px;
+        font-weight: 500;
+        padding: 0;
       }
 
       .fare-rate-grid {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
+        gap: 0;
       }
 
       .fare-zone-card {
         min-width: 0;
-        border: 1px solid #dde5e2;
-        border-radius: 8px;
+        border: 1px solid #ecefee;
+        border-radius: 0;
         background: #fff;
-        padding: 16px;
+        padding: 0;
       }
 
       .fare-zone-title {
-        font-size: 18px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 28px 0 26px;
+        margin: 0 32px;
+        border-bottom: 1px solid #ecefee;
+        color: #050505;
+        font-size: 42px;
         font-weight: 900;
       }
 
-      .fare-rate-row {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 10px;
-        margin-top: 14px;
+      .fare-city-dot {
+        width: 22px;
+        height: 22px;
+        border-radius: 999px;
+        background: #276ef1;
+        flex: 0 0 auto;
       }
 
-      .fare-rate-item {
-        border-radius: 8px;
-        background: #f8faf9;
-        border: 1px solid #e2e9e6;
-        padding: 12px;
+      .fare-detail-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 24px;
+        padding: 24px 0;
+        margin: 0 32px;
+        border-bottom: 1px solid #ecefee;
+        align-items: start;
       }
 
       .fare-rate-label {
-        color: #68736f;
-        font-size: 12px;
-        font-weight: 800;
+        color: #050505;
+        font-size: 26px;
+        font-weight: 500;
+        line-height: 1.25;
       }
 
       .fare-rate-value {
-        margin-top: 8px;
-        color: #0b211d;
-        font-size: 22px;
+        color: #050505;
+        font-size: 25px;
+        font-weight: 500;
+        line-height: 1.25;
+        text-align: right;
+        white-space: nowrap;
+      }
+
+      .fare-help {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: 16px;
+        margin-left: 6px;
+        border-radius: 999px;
+        background: #d0d0d0;
+        color: #fff;
+        font-size: 11px;
         font-weight: 900;
+        vertical-align: middle;
+      }
+
+      .fare-subgrid {
+        display: grid;
+        gap: 4px;
+        padding: 4px 0 10px 48px;
+        color: #656565;
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.25;
+      }
+
+      .fare-subgrid .fare-rate-value {
+        color: #656565;
+        font-size: 20px;
+        font-weight: 700;
+      }
+
+      .fare-subrow {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 18px;
       }
 
       .fare-note {
@@ -641,27 +699,15 @@
         border: 1px solid #dde5e2;
         border-radius: 8px;
         background: #fff;
-        padding: 16px;
+        padding: 0;
+        overflow: hidden;
       }
 
       .borough-map {
         width: 100%;
-        max-width: 560px;
+        max-width: none;
         height: auto;
         display: block;
-        margin-top: 12px;
-      }
-
-      .borough-map text {
-        fill: #0b211d;
-        font-size: 13px;
-        font-weight: 900;
-      }
-
-      .borough-map path,
-      .borough-map polygon {
-        stroke: #0f6b56;
-        stroke-width: 2;
       }
 
       .flight-tool {
@@ -1221,6 +1267,40 @@
           grid-template-columns: 1fr;
         }
 
+        .fare-controls label {
+          padding: 20px 18px;
+          gap: 12px;
+        }
+
+        .fare-controls select {
+          font-size: 20px;
+        }
+
+        .fare-zone-title {
+          margin: 0 18px;
+          font-size: 30px;
+        }
+
+        .fare-detail-row {
+          margin: 0 18px;
+          gap: 12px;
+        }
+
+        .fare-rate-label,
+        .fare-rate-value {
+          font-size: 21px;
+        }
+
+        .fare-subgrid {
+          padding-left: 18px;
+          padding-right: 18px;
+          font-size: 16px;
+        }
+
+        .fare-subgrid .fare-rate-value {
+          font-size: 16px;
+        }
+
         .hour-chart {
           display: flex;
           height: 230px;
@@ -1466,34 +1546,19 @@
         <section class="tool fare-tool">
           <div class="fare-controls">
             <label>
-              车型
+              选择城市
+              <select id="fare-city">
+                <option value="nyc">New York City</option>
+              </select>
+            </label>
+            <label>
+              选择产品
               <select id="fare-type"></select>
-            </label>
-            <label>
-              行程里程
-              <input id="fare-miles" type="number" min="0" step="0.1" value="8" />
-            </label>
-            <label>
-              行程分钟
-              <input id="fare-minutes" type="number" min="0" step="1" value="28" />
             </label>
           </div>
           <div class="fare-rate-grid" id="fare-results"></div>
           <div class="borough-map-card">
-            <div class="panel-title">纽约五区范围示意</div>
-            <div class="panel-subtitle">大概示意：Manhattan、Bronx、Queens、Brooklyn、Staten Island 属于五区内。Uber 实际分区通常按经纬度围栏判断。</div>
-            <svg class="borough-map" viewBox="0 0 560 360" role="img" aria-label="纽约五区范围示意图">
-              <path d="M245 45 L278 86 L262 190 L226 287 L204 275 L224 168 Z" fill="#d9f0ea"></path>
-              <text x="211" y="160">Manhattan</text>
-              <path d="M260 26 L358 32 L390 106 L350 154 L280 125 Z" fill="#e8f6f2"></path>
-              <text x="309" y="85">Bronx</text>
-              <path d="M322 142 L500 118 L526 214 L452 300 L330 252 L282 198 Z" fill="#d6ece6"></path>
-              <text x="395" y="204">Queens</text>
-              <path d="M220 224 L312 210 L382 282 L326 334 L188 318 L154 264 Z" fill="#c8e4dc"></path>
-              <text x="235" y="286">Brooklyn</text>
-              <path d="M70 252 L150 230 L188 284 L150 334 L62 322 Z" fill="#eaf7f3"></path>
-              <text x="82" y="291">Staten Island</text>
-            </svg>
+            <img class="borough-map" src="assets/nyc-coverage-map.svg" alt="New York City coverage map" />
           </div>
           <div class="fare-note">费率为参考计算，不包含动态加价、过路费、机场费、小费、等待费、平台服务费和优惠。Uber 实际价格以 App 显示为准。</div>
         </section>
@@ -1558,7 +1623,7 @@
         {
           id: "uberx",
           name: "UberX",
-          inside: { mile: 1.28, minute: 0.68 },
+          inside: { mile: 1.283, minute: 0.681 },
           outside: { mile: 1.55, minute: 0.75 }
         },
         {
@@ -1616,40 +1681,77 @@
         return miles * rate.mile + minutes * rate.minute;
       }
 
-      function renderFareCalculator() {
-        const selected = fareRates.find((item) => item.id === $("#fare-type").value) || fareRates[0];
-        const miles = Math.max(0, Number($("#fare-miles").value || 0));
-        const minutes = Math.max(0, Number($("#fare-minutes").value || 0));
-        const zones = [
-          ["五区内", selected.inside, "NYC 五区内参考单价"],
-          ["五区外", selected.outside, "出五区 / 郊区参考单价"]
-        ];
+      function fareHelp() {
+        return `<span class="fare-help" aria-hidden="true">?</span>`;
+      }
 
-        $("#fare-results").innerHTML = zones
-          .map(([label, rate, note]) => `
-            <article class="fare-zone-card">
-              <div class="fare-zone-title">${selected.name} · ${label}</div>
-              <div class="panel-subtitle">${note}</div>
-              <div class="fare-rate-row">
-                <div class="fare-rate-item">
-                  <div class="fare-rate-label">行程单价</div>
-                  <div class="fare-rate-value">${moneyValue(rate.mile)}</div>
-                  <div class="panel-subtitle">每英里</div>
-                </div>
-                <div class="fare-rate-item">
-                  <div class="fare-rate-label">时间单价</div>
-                  <div class="fare-rate-value">${moneyValue(rate.minute)}</div>
-                  <div class="panel-subtitle">每分钟</div>
-                </div>
-                <div class="fare-rate-item">
-                  <div class="fare-rate-label">估算车费</div>
-                  <div class="fare-rate-value">${moneyValue(calculateFare(rate, miles, minutes))}</div>
-                  <div class="panel-subtitle">${miles} mi · ${minutes} min</div>
-                </div>
-              </div>
-            </article>
+      function fareSubRows(rows) {
+        return rows
+          .map(([label, value]) => `
+            <div class="fare-subrow">
+              <div>${label}</div>
+              <div class="fare-rate-value">${value}</div>
+            </div>
           `)
           .join("");
+      }
+
+      function renderFareCalculator() {
+        const selected = fareRates.find((item) => item.id === $("#fare-type").value) || fareRates[0];
+        const rate = selected.inside || selected.outside || { mile: 0, minute: 0 };
+        const mileRate = selected.id === "uberx" ? 1.283 : rate.mile;
+        const minuteRate = selected.id === "uberx" ? 0.681 : rate.minute;
+
+        $("#fare-results").innerHTML = `
+          <article class="fare-zone-card">
+            <div class="fare-zone-title"><span class="fare-city-dot"></span>New York City</div>
+            <div class="fare-detail-row">
+              <div class="fare-rate-label">起步价 ${fareHelp()}</div>
+              <div class="fare-rate-value">US$0.00</div>
+            </div>
+            <div class="fare-subgrid">
+              ${fareSubRows([
+                ["长途接载费", "变量"],
+                ["里程费用", `US$${mileRate.toFixed(3)}`],
+                ["计时费用", `US$${minuteRate.toFixed(3)}`],
+                ["阈值", "9 minutes"]
+              ])}
+            </div>
+            <div class="fare-detail-row">
+              <div class="fare-rate-label">每英里费用 ${fareHelp()}</div>
+              <div class="fare-rate-value">US$${mileRate.toFixed(3)}</div>
+            </div>
+            <div class="fare-detail-row">
+              <div class="fare-rate-label">每分钟费用 ${fareHelp()}</div>
+              <div class="fare-rate-value">US$${minuteRate.toFixed(3)}</div>
+            </div>
+            <div class="fare-detail-row">
+              <div class="fare-rate-label">预约 ${fareHelp()}</div>
+              <div class="fare-rate-value">ECONOMY</div>
+            </div>
+            <div class="fare-subgrid">
+              ${fareSubRows([
+                ["最低车费", "US$35.00"],
+                ["预约费", "US$7.00"],
+                ["固定取消费用", "US$25.00"],
+                ["取消费用政策", "FIXED FEE"]
+              ])}
+            </div>
+            <div class="fare-detail-row">
+              <div class="fare-rate-label">最低行程收入 ${fareHelp()}</div>
+              <div class="fare-rate-value">US$4.0001</div>
+            </div>
+            <div class="fare-subgrid">
+              ${fareSubRows([
+                ["取消费用", "可变"],
+                ["合作车主取消行程时的标准取消费用", "US$3.75"],
+                ["乘客取消行程时的标准取消费用", "US$3.75"],
+                ["里程费用", `US$${mileRate.toFixed(3)}`],
+                ["计时费用", `US$${minuteRate.toFixed(3)}`]
+              ])}
+            </div>
+          </article>
+        `;
       }
 
       async function loadFareRates() {
@@ -1678,7 +1780,7 @@
         select.innerHTML = fareRates.map((item) => `<option value="${item.id}">${item.name}</option>`).join("");
         if (fareRates.some((item) => item.id === currentValue)) select.value = currentValue;
         if (!select.dataset.ready) {
-          ["fare-type", "fare-miles", "fare-minutes"].forEach((id) => {
+          ["fare-type", "fare-city"].forEach((id) => {
             $(`#${id}`).addEventListener("input", renderFareCalculator);
             $(`#${id}`).addEventListener("change", renderFareCalculator);
           });

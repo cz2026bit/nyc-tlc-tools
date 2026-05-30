@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 874 632" role="img" aria-label="New York City coverage map">
+  <rect width="874" height="632" fill="#ececec"/>
+  <g fill="none" stroke="#ffffff" stroke-width="3" opacity="0.9">
+    <path d="M0 80 C100 110 160 70 250 90 S410 140 520 118 710 70 874 92"/>
+    <path d="M0 190 C120 160 210 215 320 190 S520 150 620 188 760 250 874 210"/>
+    <path d="M0 315 C120 285 250 335 360 310 S530 255 648 318 760 385 874 345"/>
+    <path d="M0 475 C108 438 210 465 330 440 S560 410 688 462 782 520 874 492"/>
+    <path d="M94 0 C120 80 96 155 130 222 S196 340 170 426 120 520 150 632"/>
+    <path d="M285 0 C310 90 270 156 300 236 S390 340 374 424 315 522 338 632"/>
+    <path d="M455 0 C475 78 430 156 470 236 S575 336 552 420 500 520 520 632"/>
+    <path d="M650 0 C665 80 625 145 665 220 S780 335 742 430 690 525 718 632"/>
+  </g>
+  <g fill="#565656" font-family="Arial, Helvetica, sans-serif" font-weight="700" opacity="0.95">
+    <text x="205" y="62" font-size="28">Ridgewood</text>
+    <text x="527" y="38" font-size="28">Port Chester</text>
+    <text x="180" y="122" font-size="26">Paterson</text>
+    <text x="376" y="108" font-size="30">Yonkers</text>
+    <text x="204" y="173" font-size="26">Clifton</text>
+    <text x="558" y="168" font-size="26">Glen Cove</text>
+    <text x="67" y="250" font-size="26">Livingston</text>
+    <text x="280" y="255" font-size="26">Union City</text>
+    <text x="645" y="268" font-size="26">Hicksville</text>
+    <text x="140" y="307" font-size="26">Irvington</text>
+    <text x="277" y="322" font-size="34">New York</text>
+    <text x="565" y="321" font-size="28">Hempstead</text>
+    <text x="214" y="386" font-size="28">Staten Island</text>
+    <text x="612" y="377" font-size="26">Freeport</text>
+    <text x="532" y="437" font-size="24">Long Beach</text>
+    <text x="147" y="446" font-size="24">Carteret</text>
+    <text x="38" y="498" font-size="24">Edison</text>
+    <text x="193" y="592" font-size="24">Hazlet</text>
+  </g>
+  <path d="M416 116 L541 159 L539 220 L595 290 L560 349 L545 482 L486 493 L441 523 L397 489 L175 533 L169 506 L217 404 L217 355 L281 334 L317 231 L346 126 Z"
+        fill="#8fb8f0" fill-opacity="0.62" stroke="#7ba8e8" stroke-width="2"/>
+  <path d="M400 118 L456 139 L438 252 L462 352 L438 475 L397 489 L372 388 L383 268 Z" fill="#74a8ef" fill-opacity="0.38"/>
+  <path d="M327 270 L495 247 L570 314 L545 482 L441 523 L397 489 L217 404 L217 355 Z" fill="#79aef1" fill-opacity="0.32"/>
+</svg>
