@@ -1623,32 +1623,144 @@
         {
           id: "uberx",
           name: "UberX",
+          zoneLabel: "New York City",
           inside: { mile: 1.283, minute: 0.681 },
-          outside: { mile: 1.55, minute: 0.75 }
+          outside: { mile: 1.283, minute: 0.681 },
+          baseFare: 0,
+          pickupFee: "变量",
+          pickupThreshold: "9 minutes",
+          reservationClasses: ["ECONOMY"],
+          reservationMinFare: 35,
+          reservationFee: 7,
+          fixedCancelFee: 25,
+          cancelPolicy: "FIXED FEE",
+          minimumTripIncome: 4.0001,
+          driverCancelFee: 3.75,
+          riderCancelFee: 3.75
+        },
+        {
+          id: "uber-pet",
+          name: "Uber Pet",
+          zoneLabel: "New York City",
+          inside: { mile: 1.283, minute: 0.681 },
+          outside: { mile: 1.283, minute: 0.681 },
+          baseFare: 0,
+          pickupFee: "变量",
+          pickupThreshold: "9 minutes",
+          reservationClasses: ["ECONOMY", "PREMIUM", "ECONOMY"],
+          reservationMinFare: 35,
+          reservationFee: 7,
+          fixedCancelFee: 25,
+          cancelPolicy: "FIXED FEE",
+          minimumTripIncome: 4.0001,
+          driverCancelFee: 3.75,
+          riderCancelFee: 3.75
+        },
+        {
+          id: "wav",
+          name: "WAV",
+          zoneLabel: "New York City",
+          inside: { mile: 1.283, minute: 0.681 },
+          outside: { mile: 1.283, minute: 0.681 },
+          baseFare: 0,
+          pickupFee: "变量",
+          pickupThreshold: "9 minutes",
+          reservationClasses: ["ECONOMY", "PREMIUM", "ECONOMY", "ECONOMY"],
+          reservationMinFare: 35,
+          reservationFee: 7,
+          fixedCancelFee: 25,
+          cancelPolicy: "FIXED FEE",
+          minimumTripIncome: 4.0001,
+          driverCancelFee: 3.75,
+          riderCancelFee: 3.75
         },
         {
           id: "comfort",
           name: "Comfort",
-          inside: { mile: 1.55, minute: 0.78 },
-          outside: { mile: 1.85, minute: 0.88 }
+          zoneLabel: "New York City",
+          inside: { mile: 1.3047, minute: 0.6888 },
+          outside: { mile: 1.3047, minute: 0.6888 },
+          baseFare: 0,
+          pickupFee: "变量",
+          pickupThreshold: "9 minutes",
+          reservationClasses: ["ECONOMY", "PREMIUM", "ECONOMY", "ECONOMY", "PREMIUM", "ECONOMY"],
+          reservationMinFare: 38,
+          reservationFee: 10,
+          fixedCancelFee: 30,
+          cancelPolicy: "FIXED FEE",
+          minimumTripIncome: 6.4796,
+          driverCancelFee: 7.1996,
+          riderCancelFee: 3.6095
         },
         {
           id: "xl",
           name: "UberXL",
-          inside: { mile: 2.05, minute: 0.95 },
-          outside: { mile: 2.45, minute: 1.08 }
+          zoneLabel: "New York City",
+          inside: { mile: 1.2846, minute: 0.6813 },
+          outside: { mile: 1.2846, minute: 0.6813 },
+          baseFare: 0,
+          pickupFee: "变量",
+          pickupThreshold: "9 minutes",
+          reservationClasses: ["ECONOMY", "PREMIUM", "ECONOMY", "ECONOMY", "ECONOMY"],
+          reservationMinFare: 38,
+          reservationFee: 10,
+          fixedCancelFee: 30,
+          cancelPolicy: "FIXED FEE",
+          minimumTripIncome: 6.7969,
+          driverCancelFee: 3.609,
+          riderCancelFee: 3.609
+        },
+        {
+          id: "xxl",
+          name: "UberXXL",
+          zoneLabel: "New York City",
+          inside: { mile: 1.5415, minute: 0.8147 },
+          outside: { mile: 1.5415, minute: 0.8147 },
+          baseFare: 0,
+          pickupFee: "变量",
+          pickupThreshold: "9 minutes",
+          reservationClasses: ["ECONOMY", "PREMIUM", "ECONOMY", "ECONOMY"],
+          reservationMinFare: 38,
+          reservationFee: 10,
+          fixedCancelFee: 30,
+          cancelPolicy: "FIXED FEE",
+          minimumTripIncome: 8.154,
+          driverCancelFee: 3.609,
+          riderCancelFee: 3.609
         },
         {
           id: "black",
           name: "Black",
-          inside: { mile: 3.1, minute: 1.25 },
-          outside: { mile: 3.65, minute: 1.45 }
+          zoneLabel: "1 区",
+          inside: { mile: 1.872, minute: 0.6912 },
+          outside: { mile: 1.872, minute: 0.6912 },
+          baseFare: 5.04,
+          waitMinuteRate: 1.0628,
+          reservationClasses: ["ECONOMY", "PREMIUM"],
+          reservationMinFare: 55,
+          reservationFee: 12,
+          fixedCancelFee: 50,
+          cancelPolicy: "FIXED FEE",
+          minimumTripIncome: 10.6125,
+          driverCancelFee: 15.012,
+          riderCancelFee: 7.524
         },
         {
           id: "black-suv",
           name: "Black SUV",
-          inside: { mile: 3.65, minute: 1.45 },
-          outside: { mile: 4.25, minute: 1.7 }
+          zoneLabel: "New York City",
+          inside: { mile: 2.1445, minute: 1.1388 },
+          outside: { mile: 2.1445, minute: 1.1388 },
+          baseFare: 9.54,
+          waitMinuteRate: 1.4405,
+          reservationClasses: ["ECONOMY", "PREMIUM", "ECONOMY", "ECONOMY", "PREMIUM"],
+          reservationMinFare: 65,
+          reservationFee: 12,
+          fixedCancelFee: 65,
+          cancelPolicy: "FIXED FEE",
+          minimumTripIncome: 16.6536,
+          driverCancelFee: 18,
+          riderCancelFee: 7.2
         }
       ];
       let fareRates = defaultFareRates;
@@ -1681,6 +1793,19 @@
         return miles * rate.mile + minutes * rate.minute;
       }
 
+      function formatFareNumber(value, minDecimals = 0, maxDecimals = 4) {
+        const numeric = Number(value || 0);
+        const fixed = numeric.toFixed(maxDecimals);
+        const trimmed = fixed.replace(/\.?0+$/, "");
+        if (!trimmed.includes(".") && minDecimals > 0) return numeric.toFixed(minDecimals);
+        const decimals = trimmed.split(".")[1]?.length || 0;
+        return decimals < minDecimals ? numeric.toFixed(minDecimals) : trimmed;
+      }
+
+      function fareUsd(value, minDecimals = 0, maxDecimals = 4) {
+        return `US$${formatFareNumber(value, minDecimals, maxDecimals)}`;
+      }
+
       function fareHelp() {
         return `<span class="fare-help" aria-hidden="true">?</span>`;
       }
@@ -1699,57 +1824,80 @@
       function renderFareCalculator() {
         const selected = fareRates.find((item) => item.id === $("#fare-type").value) || fareRates[0];
         const rate = selected.inside || selected.outside || { mile: 0, minute: 0 };
-        const mileRate = selected.id === "uberx" ? 1.283 : rate.mile;
-        const minuteRate = selected.id === "uberx" ? 0.681 : rate.minute;
+        const mileRate = Number(rate.mile || 0);
+        const minuteRate = Number(rate.minute || 0);
+        const reservationClasses = Array.isArray(selected.reservationClasses) && selected.reservationClasses.length
+          ? selected.reservationClasses
+          : ["ECONOMY"];
+        const hasPickupFee = selected.pickupFee !== undefined && selected.pickupFee !== null;
+        const hasWaitFee = selected.waitMinuteRate !== undefined && selected.waitMinuteRate !== null;
+        const cancellationRows = hasPickupFee
+          ? `<div class="fare-subgrid">
+              ${fareSubRows([
+                ["取消费用", "可变"],
+                ["合作车主取消行程时的标准取消费用", fareUsd(selected.driverCancelFee, 2, 4)],
+                ["乘客取消行程时的标准取消费用", fareUsd(selected.riderCancelFee, 2, 4)],
+                ["里程费用", fareUsd(mileRate)],
+                ["计时费用", fareUsd(minuteRate)]
+              ])}
+            </div>`
+          : `<div class="fare-detail-row">
+              <div class="fare-rate-label">合作车主取消行程时的取消费用 ${fareHelp()}</div>
+              <div class="fare-rate-value">${fareUsd(selected.driverCancelFee, 2, 4)}</div>
+            </div>
+            <div class="fare-detail-row">
+              <div class="fare-rate-label">乘客取消行程时的取消费用 ${fareHelp()}</div>
+              <div class="fare-rate-value">${fareUsd(selected.riderCancelFee, 2, 4)}</div>
+            </div>`;
 
         $("#fare-results").innerHTML = `
           <article class="fare-zone-card">
-            <div class="fare-zone-title"><span class="fare-city-dot"></span>New York City</div>
+            <div class="fare-zone-title"><span class="fare-city-dot"></span>${selected.zoneLabel || "New York City"}</div>
             <div class="fare-detail-row">
               <div class="fare-rate-label">起步价 ${fareHelp()}</div>
-              <div class="fare-rate-value">US$0.00</div>
+              <div class="fare-rate-value">${fareUsd(selected.baseFare, 2, 2)}</div>
             </div>
-            <div class="fare-subgrid">
+            ${hasPickupFee ? `<div class="fare-subgrid">
               ${fareSubRows([
-                ["长途接载费", "变量"],
-                ["里程费用", `US$${mileRate.toFixed(3)}`],
-                ["计时费用", `US$${minuteRate.toFixed(3)}`],
-                ["阈值", "9 minutes"]
+                ["长途接载费", selected.pickupFee],
+                ["里程费用", fareUsd(mileRate)],
+                ["计时费用", fareUsd(minuteRate)],
+                ["阈值", selected.pickupThreshold || "9 minutes"]
               ])}
-            </div>
+            </div>` : ""}
             <div class="fare-detail-row">
               <div class="fare-rate-label">每英里费用 ${fareHelp()}</div>
-              <div class="fare-rate-value">US$${mileRate.toFixed(3)}</div>
+              <div class="fare-rate-value">${fareUsd(mileRate)}</div>
             </div>
             <div class="fare-detail-row">
               <div class="fare-rate-label">每分钟费用 ${fareHelp()}</div>
-              <div class="fare-rate-value">US$${minuteRate.toFixed(3)}</div>
+              <div class="fare-rate-value">${fareUsd(minuteRate)}</div>
             </div>
-            <div class="fare-detail-row">
-              <div class="fare-rate-label">预约 ${fareHelp()}</div>
-              <div class="fare-rate-value">ECONOMY</div>
-            </div>
+            ${reservationClasses
+              .map((tier) => `
+                <div class="fare-detail-row">
+                  <div class="fare-rate-label">预约 ${fareHelp()}</div>
+                  <div class="fare-rate-value">${tier}</div>
+                </div>
+              `)
+              .join("")}
+            ${hasWaitFee ? `<div class="fare-detail-row">
+              <div class="fare-rate-label">每分钟等待时间费 ${fareHelp()}</div>
+              <div class="fare-rate-value">${fareUsd(selected.waitMinuteRate)}</div>
+            </div>` : ""}
             <div class="fare-subgrid">
               ${fareSubRows([
-                ["最低车费", "US$35.00"],
-                ["预约费", "US$7.00"],
-                ["固定取消费用", "US$25.00"],
-                ["取消费用政策", "FIXED FEE"]
+                ["最低车费", fareUsd(selected.reservationMinFare, 2, 2)],
+                ["预约费", fareUsd(selected.reservationFee, 2, 2)],
+                ["固定取消费用", fareUsd(selected.fixedCancelFee, 2, 2)],
+                ["取消费用政策", selected.cancelPolicy || "FIXED FEE"]
               ])}
             </div>
             <div class="fare-detail-row">
               <div class="fare-rate-label">最低行程收入 ${fareHelp()}</div>
-              <div class="fare-rate-value">US$4.0001</div>
+              <div class="fare-rate-value">${fareUsd(selected.minimumTripIncome)}</div>
             </div>
-            <div class="fare-subgrid">
-              ${fareSubRows([
-                ["取消费用", "可变"],
-                ["合作车主取消行程时的标准取消费用", "US$3.75"],
-                ["乘客取消行程时的标准取消费用", "US$3.75"],
-                ["里程费用", `US$${mileRate.toFixed(3)}`],
-                ["计时费用", `US$${minuteRate.toFixed(3)}`]
-              ])}
-            </div>
+            ${cancellationRows}
           </article>
         `;
       }
