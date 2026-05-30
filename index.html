@@ -1445,7 +1445,7 @@
           <button class="feature-card" type="button" data-open-module="receipt">
             <span class="feature-icon">$</span>
             <div class="feature-title">AI 图片生成</div>
-            <div class="feature-desc">上传任意图片，输入 prompt，调用 OpenAI 生成一张新图片。</div>
+            <div class="feature-desc">该页面还在开发中。</div>
           </button>
         </div>
       </section>
@@ -1572,8 +1572,8 @@
         <section class="tool" id="receipt-tool">
           <div class="tool-head">
             <div>
-              <div class="tool-title">OpenAI 图片生成</div>
-              <div class="tool-subtitle">上传一张你有权处理的图片，填写 prompt，后端会调用 OpenAI 图片接口生成一张新的图片供你保存。</div>
+              <div class="tool-title">AI 图片生成</div>
+              <div class="tool-subtitle">该页面还在开发中。</div>
             </div>
             <label class="upload-button">
               上传图片
@@ -1582,15 +1582,15 @@
           </div>
 
           <div class="receipt-layout">
-            <div class="receipt-preview" id="receipt-preview">请选择一张图片<br />图片会发送给你配置的 OpenAI 图片接口生成新图</div>
+            <div class="receipt-preview" id="receipt-preview">该页面还在开发中。</div>
             <div class="amount-panel">
               <label>
-                <span class="field-label">Prompt</span>
-                <textarea class="target-input" id="image-prompt" rows="8" placeholder="仅限虚构训练样例：将样例图片中的 total 数值改为 150，其他累加项合计等于 150，tax 按 8.87% 计算并去掉小数点；保持原图片排版风格，同时添加明显 SAMPLE / TRAINING ONLY 标记。"></textarea>
+                <span class="field-label">说明</span>
+                <textarea class="target-input" id="image-prompt" rows="8" placeholder="该页面还在开发中。"></textarea>
               </label>
               <button class="secondary-button" id="generate-image" type="button">生成新图片</button>
               <button class="secondary-button" id="export-receipt" type="button" disabled>保存生成图片</button>
-              <div class="receipt-status" id="receipt-status">上传图片并填写 prompt 后，即可生成一张新的图片。</div>
+              <div class="receipt-status" id="receipt-status">该页面还在开发中。</div>
             </div>
           </div>
         </section>
@@ -2219,7 +2219,7 @@
 
       async function loadFlights(silent = false) {
         if (!FLIGHTS_API_URL) {
-          $("#arrivals-list").innerHTML = `<div class="flight-empty">当前页面没有配置航班后端地址。本地开发可直接使用 /api/flights。</div>`;
+          $("#arrivals-list").innerHTML = `<div class="flight-empty">航班信息暂时不可用，请稍后再试。</div>`;
           return;
         }
         if (flightState.loading) return;
@@ -2264,20 +2264,20 @@
         }
 
         if (!OPENAI_API_URL) {
-          $("#receipt-status").textContent = "当前页面还没有配置 OpenAI 后端地址。GitHub Pages 只能展示前端，生成图片需要单独部署后端并设置 API_BASE_URL。";
+          $("#receipt-status").textContent = "该页面还在开发中。";
           return;
         }
 
         const prompt = $("#image-prompt").value.trim();
         if (!prompt) {
-          $("#receipt-status").textContent = "请先输入 prompt。";
+          $("#receipt-status").textContent = "请先填写说明。";
           return;
         }
 
         receiptState.prompt = prompt;
         $("#generate-image").disabled = true;
         $("#generate-image").textContent = "生成中";
-        $("#receipt-status").textContent = "正在调用 OpenAI 生成新图片...";
+        $("#receipt-status").textContent = "正在生成新图片...";
 
         try {
           const response = await fetch(OPENAI_API_URL, {
@@ -2300,12 +2300,11 @@
           receiptState.generatedMimeType = payload.mimeType || "image/png";
           const generatedUrl = `data:${receiptState.generatedMimeType};base64,${receiptState.generatedBase64}`;
           $("#receipt-preview").classList.add("has-image");
-          $("#receipt-preview").innerHTML = `<img src="${generatedUrl}" alt="OpenAI 生成图片预览" />`;
+          $("#receipt-preview").innerHTML = `<img src="${generatedUrl}" alt="生成图片预览" />`;
           $("#export-receipt").disabled = false;
           $("#receipt-status").textContent = "新图片已生成，可以直接保存。";
         } catch (error) {
-          const message = error && error.message ? error.message : "请稍后再试。";
-          $("#receipt-status").textContent = `生成失败：${message}`;
+          $("#receipt-status").textContent = "生成失败，请稍后再试。";
         } finally {
           $("#generate-image").disabled = false;
           $("#generate-image").textContent = "生成新图片";
@@ -2316,7 +2315,7 @@
         const url = new URL(`${API_ROOT}/${datasetId}.json`);
         Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
         const response = await fetch(url);
-        if (!response.ok) throw new Error(`NYC Open Data 请求失败 (${response.status})`);
+        if (!response.ok) throw new Error(`查询失败，请稍后再试。`);
         return response.json();
       }
 
@@ -2598,7 +2597,7 @@
         receiptState.generatedMimeType = "";
         $("#receipt-preview").classList.add("has-image");
         $("#receipt-preview").innerHTML = `<img src="${receiptState.imageUrl}" alt="原始上传图片预览" />`;
-        $("#receipt-status").textContent = "图片已上传，填写 prompt 后可以生成新图片。";
+        $("#receipt-status").textContent = "该页面还在开发中。";
         $("#export-receipt").disabled = true;
 
         const reader = new FileReader();
@@ -2619,7 +2618,7 @@
 
         const link = document.createElement("a");
         const extension = receiptState.generatedMimeType.split("/")[1] || "png";
-        link.download = `openai-generated-image.${extension}`;
+        link.download = `generated-image.${extension}`;
         link.href = `data:${receiptState.generatedMimeType};base64,${receiptState.generatedBase64}`;
         link.click();
       });
