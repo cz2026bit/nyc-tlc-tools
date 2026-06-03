@@ -1622,10 +1622,10 @@
         </div>
         <form class="search" id="form">
           <div class="row">
-            <input id="plate" value="" maxlength="12" autocomplete="off" placeholder="输入车牌号" />
-            <button id="submit" type="submit">查询</button>
+            <input id="plate" value="" maxlength="12" autocomplete="off" data-i18n-placeholder="platePlaceholder" placeholder="输入车牌号" />
+            <button id="submit" type="submit" data-i18n="searchButton">查询</button>
           </div>
-          <div class="hint">例如输入：T100223C</div>
+          <div class="hint" data-i18n="plateHint">例如输入：T100223C</div>
         </form>
 
         <div id="result"></div>
@@ -1644,29 +1644,29 @@
               <button class="segment-button" type="button" data-airport="EWR">EWR</button>
             </div>
             <label class="flight-search">
-              <input id="flight-search" maxlength="12" autocomplete="off" placeholder="搜索航班号，例如 DL1034" />
+              <input id="flight-search" maxlength="12" autocomplete="off" data-i18n-placeholder="flightSearchPlaceholder" placeholder="搜索航班号，例如 DL1034" />
             </label>
             <div>
-              <button class="small-button" id="refresh-flights" type="button">刷新</button>
-              <div class="refresh-note" id="flight-updated-at">每分钟自动刷新一次</div>
+              <button class="small-button" id="refresh-flights" type="button" data-i18n="refreshButton">刷新</button>
+              <div class="refresh-note" id="flight-updated-at" data-i18n="flightAutoRefresh">每分钟自动刷新一次</div>
             </div>
           </div>
 
           <div class="flight-summary" id="flight-summary">
             <div class="flight-summary-card">
-              <div class="flight-summary-label">实时到港</div>
+              <div class="flight-summary-label" data-i18n="flightLiveArrivals">实时到港</div>
               <div class="flight-summary-value" id="flight-total">-</div>
             </div>
             <div class="flight-summary-card">
-              <div class="flight-summary-label">已落地</div>
+              <div class="flight-summary-label" data-i18n="flightLanded">已落地</div>
               <div class="flight-summary-value" id="flight-landed">-</div>
             </div>
             <div class="flight-summary-card">
-              <div class="flight-summary-label">延误航班</div>
+              <div class="flight-summary-label" data-i18n="flightDelayed">延误航班</div>
               <div class="flight-summary-value" id="flight-delayed">-</div>
             </div>
             <div class="flight-summary-card">
-              <div class="flight-summary-label">预估到港人数</div>
+              <div class="flight-summary-label" data-i18n="flightEstimatedPassengers">预估到港人数</div>
               <div class="flight-summary-value" id="flight-passengers">-</div>
             </div>
           </div>
@@ -1676,15 +1676,15 @@
           <section class="chart-card">
             <div class="panel-head">
               <div>
-                <div class="panel-title">今日到港分时统计</div>
-                <div class="panel-subtitle">按纽约时间 0 点到 24 点统计当天每小时到达航班数量。点击小时列查看该时段完整列表。</div>
+                <div class="panel-title" data-i18n="flightChartTitle">今日到港分时统计</div>
+                <div class="panel-subtitle" data-i18n="flightChartSubtitle">按纽约时间 0 点到 24 点统计当天每小时到达航班数量。点击小时列查看该时段完整列表。</div>
               </div>
               <div class="refresh-note" id="chart-total">-</div>
             </div>
             <div class="chart-toolbar" role="group" aria-label="统计方式">
               <div class="metric-toggle">
-                <button class="metric-button active" type="button" data-chart-metric="flights">航班数</button>
-                <button class="metric-button" type="button" data-chart-metric="passengers">人数</button>
+                <button class="metric-button active" type="button" data-chart-metric="flights" data-i18n="flightMetricFlights">航班数</button>
+                <button class="metric-button" type="button" data-chart-metric="passengers" data-i18n="flightMetricPassengers">人数</button>
               </div>
             </div>
             <div class="hour-chart" id="hour-chart"></div>
@@ -1693,8 +1693,8 @@
           <section class="arrivals-card">
             <div class="panel-head">
               <div>
-                <div class="panel-title">当前到港航班</div>
-                <div class="panel-subtitle">显示当前列表中的航班号、预计到达、实际到达、航站楼和登机口。数据会随页面每分钟自动刷新。</div>
+                <div class="panel-title" data-i18n="flightArrivalsTitle">当前到港航班</div>
+                <div class="panel-subtitle" data-i18n="flightArrivalsSubtitle">显示当前列表中的航班号、预计到达、实际到达、航站楼和登机口。数据会随页面每分钟自动刷新。</div>
               </div>
             </div>
             <div class="arrivals-list" id="arrivals-list"></div>
@@ -1711,13 +1711,13 @@
         <section class="tool fare-tool">
           <div class="fare-controls">
             <label>
-              选择城市
+              <span data-i18n="fareCityLabel">选择城市</span>
               <select id="fare-city">
                 <option value="nyc">New York City</option>
               </select>
             </label>
             <label>
-              选择产品
+              <span data-i18n="fareProductLabel">选择产品</span>
               <select id="fare-type"></select>
             </label>
           </div>
@@ -1725,7 +1725,7 @@
           <div class="borough-map-card">
             <img class="borough-map" src="assets/nyc-coverage-map.svg" alt="New York City coverage map" />
           </div>
-          <div class="fare-note">费率为参考计算，不包含动态加价、过路费、机场费、小费、等待费、平台服务费和优惠。Uber 实际价格以 App 显示为准。</div>
+          <div class="fare-note" data-i18n="fareNote">费率为参考计算，不包含动态加价、过路费、机场费、小费、等待费、平台服务费和优惠。Uber 实际价格以 App 显示为准。</div>
         </section>
       </section>
 
@@ -1757,21 +1757,21 @@
               <div class="tool-subtitle" data-i18n="underDevelopment">该页面还在开发中。</div>
             </div>
             <label class="upload-button">
-              上传图片
+              <span data-i18n="uploadImage">上传图片</span>
               <input class="file-input" id="receipt-file" type="file" accept="image/*" />
             </label>
           </div>
 
           <div class="receipt-layout">
-            <div class="receipt-preview" id="receipt-preview">该页面还在开发中。</div>
+            <div class="receipt-preview" id="receipt-preview" data-i18n="underDevelopment">该页面还在开发中。</div>
             <div class="amount-panel">
               <label>
-                <span class="field-label">说明</span>
-                <textarea class="target-input" id="image-prompt" rows="8" placeholder="该页面还在开发中。"></textarea>
+                <span class="field-label" data-i18n="descriptionLabel">说明</span>
+                <textarea class="target-input" id="image-prompt" rows="8" data-i18n-placeholder="underDevelopment" placeholder="该页面还在开发中。"></textarea>
               </label>
-              <button class="secondary-button" id="generate-image" type="button">生成新图片</button>
-              <button class="secondary-button" id="export-receipt" type="button" disabled>保存生成图片</button>
-              <div class="receipt-status" id="receipt-status">该页面还在开发中。</div>
+              <button class="secondary-button" id="generate-image" type="button" data-i18n="generateImage">生成新图片</button>
+              <button class="secondary-button" id="export-receipt" type="button" disabled data-i18n="saveGeneratedImage">保存生成图片</button>
+              <div class="receipt-status" id="receipt-status" data-i18n="underDevelopment">该页面还在开发中。</div>
             </div>
           </div>
         </section>
@@ -1819,7 +1819,8 @@
         page: 1,
         pageSize: 20,
         timer: null,
-        loading: false
+        loading: false,
+        updatedAt: ""
       };
       const defaultFareRates = [
         {
@@ -2023,6 +2024,16 @@
           .join("");
       }
 
+      function fareDisplayValue(value) {
+        if (value === "变量") return t("variableLabel");
+        return value;
+      }
+
+      function fareZoneLabel(value) {
+        if (value === "1 区") return currentLanguage === "en" ? "Zone 1" : value;
+        return value || "New York City";
+      }
+
       function renderFareCalculator() {
         const selected = fareRates.find((item) => item.id === $("#fare-type").value) || fareRates[0];
         const rate = selected.inside || selected.outside || { mile: 0, minute: 0 };
@@ -2036,67 +2047,67 @@
         const cancellationRows = hasPickupFee
           ? `<div class="fare-subgrid">
               ${fareSubRows([
-                ["取消费用", "可变"],
-                ["合作车主取消行程时的标准取消费用", fareUsd(selected.driverCancelFee, 2, 4)],
-                ["乘客取消行程时的标准取消费用", fareUsd(selected.riderCancelFee, 2, 4)],
-                ["里程费用", fareUsd(mileRate)],
-                ["计时费用", fareUsd(minuteRate)]
+                [t("cancellationFee"), t("variableLabel")],
+                [t("driverCancelStandardFee"), fareUsd(selected.driverCancelFee, 2, 4)],
+                [t("riderCancelStandardFee"), fareUsd(selected.riderCancelFee, 2, 4)],
+                [t("mileFee"), fareUsd(mileRate)],
+                [t("timeFee"), fareUsd(minuteRate)]
               ])}
             </div>`
           : `<div class="fare-detail-row">
-              <div class="fare-rate-label">合作车主取消行程时的取消费用 ${fareHelp()}</div>
+              <div class="fare-rate-label">${t("driverCancelFee")} ${fareHelp()}</div>
               <div class="fare-rate-value">${fareUsd(selected.driverCancelFee, 2, 4)}</div>
             </div>
             <div class="fare-detail-row">
-              <div class="fare-rate-label">乘客取消行程时的取消费用 ${fareHelp()}</div>
+              <div class="fare-rate-label">${t("riderCancelFee")} ${fareHelp()}</div>
               <div class="fare-rate-value">${fareUsd(selected.riderCancelFee, 2, 4)}</div>
             </div>`;
 
         $("#fare-results").innerHTML = `
           <article class="fare-zone-card">
-            <div class="fare-zone-title"><span class="fare-city-dot"></span>${selected.zoneLabel || "New York City"}</div>
+            <div class="fare-zone-title"><span class="fare-city-dot"></span>${fareZoneLabel(selected.zoneLabel)}</div>
             <div class="fare-detail-row">
-              <div class="fare-rate-label">起步价 ${fareHelp()}</div>
+              <div class="fare-rate-label">${t("baseFare")} ${fareHelp()}</div>
               <div class="fare-rate-value">${fareUsd(selected.baseFare, 2, 2)}</div>
             </div>
             ${hasPickupFee ? `<div class="fare-subgrid">
               ${fareSubRows([
-                ["长途接载费", selected.pickupFee],
-                ["里程费用", fareUsd(mileRate)],
-                ["计时费用", fareUsd(minuteRate)],
-                ["阈值", selected.pickupThreshold || "9 minutes"]
+                [t("longPickupFee"), fareDisplayValue(selected.pickupFee)],
+                [t("mileFee"), fareUsd(mileRate)],
+                [t("timeFee"), fareUsd(minuteRate)],
+                [t("threshold"), selected.pickupThreshold || "9 minutes"]
               ])}
             </div>` : ""}
             <div class="fare-detail-row">
-              <div class="fare-rate-label">每英里费用 ${fareHelp()}</div>
+              <div class="fare-rate-label">${t("perMileFee")} ${fareHelp()}</div>
               <div class="fare-rate-value">${fareUsd(mileRate)}</div>
             </div>
             <div class="fare-detail-row">
-              <div class="fare-rate-label">每分钟费用 ${fareHelp()}</div>
+              <div class="fare-rate-label">${t("perMinuteFee")} ${fareHelp()}</div>
               <div class="fare-rate-value">${fareUsd(minuteRate)}</div>
             </div>
             ${reservationClasses
               .map((tier) => `
                 <div class="fare-detail-row">
-                  <div class="fare-rate-label">预约 ${fareHelp()}</div>
+                  <div class="fare-rate-label">${t("reservation")} ${fareHelp()}</div>
                   <div class="fare-rate-value">${tier}</div>
                 </div>
               `)
               .join("")}
             ${hasWaitFee ? `<div class="fare-detail-row">
-              <div class="fare-rate-label">每分钟等待时间费 ${fareHelp()}</div>
+              <div class="fare-rate-label">${t("waitMinuteFee")} ${fareHelp()}</div>
               <div class="fare-rate-value">${fareUsd(selected.waitMinuteRate)}</div>
             </div>` : ""}
             <div class="fare-subgrid">
               ${fareSubRows([
-                ["最低车费", fareUsd(selected.reservationMinFare, 2, 2)],
-                ["预约费", fareUsd(selected.reservationFee, 2, 2)],
-                ["固定取消费用", fareUsd(selected.fixedCancelFee, 2, 2)],
-                ["取消费用政策", selected.cancelPolicy || "FIXED FEE"]
+                [t("minFare"), fareUsd(selected.reservationMinFare, 2, 2)],
+                [t("reservationFee"), fareUsd(selected.reservationFee, 2, 2)],
+                [t("fixedCancelFee"), fareUsd(selected.fixedCancelFee, 2, 2)],
+                [t("cancelPolicy"), selected.cancelPolicy || "FIXED FEE"]
               ])}
             </div>
             <div class="fare-detail-row">
-              <div class="fare-rate-label">最低行程收入 ${fareHelp()}</div>
+              <div class="fare-rate-label">${t("minTripIncome")} ${fareHelp()}</div>
               <div class="fare-rate-value">${fareUsd(selected.minimumTripIncome)}</div>
             </div>
             ${cancellationRows}
@@ -2147,7 +2158,7 @@
         return `
           <div class="time-label">
             <span>${label}</span>
-            <button class="help-button" type="button" data-help-toggle aria-label="${label}说明">?</button>
+            <button class="help-button" type="button" data-help-toggle aria-label="${label}">?</button>
           </div>
           <div class="help-popover">${helpText}</div>
         `;
@@ -2190,7 +2201,126 @@
           feedbackMessageRequired: "请输入反馈内容。",
           feedbackSubmitting: "正在提交...",
           feedbackSuccess: "已收到反馈，谢谢。",
-          feedbackFailed: "反馈提交失败，请稍后再试。"
+          feedbackFailed: "反馈提交失败，请稍后再试。",
+          platePlaceholder: "输入车牌号",
+          searchButton: "查询",
+          searchingButton: "查询中",
+          plateHint: "例如输入：T100223C",
+          plateRequired: "请输入车牌号。",
+          queryFailed: "查询失败，请稍后再试。",
+          flightSearchPlaceholder: "搜索航班号，例如 DL1034",
+          refreshButton: "刷新",
+          refreshingButton: "刷新中",
+          flightAutoRefresh: "每分钟自动刷新一次",
+          flightLiveArrivals: "实时到港",
+          flightLanded: "已落地",
+          flightDelayed: "延误航班",
+          flightEstimatedPassengers: "预估到港人数",
+          flightChartTitle: "今日到港分时统计",
+          flightChartSubtitle: "按纽约时间 0 点到 24 点统计当天每小时到达航班数量。点击小时列查看该时段完整列表。",
+          flightMetricFlights: "航班数",
+          flightMetricPassengers: "人数",
+          flightArrivalsTitle: "当前到港航班",
+          flightArrivalsSubtitle: "显示当前列表中的航班号、预计到达、实际到达、航站楼和登机口。数据会随页面每分钟自动刷新。",
+          unitFlights: "架",
+          unitPassengers: "人",
+          todayLabel: "今天",
+          totalLabel: "共",
+          afterCurrentTime: "当前时间之后",
+          arrivalsAria: "到港",
+          noUpcomingFlights: "当前时间之后暂无到港航班。",
+          noHourFlights: "{time} 暂无到港航班。",
+          noMatchedFlights: "当前列表没有匹配的航班号。",
+          terminalLabel: "航站楼",
+          estimatedPassengersLabel: "预估人数",
+          passengerHelpFallback: "按机型座位容量估算，非实际登机人数。",
+          estimatedArrivalLabel: "预计到达",
+          estimatedArrivalHelp: "根据实时飞行状态更新后的到达预测时间，可能会随延误、提前或飞行状态变化。",
+          actualArrivalLabel: "实际到达",
+          actualArrivalHelp: "航班已经落地后的真实到达时间。未落地时通常为空。",
+          scheduledArrivalLabel: "计划到达",
+          scheduledArrivalHelp: "航司原始排班或时刻表中的到达时间，也就是原定到达时间。",
+          flightNumberLabel: "航班号",
+          prevPage: "上一页",
+          nextPage: "下一页",
+          pageSummary: "第 {page} / {totalPages} 页 · 共 {total} 条 · 每页 {pageSize} 条",
+          unknownLabel: "未知",
+          updatedAt: "更新于 {time}",
+          flightUnavailable: "航班信息暂时不可用，请稍后再试。",
+          loadingFlights: "正在加载 {airport} 到港航班...",
+          flightLoadFailed: "航班数据加载失败：{message}",
+          loadFailed: "加载失败",
+          fareCityLabel: "选择城市",
+          fareProductLabel: "选择产品",
+          fareNote: "费率为参考计算，不包含动态加价、过路费、机场费、小费、等待费、平台服务费和优惠。Uber 实际价格以 App 显示为准。",
+          variableLabel: "可变",
+          cancellationFee: "取消费用",
+          driverCancelStandardFee: "合作车主取消行程时的标准取消费用",
+          riderCancelStandardFee: "乘客取消行程时的标准取消费用",
+          mileFee: "里程费用",
+          timeFee: "计时费用",
+          driverCancelFee: "合作车主取消行程时的取消费用",
+          riderCancelFee: "乘客取消行程时的取消费用",
+          baseFare: "起步价",
+          longPickupFee: "长途接载费",
+          threshold: "阈值",
+          perMileFee: "每英里费用",
+          perMinuteFee: "每分钟费用",
+          reservation: "预约",
+          waitMinuteFee: "每分钟等待时间费",
+          minFare: "最低车费",
+          reservationFee: "预约费",
+          fixedCancelFee: "固定取消费用",
+          cancelPolicy: "取消费用政策",
+          minTripIncome: "最低行程收入",
+          uploadImage: "上传图片",
+          descriptionLabel: "说明",
+          generateImage: "生成新图片",
+          generating: "生成中",
+          saveGeneratedImage: "保存生成图片",
+          uploadImageFirst: "请先上传一张图片。",
+          fillDescriptionFirst: "请先填写说明。",
+          generatingImage: "正在生成新图片...",
+          generatedImageAlt: "生成图片预览",
+          generatedImageReady: "新图片已生成，可以直接保存。",
+          generateFailed: "生成失败，请稍后再试。",
+          saveImageFirst: "请先生成一张新图片。",
+          sourceImageAlt: "原始上传图片预览",
+          ownerCompany: "车主 / 公司",
+          tlcLicenseNumber: "TLC 牌照号",
+          permitLicenseNumber: "Permit 牌照号",
+          vehicleType: "车辆类型",
+          vehicleCode: "车辆类别代码",
+          wheelchairStatus: "无障碍状态",
+          vehicleMake: "车辆品牌",
+          stateLabel: "登记州",
+          vehicleYear: "车辆年份",
+          licenseType: "License 类型",
+          baseNumber: "Base 编号",
+          baseName: "Base 名称",
+          baseType: "Base 类型",
+          basePhone: "Base 电话",
+          baseAddress: "Base 地址",
+          baseWebsite: "Base 网站 / 邮箱",
+          expirationDate: "到期日期",
+          lastUpdated: "最后更新",
+          firstSeen: "首次公开记录",
+          lastSeen: "最近公开记录",
+          summonsNumber: "罚单号",
+          dateLabel: "日期",
+          locationLabel: "地点",
+          agencyLabel: "机构",
+          fineLabel: "罚金",
+          noOwnerPublic: "违章公开记录不提供车主姓名",
+          noTlcBase: "未命中 TLC 车辆库，无法显示所属基地",
+          publicViolationRecords: "{count} 条公开违章记录",
+          tlcVehicleRecords: "TLC 车辆记录",
+          violationRecords: "违章记录",
+          unpaidAmount: "未付金额",
+          tlcVehicleInfo: "TLC 车辆信息",
+          vehiclePublicInfo: "车辆公开信息",
+          noPublicRecordsTitle: "没有找到公开记录",
+          noPublicRecordsBody: "请确认车牌号拼写，或稍后再试。"
         },
         en: {
           appTitle: "NYC TLC Toolkit",
@@ -2220,7 +2350,126 @@
           feedbackMessageRequired: "Please enter your feedback.",
           feedbackSubmitting: "Submitting...",
           feedbackSuccess: "Feedback received. Thank you.",
-          feedbackFailed: "Feedback failed to submit. Please try again later."
+          feedbackFailed: "Feedback failed to submit. Please try again later.",
+          platePlaceholder: "Enter plate number",
+          searchButton: "Search",
+          searchingButton: "Searching",
+          plateHint: "Example: T100223C",
+          plateRequired: "Please enter a plate number.",
+          queryFailed: "Search failed. Please try again later.",
+          flightSearchPlaceholder: "Search flight number, e.g. DL1034",
+          refreshButton: "Refresh",
+          refreshingButton: "Refreshing",
+          flightAutoRefresh: "Auto-refreshes every minute",
+          flightLiveArrivals: "Live arrivals",
+          flightLanded: "Landed",
+          flightDelayed: "Delayed",
+          flightEstimatedPassengers: "Estimated passengers",
+          flightChartTitle: "Today's Arrivals By Hour",
+          flightChartSubtitle: "Hourly arrivals from 00:00 to 24:00 New York time. Click an hour to view the full list.",
+          flightMetricFlights: "Flights",
+          flightMetricPassengers: "Passengers",
+          flightArrivalsTitle: "Current Arrivals",
+          flightArrivalsSubtitle: "Shows flight number, ETA, actual arrival, terminal, and gate. Data refreshes every minute.",
+          unitFlights: "flights",
+          unitPassengers: "people",
+          todayLabel: "Today",
+          totalLabel: "total",
+          afterCurrentTime: "after current time",
+          arrivalsAria: "arrivals",
+          noUpcomingFlights: "No upcoming arrivals after the current time.",
+          noHourFlights: "No arrivals for {time}.",
+          noMatchedFlights: "No matching flight number in the current list.",
+          terminalLabel: "Terminal",
+          estimatedPassengersLabel: "Est. passengers",
+          passengerHelpFallback: "Estimated from aircraft seat capacity, not actual boarded passenger count.",
+          estimatedArrivalLabel: "Estimated arrival",
+          estimatedArrivalHelp: "Updated arrival prediction based on live flight status. It may change with delays, early arrivals, or status updates.",
+          actualArrivalLabel: "Actual arrival",
+          actualArrivalHelp: "The actual arrival time after the flight has landed. Usually blank before landing.",
+          scheduledArrivalLabel: "Scheduled arrival",
+          scheduledArrivalHelp: "The airline's original scheduled arrival time.",
+          flightNumberLabel: "Flight number",
+          prevPage: "Previous",
+          nextPage: "Next",
+          pageSummary: "Page {page} / {totalPages} · {total} total · {pageSize} per page",
+          unknownLabel: "Unknown",
+          updatedAt: "Updated {time}",
+          flightUnavailable: "Flight information is temporarily unavailable. Please try again later.",
+          loadingFlights: "Loading {airport} arrivals...",
+          flightLoadFailed: "Flight data failed to load: {message}",
+          loadFailed: "Load failed",
+          fareCityLabel: "City",
+          fareProductLabel: "Product",
+          fareNote: "Rates are estimates and do not include surge pricing, tolls, airport fees, tips, wait fees, platform fees, or promotions. Actual Uber pricing is based on the app.",
+          variableLabel: "Variable",
+          cancellationFee: "Cancellation fee",
+          driverCancelStandardFee: "Standard cancellation fee when the driver cancels",
+          riderCancelStandardFee: "Standard cancellation fee when the rider cancels",
+          mileFee: "Mileage fee",
+          timeFee: "Time fee",
+          driverCancelFee: "Driver cancellation fee",
+          riderCancelFee: "Rider cancellation fee",
+          baseFare: "Base fare",
+          longPickupFee: "Long pickup fee",
+          threshold: "Threshold",
+          perMileFee: "Per-mile fee",
+          perMinuteFee: "Per-minute fee",
+          reservation: "Reservation",
+          waitMinuteFee: "Per-minute wait time fee",
+          minFare: "Minimum fare",
+          reservationFee: "Reservation fee",
+          fixedCancelFee: "Fixed cancellation fee",
+          cancelPolicy: "Cancellation policy",
+          minTripIncome: "Minimum trip income",
+          uploadImage: "Upload image",
+          descriptionLabel: "Description",
+          generateImage: "Generate image",
+          generating: "Generating",
+          saveGeneratedImage: "Save generated image",
+          uploadImageFirst: "Please upload an image first.",
+          fillDescriptionFirst: "Please enter a description first.",
+          generatingImage: "Generating a new image...",
+          generatedImageAlt: "Generated image preview",
+          generatedImageReady: "New image generated. You can save it now.",
+          generateFailed: "Generation failed. Please try again later.",
+          saveImageFirst: "Please generate an image first.",
+          sourceImageAlt: "Original uploaded image preview",
+          ownerCompany: "Owner / company",
+          tlcLicenseNumber: "TLC license number",
+          permitLicenseNumber: "Permit license number",
+          vehicleType: "Vehicle type",
+          vehicleCode: "Vehicle class code",
+          wheelchairStatus: "Wheelchair status",
+          vehicleMake: "Vehicle make",
+          stateLabel: "Registration state",
+          vehicleYear: "Vehicle year",
+          licenseType: "License type",
+          baseNumber: "Base number",
+          baseName: "Base name",
+          baseType: "Base type",
+          basePhone: "Base phone",
+          baseAddress: "Base address",
+          baseWebsite: "Base website / email",
+          expirationDate: "Expiration date",
+          lastUpdated: "Last updated",
+          firstSeen: "First public record",
+          lastSeen: "Latest public record",
+          summonsNumber: "Summons number",
+          dateLabel: "Date",
+          locationLabel: "Location",
+          agencyLabel: "Agency",
+          fineLabel: "Fine",
+          noOwnerPublic: "Owner name is not available in public violation records",
+          noTlcBase: "No matching TLC vehicle record, so base information is unavailable",
+          publicViolationRecords: "{count} public violation records",
+          tlcVehicleRecords: "TLC vehicle records",
+          violationRecords: "Violation records",
+          unpaidAmount: "Unpaid amount",
+          tlcVehicleInfo: "TLC vehicle information",
+          vehiclePublicInfo: "Vehicle public information",
+          noPublicRecordsTitle: "No public records found",
+          noPublicRecordsBody: "Check the plate spelling, or try again later."
         }
       };
       let currentLanguage = getInitialLanguage();
@@ -2228,6 +2477,10 @@
 
       function t(key) {
         return (languageCopy[currentLanguage] && languageCopy[currentLanguage][key]) || languageCopy.zh[key] || key;
+      }
+
+      function tf(key, values = {}) {
+        return t(key).replace(/\{(\w+)\}/g, (_, name) => values[name] === undefined ? "" : String(values[name]));
       }
 
       function escapeHtml(value) {
@@ -2255,6 +2508,13 @@
         });
         $("#language-select").value = currentLanguage;
         if (servicesLoaded) loadServiceInfo(true);
+        if (!$("#flights-module").classList.contains("hidden")) {
+          renderTerminalStats();
+          renderFlightHistory();
+          renderFlightList();
+          $("#flight-updated-at").textContent = formatUpdatedAt(flightState.updatedAt);
+        }
+        if (!$("#fare-module").classList.contains("hidden")) renderFareCalculator();
       }
 
       async function savePlateSearchRecord(record) {
@@ -2428,11 +2688,27 @@
       }
 
       function getChartUnit() {
-        return flightState.chartMetric === "passengers" ? "人" : "架";
+        return flightState.chartMetric === "passengers" ? t("unitPassengers") : t("unitFlights");
       }
 
       function sumPassengers(items) {
         return items.reduce((sum, item) => sum + Number(item.passengerCount || 0), 0);
+      }
+
+      function translatePassengerNote(note) {
+        if (currentLanguage !== "en") return note;
+        const value = String(note || "");
+        if (value === "货运航班") return "Cargo flight";
+        if (value.includes("未取得机型")) return "Aircraft type unavailable; estimated by route type, not actual passenger count.";
+        if (value.includes("按机型")) return "Estimated from aircraft type, not actual boarded passenger count.";
+        return value;
+      }
+
+      function formatPassengerValue(item) {
+        if (currentLanguage === "en" && item.passengerCount !== undefined && item.passengerCount !== null) {
+          return `Approx. ${formatChartNumber(item.passengerCount)}`;
+        }
+        return item.passengerLabel || item.passengerCount;
       }
 
       function renderFlightHistory() {
@@ -2452,17 +2728,17 @@
         if (flightState.selectedHour === null) {
           const upcomingFlights = flightState.flights.filter((item) => getArrivalMinutes(item) >= getNewYorkMinutes());
           const upcomingTotal = flightState.chartMetric === "passengers" ? sumPassengers(upcomingFlights) : upcomingFlights.length;
-          $("#chart-total").textContent = `今天 · 共 ${formatChartNumber(metricTotal)} ${unit} · 当前时间之后 ${formatChartNumber(upcomingTotal)} ${unit}`;
+          $("#chart-total").textContent = `${t("todayLabel")} · ${t("totalLabel")} ${formatChartNumber(metricTotal)} ${unit} · ${t("afterCurrentTime")} ${formatChartNumber(upcomingTotal)} ${unit}`;
         } else {
           const selectedHourTotal = values[flightState.selectedHour] || 0;
-          $("#chart-total").textContent = `今天 · 共 ${formatChartNumber(metricTotal)} ${unit} · ${formatHourRange(flightState.selectedHour)} 共 ${formatChartNumber(selectedHourTotal)} ${unit}`;
+          $("#chart-total").textContent = `${t("todayLabel")} · ${t("totalLabel")} ${formatChartNumber(metricTotal)} ${unit} · ${formatHourRange(flightState.selectedHour)} ${t("totalLabel")} ${formatChartNumber(selectedHourTotal)} ${unit}`;
         }
         const maxValue = Math.max(...values, 1);
         chart.innerHTML = values
           .map((value, hour) => {
             const height = Math.max(4, Math.round((value / maxValue) * 160));
             return `
-              <button class="hour-bar ${hour === flightState.selectedHour ? "active" : ""}" type="button" data-flight-hour="${hour}" aria-label="${formatHourRange(hour)} 到港 ${formatChartNumber(value)} ${unit}">
+              <button class="hour-bar ${hour === flightState.selectedHour ? "active" : ""}" type="button" data-flight-hour="${hour}" aria-label="${formatHourRange(hour)} ${t("arrivalsAria")} ${formatChartNumber(value)} ${unit}">
                 <span class="hour-bar-value">${value ? formatChartNumber(value) : ""}</span>
                 <span class="hour-bar-track"><span class="hour-bar-fill" style="height:${height}px"></span></span>
                 <span class="hour-bar-label">${String(hour).padStart(2, "0")}</span>
@@ -2499,9 +2775,9 @@
 
         if (!flights.length) {
           const emptyText = flightState.selectedHour === null
-            ? "当前时间之后暂无到港航班。"
-            : `${formatHourRange(flightState.selectedHour)} 暂无到港航班。`;
-          root.innerHTML = `<div class="flight-empty">${flightState.query ? "当前列表没有匹配的航班号。" : emptyText}</div>`;
+            ? t("noUpcomingFlights")
+            : tf("noHourFlights", { time: formatHourRange(flightState.selectedHour) });
+          root.innerHTML = `<div class="flight-empty">${flightState.query ? t("noMatchedFlights") : emptyText}</div>`;
           pager.innerHTML = "";
           return;
         }
@@ -2518,21 +2794,21 @@
                   <div class="arrival-status">${compact(item.status)}</div>
                 </div>
                 <div class="arrival-grid">
-                  <div class="arrival-terminal"><div class="k">航站楼</div><div class="v">${compact(item.terminal)}</div></div>
-                  <div class="time-field"><div class="k">${timeHelpLabel("预估人数", compact(item.passengerNote, "按机型座位容量估算，非实际登机人数。"))}</div><div class="v">${compact(item.passengerLabel || item.passengerCount)}</div></div>
-                  <div class="time-field"><div class="k">${timeHelpLabel("预计到达", "根据实时飞行状态更新后的到达预测时间，可能会随延误、提前或飞行状态变化。")}</div><div class="v">${compact(item.estimatedArrival)}</div></div>
-                  <div class="time-field"><div class="k">${timeHelpLabel("实际到达", "航班已经落地后的真实到达时间。未落地时通常为空。")}</div><div class="v">${compact(item.actualArrival)}</div></div>
-                  <div class="time-field"><div class="k">${timeHelpLabel("计划到达", "航司原始排班或时刻表中的到达时间，也就是原定到达时间。")}</div><div class="v">${compact(item.scheduledArrival)}</div></div>
-                  <div><div class="k">航班号</div><div class="v">${compact(item.flightNumber)}</div></div>
+                  <div class="arrival-terminal"><div class="k">${t("terminalLabel")}</div><div class="v">${compact(item.terminal)}</div></div>
+                  <div class="time-field"><div class="k">${timeHelpLabel(t("estimatedPassengersLabel"), compact(translatePassengerNote(item.passengerNote), t("passengerHelpFallback")))}</div><div class="v">${compact(formatPassengerValue(item))}</div></div>
+                  <div class="time-field"><div class="k">${timeHelpLabel(t("estimatedArrivalLabel"), t("estimatedArrivalHelp"))}</div><div class="v">${compact(item.estimatedArrival)}</div></div>
+                  <div class="time-field"><div class="k">${timeHelpLabel(t("actualArrivalLabel"), t("actualArrivalHelp"))}</div><div class="v">${compact(item.actualArrival)}</div></div>
+                  <div class="time-field"><div class="k">${timeHelpLabel(t("scheduledArrivalLabel"), t("scheduledArrivalHelp"))}</div><div class="v">${compact(item.scheduledArrival)}</div></div>
+                  <div><div class="k">${t("flightNumberLabel")}</div><div class="v">${compact(item.flightNumber)}</div></div>
                 </div>
               </article>
             `
           )
           .join("");
         pager.innerHTML = `
-          <button class="page-button" type="button" data-page-prev ${flightState.page <= 1 ? "disabled" : ""}>上一页</button>
-          <span>第 ${flightState.page} / ${totalPages} 页 · 共 ${flights.length} 条 · 每页 ${flightState.pageSize} 条</span>
-          <button class="page-button" type="button" data-page-next ${flightState.page >= totalPages ? "disabled" : ""}>下一页</button>
+          <button class="page-button" type="button" data-page-prev ${flightState.page <= 1 ? "disabled" : ""}>${t("prevPage")}</button>
+          <span>${tf("pageSummary", { page: flightState.page, totalPages, total: flights.length, pageSize: flightState.pageSize })}</span>
+          <button class="page-button" type="button" data-page-next ${flightState.page >= totalPages ? "disabled" : ""}>${t("nextPage")}</button>
         `;
         const prev = pager.querySelector("[data-page-prev]");
         const next = pager.querySelector("[data-page-next]");
@@ -2564,8 +2840,8 @@
         flightState.flights
           .filter((item) => /landed/i.test(item.status))
           .forEach((item) => {
-            const rawTerminal = compact(item.terminal, "未知");
-            const terminal = rawTerminal === "-" ? "未知" : rawTerminal;
+            const rawTerminal = compact(item.terminal, t("unknownLabel"));
+            const terminal = rawTerminal === "-" ? t("unknownLabel") : rawTerminal;
             counts.set(terminal, (counts.get(terminal) || 0) + 1);
           });
 
@@ -2578,7 +2854,7 @@
         root.innerHTML = entries
           .map(([terminal, count]) => `
             <div class="terminal-card">
-              <div class="terminal-label">航站楼 ${terminal}</div>
+              <div class="terminal-label">${t("terminalLabel")} ${terminal}</div>
               <div class="terminal-count">${count}</div>
             </div>
           `)
@@ -2586,28 +2862,30 @@
       }
 
       function formatUpdatedAt(value) {
-        if (!value) return "每分钟自动刷新一次";
+        if (!value) return t("flightAutoRefresh");
         const date = new Date(value);
-        return `更新于 ${date.toLocaleString("zh-CN", {
+        const locale = currentLanguage === "en" ? "en-US" : "zh-CN";
+        const time = date.toLocaleString(locale, {
           month: "2-digit",
           day: "2-digit",
           hour: "2-digit",
           minute: "2-digit",
           timeZone: "America/New_York"
-        })}`;
+        });
+        return tf("updatedAt", { time });
       }
 
       async function loadFlights(silent = false) {
         if (!FLIGHTS_API_URL) {
-          $("#arrivals-list").innerHTML = `<div class="flight-empty">航班信息暂时不可用，请稍后再试。</div>`;
+          $("#arrivals-list").innerHTML = `<div class="flight-empty">${t("flightUnavailable")}</div>`;
           return;
         }
         if (flightState.loading) return;
         flightState.loading = true;
         $("#refresh-flights").disabled = true;
-        $("#refresh-flights").textContent = "刷新中";
+        $("#refresh-flights").textContent = t("refreshingButton");
         if (!silent) {
-          $("#arrivals-list").innerHTML = `<div class="flight-empty">正在加载 ${flightState.airport} 到港航班...</div>`;
+          $("#arrivals-list").innerHTML = `<div class="flight-empty">${tf("loadingFlights", { airport: flightState.airport })}</div>`;
         }
 
         try {
@@ -2621,6 +2899,7 @@
           $("#flight-landed").textContent = payload.live.landed;
           $("#flight-delayed").textContent = payload.live.delayed;
           $("#flight-passengers").textContent = formatChartNumber(payload.live.passengers || 0);
+          flightState.updatedAt = payload.updatedAt;
           $("#flight-updated-at").textContent = formatUpdatedAt(payload.updatedAt);
           flightState.todayStats = payload.today || null;
           flightState.flights = payload.live.flights || [];
@@ -2628,36 +2907,36 @@
           renderFlightHistory();
           renderFlightList();
         } catch (error) {
-          $("#arrivals-list").innerHTML = `<div class="flight-empty">航班数据加载失败：${error.message || "请稍后再试。"}</div>`;
-          $("#chart-total").textContent = "加载失败";
+          $("#arrivals-list").innerHTML = `<div class="flight-empty">${tf("flightLoadFailed", { message: error.message || t("queryFailed") })}</div>`;
+          $("#chart-total").textContent = t("loadFailed");
         } finally {
           flightState.loading = false;
           $("#refresh-flights").disabled = false;
-          $("#refresh-flights").textContent = "刷新";
+          $("#refresh-flights").textContent = t("refreshButton");
         }
       }
 
       async function generateOpenAIImage() {
         if (!receiptState.sourceBase64 || !receiptState.mimeType) {
-          $("#receipt-status").textContent = "请先上传一张图片。";
+          $("#receipt-status").textContent = t("uploadImageFirst");
           return;
         }
 
         if (!OPENAI_API_URL) {
-          $("#receipt-status").textContent = "该页面还在开发中。";
+          $("#receipt-status").textContent = t("underDevelopment");
           return;
         }
 
         const prompt = $("#image-prompt").value.trim();
         if (!prompt) {
-          $("#receipt-status").textContent = "请先填写说明。";
+          $("#receipt-status").textContent = t("fillDescriptionFirst");
           return;
         }
 
         receiptState.prompt = prompt;
         $("#generate-image").disabled = true;
-        $("#generate-image").textContent = "生成中";
-        $("#receipt-status").textContent = "正在生成新图片...";
+        $("#generate-image").textContent = t("generating");
+        $("#receipt-status").textContent = t("generatingImage");
 
         try {
           const response = await fetch(OPENAI_API_URL, {
@@ -2680,14 +2959,14 @@
           receiptState.generatedMimeType = payload.mimeType || "image/png";
           const generatedUrl = `data:${receiptState.generatedMimeType};base64,${receiptState.generatedBase64}`;
           $("#receipt-preview").classList.add("has-image");
-          $("#receipt-preview").innerHTML = `<img src="${generatedUrl}" alt="生成图片预览" />`;
+          $("#receipt-preview").innerHTML = `<img src="${generatedUrl}" alt="${t("generatedImageAlt")}" />`;
           $("#export-receipt").disabled = false;
-          $("#receipt-status").textContent = "新图片已生成，可以直接保存。";
+          $("#receipt-status").textContent = t("generatedImageReady");
         } catch (error) {
-          $("#receipt-status").textContent = "生成失败，请稍后再试。";
+          $("#receipt-status").textContent = t("generateFailed");
         } finally {
           $("#generate-image").disabled = false;
-          $("#generate-image").textContent = "生成新图片";
+          $("#generate-image").textContent = t("generateImage");
         }
       }
 
@@ -2695,7 +2974,7 @@
         const url = new URL(`${API_ROOT}/${datasetId}.json`);
         Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
         const response = await fetch(url);
-        if (!response.ok) throw new Error(`查询失败，请稍后再试。`);
+        if (!response.ok) throw new Error(t("queryFailed"));
         return response.json();
       }
 
@@ -2710,27 +2989,27 @@
               <div class="pill">${item.status}</div>
             </div>
             <div class="grid">
-              <div><div class="k">车主 / 公司</div><div class="v">${item.name}</div></div>
-              <div><div class="k">TLC 牌照号</div><div class="v">${item.licenseNumber}</div></div>
-              <div><div class="k">Permit 牌照号</div><div class="v">${item.permitLicenseNumber || "-"}</div></div>
-              <div><div class="k">车辆类型</div><div class="v">${item.vehicleType}</div></div>
-              <div><div class="k">车辆类别代码</div><div class="v">${item.vehicleCode || "-"}</div></div>
-              <div><div class="k">无障碍状态</div><div class="v">${item.wheelchairAccessible || "-"}</div></div>
-              <div><div class="k">车辆品牌</div><div class="v">${item.make || "-"}</div></div>
-              <div><div class="k">登记州</div><div class="v">${item.state || "-"}</div></div>
-              <div><div class="k">车辆年份</div><div class="v">${item.vehicleYear}</div></div>
+              <div><div class="k">${t("ownerCompany")}</div><div class="v">${item.name}</div></div>
+              <div><div class="k">${t("tlcLicenseNumber")}</div><div class="v">${item.licenseNumber}</div></div>
+              <div><div class="k">${t("permitLicenseNumber")}</div><div class="v">${item.permitLicenseNumber || "-"}</div></div>
+              <div><div class="k">${t("vehicleType")}</div><div class="v">${item.vehicleType}</div></div>
+              <div><div class="k">${t("vehicleCode")}</div><div class="v">${item.vehicleCode || "-"}</div></div>
+              <div><div class="k">${t("wheelchairStatus")}</div><div class="v">${item.wheelchairAccessible || "-"}</div></div>
+              <div><div class="k">${t("vehicleMake")}</div><div class="v">${item.make || "-"}</div></div>
+              <div><div class="k">${t("stateLabel")}</div><div class="v">${item.state || "-"}</div></div>
+              <div><div class="k">${t("vehicleYear")}</div><div class="v">${item.vehicleYear}</div></div>
               <div><div class="k">VIN</div><div class="v">${item.vin}</div></div>
-              <div><div class="k">License 类型</div><div class="v">${item.licenseType}</div></div>
-              <div><div class="k">Base 编号</div><div class="v">${item.baseNumber}</div></div>
-              <div><div class="k">Base 名称</div><div class="v">${item.baseName}</div></div>
-              <div><div class="k">Base 类型</div><div class="v">${item.baseType}</div></div>
-              <div><div class="k">Base 电话</div><div class="v">${item.basePhone}</div></div>
-              <div><div class="k">Base 地址</div><div class="v">${item.baseAddress}</div></div>
-              <div><div class="k">Base 网站 / 邮箱</div><div class="v">${item.baseWebsite}</div></div>
-              <div><div class="k">到期日期</div><div class="v">${item.expirationDate}</div></div>
-              <div><div class="k">最后更新</div><div class="v">${item.updated}</div></div>
-              <div><div class="k">首次公开记录</div><div class="v">${item.firstSeen || "-"}</div></div>
-              <div><div class="k">最近公开记录</div><div class="v">${item.lastSeen || "-"}</div></div>
+              <div><div class="k">${t("licenseType")}</div><div class="v">${item.licenseType}</div></div>
+              <div><div class="k">${t("baseNumber")}</div><div class="v">${item.baseNumber}</div></div>
+              <div><div class="k">${t("baseName")}</div><div class="v">${item.baseName}</div></div>
+              <div><div class="k">${t("baseType")}</div><div class="v">${item.baseType}</div></div>
+              <div><div class="k">${t("basePhone")}</div><div class="v">${item.basePhone}</div></div>
+              <div><div class="k">${t("baseAddress")}</div><div class="v">${item.baseAddress}</div></div>
+              <div><div class="k">${t("baseWebsite")}</div><div class="v">${item.baseWebsite}</div></div>
+              <div><div class="k">${t("expirationDate")}</div><div class="v">${item.expirationDate}</div></div>
+              <div><div class="k">${t("lastUpdated")}</div><div class="v">${item.updated}</div></div>
+              <div><div class="k">${t("firstSeen")}</div><div class="v">${item.firstSeen || "-"}</div></div>
+              <div><div class="k">${t("lastSeen")}</div><div class="v">${item.lastSeen || "-"}</div></div>
             </div>
           </article>
         `;
@@ -2742,15 +3021,15 @@
             <div class="head">
               <div>
                 <div class="title">${item.violation}</div>
-                <div class="meta">罚单号 ${item.summonsNumber}</div>
+                <div class="meta">${t("summonsNumber")} ${item.summonsNumber}</div>
               </div>
               <div class="money">$${item.amountDue}</div>
             </div>
             <div class="details">
-              <div class="detail"><span>日期</span><span>${item.issueDate} ${item.violationTime}</span></div>
-              <div class="detail"><span>地点</span><span>${item.county} / Precinct ${item.precinct}</span></div>
-              <div class="detail"><span>机构</span><span>${item.agency}</span></div>
-              <div class="detail"><span>罚金</span><span>Fine $${item.fineAmount} · Penalty $${item.penaltyAmount} · Paid $${item.paymentAmount}</span></div>
+              <div class="detail"><span>${t("dateLabel")}</span><span>${item.issueDate} ${item.violationTime}</span></div>
+              <div class="detail"><span>${t("locationLabel")}</span><span>${item.county} / Precinct ${item.precinct}</span></div>
+              <div class="detail"><span>${t("agencyLabel")}</span><span>${item.agency}</span></div>
+              <div class="detail"><span>${t("fineLabel")}</span><span>Fine $${item.fineAmount} · Penalty $${item.penaltyAmount} · Paid $${item.paymentAmount}</span></div>
             </div>
           </article>
         `;
@@ -2835,16 +3114,16 @@
           vehicleType: compact(latest.vehicle_body_type),
           vehicleYear: "-",
           vin: "-",
-          name: "违章公开记录不提供车主姓名",
+          name: t("noOwnerPublic"),
           baseNumber: "-",
-          baseName: "未命中 TLC 车辆库，无法显示所属基地",
+          baseName: t("noTlcBase"),
           baseType: "-",
           basePhone: "-",
           baseAddress: "-",
           baseWebsite: "-",
           expirationDate: "-",
           updated: compact(latest.issue_date),
-          status: rows.length ? `${rows.length} 条公开违章记录` : "Public record",
+          status: rows.length ? tf("publicViolationRecords", { count: rows.length }) : "Public record",
           state: compact(latest.state),
           make: compact(latest.vehicle_make),
           firstSeen: compact(oldest.issue_date),
@@ -2855,7 +3134,7 @@
       async function search(plate) {
         const submit = $("#submit");
         submit.disabled = true;
-        submit.textContent = "查询中";
+        submit.textContent = t("searchingButton");
         result.innerHTML = "";
 
         try {
@@ -2878,13 +3157,13 @@
           });
           result.innerHTML = `
             <div class="summary">
-              <div><div class="num">${vehicles.length}</div><div class="label">TLC 车辆记录</div></div>
-              <div><div class="num">${violations.length}</div><div class="label">违章记录</div></div>
-              <div><div class="num">$${totalDue.toFixed(2)}</div><div class="label">未付金额</div></div>
+              <div><div class="num">${vehicles.length}</div><div class="label">${t("tlcVehicleRecords")}</div></div>
+              <div><div class="num">${violations.length}</div><div class="label">${t("violationRecords")}</div></div>
+              <div><div class="num">$${totalDue.toFixed(2)}</div><div class="label">${t("unpaidAmount")}</div></div>
             </div>
-            ${vehicleRecords.length ? `<h2>${vehicles.length ? "TLC 车辆信息" : "车辆公开信息"}</h2>${vehicleRecords.map(vehicleCard).join("")}` : ""}
-            ${violations.length ? `<h2>违章记录</h2>${violations.map(violationCard).join("")}` : ""}
-            ${!vehicles.length && !violations.length ? `<div class="empty"><strong>没有找到公开记录</strong><br />请确认车牌号拼写，或稍后再试。</div>` : ""}
+            ${vehicleRecords.length ? `<h2>${vehicles.length ? t("tlcVehicleInfo") : t("vehiclePublicInfo")}</h2>${vehicleRecords.map(vehicleCard).join("")}` : ""}
+            ${violations.length ? `<h2>${t("violationRecords")}</h2>${violations.map(violationCard).join("")}` : ""}
+            ${!vehicles.length && !violations.length ? `<div class="empty"><strong>${t("noPublicRecordsTitle")}</strong><br />${t("noPublicRecordsBody")}</div>` : ""}
           `;
         } catch (error) {
           await savePlateSearchRecord({
@@ -2895,10 +3174,10 @@
             totalDue: "0.00",
             status: "failed"
           });
-          result.innerHTML = `<div class="notice">${error.message || "查询失败，请稍后再试。"}</div>`;
+          result.innerHTML = `<div class="notice">${error.message || t("queryFailed")}</div>`;
         } finally {
           submit.disabled = false;
-          submit.textContent = "查询";
+          submit.textContent = t("searchButton");
         }
       }
 
@@ -2910,7 +3189,7 @@
         event.preventDefault();
         const plate = cleanPlate($("#plate").value);
         if (!plate) {
-          result.innerHTML = `<div class="notice">请输入车牌号。</div>`;
+          result.innerHTML = `<div class="notice">${t("plateRequired")}</div>`;
           return;
         }
         search(plate);
@@ -2989,8 +3268,8 @@
         receiptState.generatedBase64 = "";
         receiptState.generatedMimeType = "";
         $("#receipt-preview").classList.add("has-image");
-        $("#receipt-preview").innerHTML = `<img src="${receiptState.imageUrl}" alt="原始上传图片预览" />`;
-        $("#receipt-status").textContent = "该页面还在开发中。";
+        $("#receipt-preview").innerHTML = `<img src="${receiptState.imageUrl}" alt="${t("sourceImageAlt")}" />`;
+        $("#receipt-status").textContent = t("underDevelopment");
         $("#export-receipt").disabled = true;
 
         const reader = new FileReader();
@@ -3005,7 +3284,7 @@
 
       $("#export-receipt").addEventListener("click", () => {
         if (!receiptState.generatedBase64 || !receiptState.generatedMimeType) {
-          $("#receipt-status").textContent = "请先生成一张新图片。";
+          $("#receipt-status").textContent = t("saveImageFirst");
           return;
         }
 
