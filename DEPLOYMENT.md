@@ -32,6 +32,9 @@ npm start
 5. 在 Render 的 Environment Variables 里添加：
    - `SUPABASE_URL`
    - `SUPABASE_SERVICE_ROLE_KEY`
+   - `RESEND_API_KEY`，用于把反馈邮件发出去
+   - `FEEDBACK_EMAIL_TO`，默认可填 `taxinyc5@gmail.com`
+   - `FEEDBACK_EMAIL_FROM`，建议使用 Resend 已验证的发件地址
 6. 部署后拿到一个公网地址，比如 `https://xxx.onrender.com`。
 7. 打开 GitHub Pages 页面，把前端的 `API_BASE_URL` 指向这个公网地址。
 
@@ -74,3 +77,9 @@ npm start
 - `OPENAI_API_KEY`
 - `OPENAI_IMAGE_MODEL`，默认建议先用 `gpt-image-1`
 - `OPENAI_IMAGE_QUALITY`，默认建议先用 `low`
+
+如果你要启用反馈邮件通知，还需要在 Render 配置：
+
+- `RESEND_API_KEY`
+- `FEEDBACK_EMAIL_TO=taxinyc5@gmail.com`
+- `FEEDBACK_EMAIL_FROM`，使用 Resend 里已验证的发件地址

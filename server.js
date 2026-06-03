@@ -18,6 +18,9 @@ const openaiImageModel = process.env.OPENAI_IMAGE_MODEL || "gpt-image-1"
 const openaiImageQuality = process.env.OPENAI_IMAGE_QUALITY || "low"
 const supabaseUrl = process.env.SUPABASE_URL || ""
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ""
+const resendApiKey = process.env.RESEND_API_KEY || ""
+const feedbackEmailTo = process.env.FEEDBACK_EMAIL_TO || "taxinyc5@gmail.com"
+const feedbackEmailFrom = process.env.FEEDBACK_EMAIL_FROM || "NYC TLC Tools <onboarding@resend.dev>"
 const flightCache = new Map()
 const defaultServiceInfo = [
   {
@@ -70,6 +73,10 @@ function hasSupabaseConfig() {
 
 function hasOpenAIConfig() {
   return Boolean(openaiApiKey)
+}
+
+function hasFeedbackEmailConfig() {
+  return Boolean(resendApiKey && feedbackEmailTo && feedbackEmailFrom)
 }
 
 async function ensureStore() {
@@ -216,6 +223,56 @@ async function appendFeedback(record) {
     created_at: new Date().toISOString()
   })
   await fsp.writeFile(feedbackFile, JSON.stringify(items, null, 2), "utf8")
+}
+
+function sendFeedbackEmail(record) {
+  if (!hasFeedbackEmailConfig()) return Promise.resolve(false)
+
+  const body = JSON.stringify({
+    from: feedbackEmailFrom,
+    to: [feedbackEmailTo],
+    subject: "NYC TLC Tools feedback",
+    text: [
+      "New feedback received.",
+      "",
+      `Message: ${record.message}`,
+      `Contact: ${record.contact || "-"}`,
+      `Language: ${record.language || "-"}`,
+      `Page: ${record.page || "-"}`,
+      `User agent: ${record.userAgent || "-"}`
+    ].join("\n")
+  })
+
+  return new Promise((resolve, reject) => {
+    const request = https.request(
+      {
+        hostname: "api.resend.com",
+        path: "/emails",
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${resendApiKey}`,
+          "Content-Type": "application/json",
+          "Content-Length": Buffer.byteLength(body)
+        }
+      },
+      (response) => {
+        let data = ""
+        response.on("data", (chunk) => {
+          data += chunk
+        })
+        response.on("end", () => {
+          if (response.statusCode >= 200 && response.statusCode < 300) {
+            resolve(true)
+            return
+          }
+          reject(new Error(data || `Feedback email failed (${response.statusCode})`))
+        })
+      }
+    )
+    request.on("error", reject)
+    request.write(body)
+    request.end()
+  })
 }
 
 function normalizeFareRates(rows) {
@@ -994,14 +1051,21 @@ const server = http.createServer((req, res) => {
           sendJson(res, 400, { ok: false, error: "message_required" })
           return
         }
-        await appendFeedback({
+        const feedback = {
           message: message.slice(0, 5000),
           contact: String(payload.contact || "").trim().slice(0, 300),
           language: String(payload.language || "").trim().slice(0, 16),
           page: String(payload.page || "").trim().slice(0, 1000),
           userAgent: String(req.headers["user-agent"] || "").slice(0, 1000)
-        })
-        sendJson(res, 200, { ok: true })
+        }
+        await appendFeedback(feedback)
+        let emailSent = false
+        try {
+          emailSent = await sendFeedbackEmail(feedback)
+        } catch (error) {
+          console.error(error)
+        }
+        sendJson(res, 200, { ok: true, emailSent })
       })
       .catch((error) => {
         sendJson(res, 400, { ok: false, error: error.message || "bad_request" })
