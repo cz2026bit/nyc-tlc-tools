@@ -231,9 +231,9 @@ function sendFeedbackEmail(record) {
   const body = JSON.stringify({
     from: feedbackEmailFrom,
     to: [feedbackEmailTo],
-    subject: "NYC TLC Tools feedback",
+    subject: "反馈信息",
     text: [
-      "New feedback received.",
+      "收到新的反馈",
       "",
       `Message: ${record.message}`,
       `Contact: ${record.contact || "-"}`,
