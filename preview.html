@@ -49,6 +49,46 @@
         line-height: 1.5;
       }
 
+      .top-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      .top-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .language-select {
+        width: auto;
+        height: 38px;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        font-size: 14px;
+        font-weight: 700;
+        padding: 0 8px;
+      }
+
+      .language-select option {
+        color: #13221f;
+      }
+
+      .feedback-button {
+        width: auto;
+        min-width: 72px;
+        height: 38px;
+        padding: 0 12px;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+        font-size: 14px;
+      }
+
       .search {
         margin-top: -28px;
         padding: 16px;
@@ -327,6 +367,104 @@
         background: #fff;
         border: 1px solid #dde5e2;
         border-radius: 8px;
+      }
+
+      .service-list {
+        display: grid;
+        gap: 12px;
+      }
+
+      .service-card {
+        padding: 16px;
+        border: 1px solid #dde5e2;
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .service-title {
+        color: #13221f;
+        font-size: 18px;
+        font-weight: 800;
+        line-height: 1.35;
+      }
+
+      .service-content {
+        margin-top: 10px;
+        color: #4e5b57;
+        font-size: 15px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+      }
+
+      .feedback-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        background: rgba(10, 20, 18, 0.52);
+      }
+
+      .feedback-dialog {
+        width: min(460px, 100%);
+        padding: 18px;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 18px 50px rgba(10, 24, 21, 0.24);
+      }
+
+      .feedback-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .feedback-title {
+        color: #13221f;
+        font-size: 19px;
+        font-weight: 800;
+      }
+
+      .close-button {
+        width: 38px;
+        height: 38px;
+        border: 1px solid #dde5e2;
+        background: #fff;
+        color: #40504b;
+        font-size: 22px;
+        line-height: 38px;
+      }
+
+      .feedback-form {
+        display: grid;
+        gap: 12px;
+        margin-top: 14px;
+      }
+
+      .feedback-form textarea,
+      .feedback-form input {
+        width: 100%;
+        height: auto;
+        min-height: 44px;
+        text-transform: none;
+        font-size: 15px;
+        font-weight: 500;
+      }
+
+      .feedback-form textarea {
+        min-height: 118px;
+        padding-top: 12px;
+        resize: vertical;
+      }
+
+      .feedback-status {
+        min-height: 20px;
+        color: #0f6b56;
+        font-size: 13px;
+        line-height: 1.45;
       }
 
       .tool-head {
@@ -1333,6 +1471,17 @@
       }
 
       @media (max-width: 700px) {
+        .top-row,
+        .top-actions {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .feedback-button,
+        .language-select {
+          width: 100%;
+        }
+
         .row,
         .head {
           align-items: stretch;
@@ -1420,8 +1569,19 @@
     <main class="app">
       <section class="top">
         <div class="wrap">
-          <h1>纽约 TLC 工具箱</h1>
-          <div class="sub">选择一个功能进入，后续新工具会继续添加在首页。</div>
+          <div class="top-row">
+            <div>
+              <h1 data-i18n="appTitle">纽约 TLC 工具箱</h1>
+              <div class="sub" data-i18n="appSubtitle">选择一个功能进入，后续新工具会继续添加在首页。</div>
+            </div>
+            <div class="top-actions">
+              <select class="language-select" id="language-select" aria-label="Language">
+                <option value="zh">中文</option>
+                <option value="en">English</option>
+              </select>
+              <button class="feedback-button" id="open-feedback" type="button" data-i18n="feedbackButton">反馈</button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -1429,31 +1589,36 @@
         <div class="home-grid">
           <button class="feature-card" type="button" data-open-module="tlc">
             <span class="feature-icon">T</span>
-            <div class="feature-title">查 TLC 违章</div>
-            <div class="feature-desc">输入车牌号，查询 TLC 车辆资料和停车 / 摄像头违章记录。</div>
+            <div class="feature-title" data-i18n="tlcTitle">查 TLC 违章</div>
+            <div class="feature-desc" data-i18n="tlcDesc">输入车牌号，查询 TLC 车辆资料和停车 / 摄像头违章记录。</div>
           </button>
           <button class="feature-card" type="button" data-open-module="flights">
             <span class="feature-icon">F</span>
-            <div class="feature-title">航班信息</div>
-          <div class="feature-desc">查看 JFK / LGA / EWR 当前到港航班、航站楼、预计 / 实际到达时间，以及当天按小时统计。</div>
+            <div class="feature-title" data-i18n="flightsTitle">航班信息</div>
+          <div class="feature-desc" data-i18n="flightsDesc">查看 JFK / LGA / EWR 当前到港航班、航站楼、预计 / 实际到达时间，以及当天按小时统计。</div>
           </button>
           <button class="feature-card" type="button" data-open-module="fare">
             <span class="feature-icon">U</span>
-            <div class="feature-title">车费计算</div>
-            <div class="feature-desc">选择 Uber 车型，查看五区内 / 五区外里程单价、时间单价，并估算行程费用。</div>
+            <div class="feature-title" data-i18n="fareTitle">车费计算</div>
+            <div class="feature-desc" data-i18n="fareDesc">选择 Uber 车型，查看五区内 / 五区外里程单价、时间单价，并估算行程费用。</div>
           </button>
-          <button class="feature-card" type="button" data-open-module="receipt">
+          <button class="feature-card" type="button" data-open-module="services">
+            <span class="feature-icon">S</span>
+            <div class="feature-title" data-i18n="servicesTitle">服务信息</div>
+            <div class="feature-desc" data-i18n="servicesDesc">查看平台发布的车辆、租赁和运营服务资讯。</div>
+          </button>
+          <button class="feature-card hidden" type="button" data-open-module="receipt">
             <span class="feature-icon">$</span>
-            <div class="feature-title">发票</div>
-            <div class="feature-desc">该页面还在开发中。</div>
+            <div class="feature-title" data-i18n="receiptTitle">发票</div>
+            <div class="feature-desc" data-i18n="underDevelopment">该页面还在开发中。</div>
           </button>
         </div>
       </section>
 
       <section class="wrap module hidden" id="tlc-module">
         <div class="module-bar">
-          <button class="back-button" type="button" data-back-home>‹ 返回首页</button>
-          <div class="module-name">查 TLC 违章</div>
+          <button class="back-button" type="button" data-back-home data-i18n="backHome">‹ 返回首页</button>
+          <div class="module-name" data-i18n="tlcTitle">查 TLC 违章</div>
         </div>
         <form class="search" id="form">
           <div class="row">
@@ -1468,8 +1633,8 @@
 
       <section class="wrap module hidden" id="flights-module">
         <div class="module-bar">
-          <button class="back-button" type="button" data-back-home>‹ 返回首页</button>
-          <div class="module-name">航班信息</div>
+          <button class="back-button" type="button" data-back-home data-i18n="backHome">‹ 返回首页</button>
+          <div class="module-name" data-i18n="flightsTitle">航班信息</div>
         </div>
         <section class="tool flight-tool">
           <div class="flight-controls">
@@ -1540,8 +1705,8 @@
 
       <section class="wrap module hidden" id="fare-module">
         <div class="module-bar">
-          <button class="back-button" type="button" data-back-home>‹ 返回首页</button>
-          <div class="module-name">车费计算</div>
+          <button class="back-button" type="button" data-back-home data-i18n="backHome">‹ 返回首页</button>
+          <div class="module-name" data-i18n="fareTitle">车费计算</div>
         </div>
         <section class="tool fare-tool">
           <div class="fare-controls">
@@ -1564,16 +1729,32 @@
         </section>
       </section>
 
+      <section class="wrap module hidden" id="services-module">
+        <div class="module-bar">
+          <button class="back-button" type="button" data-back-home data-i18n="backHome">‹ 返回首页</button>
+          <div class="module-name" data-i18n="servicesTitle">服务信息</div>
+        </div>
+        <section class="tool">
+          <div class="tool-head">
+            <div>
+              <div class="tool-title" data-i18n="servicesTitle">服务信息</div>
+              <div class="tool-subtitle" data-i18n="servicesSubtitle">平台发布的车辆、租赁和运营服务资讯。</div>
+            </div>
+          </div>
+          <div class="service-list" id="service-list"></div>
+        </section>
+      </section>
+
       <section class="wrap module hidden" id="receipt-module">
         <div class="module-bar">
-          <button class="back-button" type="button" data-back-home>‹ 返回首页</button>
-          <div class="module-name">发票</div>
+          <button class="back-button" type="button" data-back-home data-i18n="backHome">‹ 返回首页</button>
+          <div class="module-name" data-i18n="receiptTitle">发票</div>
         </div>
         <section class="tool" id="receipt-tool">
           <div class="tool-head">
             <div>
-              <div class="tool-title">发票</div>
-              <div class="tool-subtitle">该页面还在开发中。</div>
+              <div class="tool-title" data-i18n="receiptTitle">发票</div>
+              <div class="tool-subtitle" data-i18n="underDevelopment">该页面还在开发中。</div>
             </div>
             <label class="upload-button">
               上传图片
@@ -1595,6 +1776,27 @@
           </div>
         </section>
       </section>
+
+      <div class="feedback-overlay hidden" id="feedback-modal" role="dialog" aria-modal="true" aria-labelledby="feedback-title">
+        <div class="feedback-dialog">
+          <div class="feedback-head">
+            <div class="feedback-title" id="feedback-title" data-i18n="feedbackTitle">反馈</div>
+            <button class="close-button" id="close-feedback" type="button" aria-label="Close">×</button>
+          </div>
+          <form class="feedback-form" id="feedback-form">
+            <label>
+              <span class="field-label" data-i18n="feedbackMessageLabel">反馈内容</span>
+              <textarea class="target-input" id="feedback-message" rows="5" data-i18n-placeholder="feedbackMessagePlaceholder" placeholder="请输入你想反馈的问题或建议。"></textarea>
+            </label>
+            <label>
+              <span class="field-label" data-i18n="feedbackContactLabel">联系方式</span>
+              <input id="feedback-contact" autocomplete="email tel" data-i18n-placeholder="feedbackContactPlaceholder" placeholder="邮箱或手机号" />
+            </label>
+            <button class="secondary-button" id="submit-feedback" type="submit" data-i18n="feedbackSubmit">提交反馈</button>
+            <div class="feedback-status" id="feedback-status"></div>
+          </form>
+        </div>
+      </div>
     </main>
 
     <script>
@@ -1957,6 +2159,103 @@
       const OPENAI_API_URL = API_BASE ? `${API_BASE}/api/openai-image` : (HAS_LOCAL_API ? "/api/openai-image" : "");
       const FLIGHTS_API_URL = API_BASE ? `${API_BASE}/api/flights` : (HAS_LOCAL_API ? "/api/flights" : "");
       const FARE_RATES_API_URL = API_BASE ? `${API_BASE}/api/fare-rates` : (HAS_LOCAL_API ? "/api/fare-rates" : "");
+      const SERVICE_INFO_API_URL = API_BASE ? `${API_BASE}/api/service-info` : (HAS_LOCAL_API ? "/api/service-info" : "");
+      const FEEDBACK_API_URL = API_BASE ? `${API_BASE}/api/feedback` : (HAS_LOCAL_API ? "/api/feedback" : "");
+      const languageCopy = {
+        zh: {
+          appTitle: "纽约 TLC 工具箱",
+          appSubtitle: "选择一个功能进入，后续新工具会继续添加在首页。",
+          feedbackButton: "反馈",
+          tlcTitle: "查 TLC 违章",
+          tlcDesc: "输入车牌号，查询 TLC 车辆资料和停车 / 摄像头违章记录。",
+          flightsTitle: "航班信息",
+          flightsDesc: "查看 JFK / LGA / EWR 当前到港航班、航站楼、预计 / 实际到达时间，以及当天按小时统计。",
+          fareTitle: "车费计算",
+          fareDesc: "选择 Uber 车型，查看五区内 / 五区外里程单价、时间单价，并估算行程费用。",
+          servicesTitle: "服务信息",
+          servicesDesc: "查看平台发布的车辆、租赁和运营服务资讯。",
+          servicesSubtitle: "平台发布的车辆、租赁和运营服务资讯。",
+          serviceLoading: "正在加载服务信息...",
+          serviceEmpty: "暂无服务信息。",
+          serviceFailed: "服务信息加载失败，请稍后再试。",
+          receiptTitle: "发票",
+          underDevelopment: "该页面还在开发中。",
+          backHome: "‹ 返回首页",
+          feedbackTitle: "反馈",
+          feedbackMessageLabel: "反馈内容",
+          feedbackMessagePlaceholder: "请输入你想反馈的问题或建议。",
+          feedbackContactLabel: "联系方式",
+          feedbackContactPlaceholder: "邮箱或手机号",
+          feedbackSubmit: "提交反馈",
+          feedbackMessageRequired: "请输入反馈内容。",
+          feedbackSubmitting: "正在提交...",
+          feedbackSuccess: "已收到反馈，谢谢。",
+          feedbackFailed: "反馈提交失败，请稍后再试。"
+        },
+        en: {
+          appTitle: "NYC TLC Toolkit",
+          appSubtitle: "Choose a tool to get started. More tools will be added here.",
+          feedbackButton: "Feedback",
+          tlcTitle: "TLC Violations",
+          tlcDesc: "Enter a plate number to check TLC vehicle details and parking or camera violations.",
+          flightsTitle: "Flight Info",
+          flightsDesc: "View current JFK / LGA / EWR arrivals, terminals, ETA / actual arrival times, and hourly stats.",
+          fareTitle: "Fare Calculator",
+          fareDesc: "Choose an Uber product to review mile and minute rates and estimate trip cost.",
+          servicesTitle: "Service Info",
+          servicesDesc: "Read vehicle, rental, and operations service updates published by the platform.",
+          servicesSubtitle: "Vehicle, rental, and operations service updates published by the platform.",
+          serviceLoading: "Loading service info...",
+          serviceEmpty: "No service info yet.",
+          serviceFailed: "Service info failed to load. Please try again later.",
+          receiptTitle: "Invoice",
+          underDevelopment: "This page is still in development.",
+          backHome: "‹ Home",
+          feedbackTitle: "Feedback",
+          feedbackMessageLabel: "Message",
+          feedbackMessagePlaceholder: "Tell us what happened or what you would like to suggest.",
+          feedbackContactLabel: "Contact",
+          feedbackContactPlaceholder: "Email or phone number",
+          feedbackSubmit: "Submit feedback",
+          feedbackMessageRequired: "Please enter your feedback.",
+          feedbackSubmitting: "Submitting...",
+          feedbackSuccess: "Feedback received. Thank you.",
+          feedbackFailed: "Feedback failed to submit. Please try again later."
+        }
+      };
+      let currentLanguage = getInitialLanguage();
+      let servicesLoaded = false;
+
+      function t(key) {
+        return (languageCopy[currentLanguage] && languageCopy[currentLanguage][key]) || languageCopy.zh[key] || key;
+      }
+
+      function escapeHtml(value) {
+        return String(value || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function getInitialLanguage() {
+        const saved = window.localStorage.getItem("preferredLanguage");
+        if (saved === "zh" || saved === "en") return saved;
+        return String(navigator.language || "").toLowerCase().startsWith("zh") ? "zh" : "en";
+      }
+
+      function applyLanguage() {
+        document.documentElement.lang = currentLanguage === "zh" ? "zh-CN" : "en";
+        document.querySelectorAll("[data-i18n]").forEach((node) => {
+          node.textContent = t(node.dataset.i18n);
+        });
+        document.querySelectorAll("[data-i18n-placeholder]").forEach((node) => {
+          node.placeholder = t(node.dataset.i18nPlaceholder);
+        });
+        $("#language-select").value = currentLanguage;
+        if (servicesLoaded) loadServiceInfo(true);
+      }
 
       async function savePlateSearchRecord(record) {
         try {
@@ -1973,17 +2272,98 @@
         }
       }
 
+      async function loadServiceInfo(forceRender = false) {
+        const list = $("#service-list");
+        if (!SERVICE_INFO_API_URL || !list) return;
+        if (!servicesLoaded || !forceRender) {
+          list.innerHTML = `<div class="empty">${t("serviceLoading")}</div>`;
+        }
+        try {
+          const response = await fetch(SERVICE_INFO_API_URL);
+          const payload = await response.json();
+          const items = response.ok && payload.ok && Array.isArray(payload.items) ? payload.items : [];
+          servicesLoaded = true;
+          if (!items.length) {
+            list.innerHTML = `<div class="empty">${t("serviceEmpty")}</div>`;
+            return;
+          }
+          list.innerHTML = items.map((item) => `
+            <article class="service-card">
+              <div class="service-title">${escapeHtml(item.title)}</div>
+              <div class="service-content">${escapeHtml(item.content)}</div>
+            </article>
+          `).join("");
+        } catch (error) {
+          list.innerHTML = `<div class="empty">${t("serviceFailed")}</div>`;
+        }
+      }
+
+      function openFeedbackModal() {
+        $("#feedback-modal").classList.remove("hidden");
+        $("#feedback-status").textContent = "";
+        $("#feedback-message").focus();
+      }
+
+      function closeFeedbackModal() {
+        $("#feedback-modal").classList.add("hidden");
+      }
+
+      async function submitFeedback(event) {
+        event.preventDefault();
+        const message = $("#feedback-message").value.trim();
+        const contact = $("#feedback-contact").value.trim();
+        const submitButton = $("#submit-feedback");
+        const status = $("#feedback-status");
+        if (!message) {
+          status.textContent = t("feedbackMessageRequired");
+          return;
+        }
+        if (!FEEDBACK_API_URL) {
+          status.textContent = t("feedbackFailed");
+          return;
+        }
+        submitButton.disabled = true;
+        submitButton.textContent = t("feedbackSubmitting");
+        status.textContent = "";
+        try {
+          const response = await fetch(FEEDBACK_API_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              message,
+              contact,
+              language: currentLanguage,
+              page: window.location.href
+            })
+          });
+          if (!response.ok) throw new Error("feedback_failed");
+          $("#feedback-form").reset();
+          status.textContent = t("feedbackSuccess");
+        } catch (error) {
+          status.textContent = t("feedbackFailed");
+        } finally {
+          submitButton.disabled = false;
+          submitButton.textContent = t("feedbackSubmit");
+        }
+      }
+
       function showModule(name) {
         $("#home-screen").classList.toggle("hidden", Boolean(name));
         $("#tlc-module").classList.toggle("hidden", name !== "tlc");
         $("#flights-module").classList.toggle("hidden", name !== "flights");
         $("#fare-module").classList.toggle("hidden", name !== "fare");
+        $("#services-module").classList.toggle("hidden", name !== "services");
         $("#receipt-module").classList.toggle("hidden", name !== "receipt");
         if (name === "flights") {
           loadFlights();
           startFlightRefresh();
         } else if (name === "fare") {
           initFareCalculator();
+          stopFlightRefresh();
+        } else if (name === "services") {
+          loadServiceInfo();
           stopFlightRefresh();
         } else {
           stopFlightRefresh();
@@ -2544,6 +2924,19 @@
         button.addEventListener("click", () => showModule(""));
       });
 
+      $("#language-select").addEventListener("change", (event) => {
+        currentLanguage = event.target.value === "en" ? "en" : "zh";
+        window.localStorage.setItem("preferredLanguage", currentLanguage);
+        applyLanguage();
+      });
+
+      $("#open-feedback").addEventListener("click", openFeedbackModal);
+      $("#close-feedback").addEventListener("click", closeFeedbackModal);
+      $("#feedback-form").addEventListener("submit", submitFeedback);
+      $("#feedback-modal").addEventListener("click", (event) => {
+        if (event.target === $("#feedback-modal")) closeFeedbackModal();
+      });
+
       document.querySelectorAll("[data-airport]").forEach((button) => {
         button.addEventListener("click", () => {
           flightState.airport = button.dataset.airport;
@@ -2624,6 +3017,7 @@
       });
 
       const initialPlate = cleanPlate($("#plate").value);
+      applyLanguage();
       if (initialPlate) search(initialPlate);
     </script>
   </body>

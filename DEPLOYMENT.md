@@ -16,6 +16,7 @@ npm start
 2. 新建一个 Project。
 3. 进入 SQL Editor。
 4. 复制 `supabase-schema.sql` 的内容并运行。
+   - 后续如果新增服务信息、反馈等数据库表，也重新运行 `supabase-schema.sql`，脚本使用 `if not exists`，可重复执行。
 5. 进入 Project Settings -> API，复制：
    - Project URL
    - service_role key

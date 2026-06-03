@@ -7,6 +7,7 @@ const fsp = fs.promises
 const publicRoot = __dirname
 const dataDir = path.join(__dirname, "data")
 const dataFile = path.join(dataDir, "plate-searches.json")
+const feedbackFile = path.join(dataDir, "feedback.json")
 const serverHost = process.env.HOST || "0.0.0.0"
 const serverPort = Number(process.env.PORT || 8787)
 
@@ -18,6 +19,12 @@ const openaiImageQuality = process.env.OPENAI_IMAGE_QUALITY || "low"
 const supabaseUrl = process.env.SUPABASE_URL || ""
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ""
 const flightCache = new Map()
+const defaultServiceInfo = [
+  {
+    title: "出租大楷2020 全表",
+    content: "出租大楷2020，每周650，包保险、牌照、保养， 有全表SUV,BLACK等 有意联系XXXXX"
+  }
+]
 const defaultFareRates = [
   { id: "uberx", name: "UberX", zoneLabel: "New York City", inside: { mile: 1.283, minute: 0.681 }, outside: { mile: 1.283, minute: 0.681 }, baseFare: 0, pickupFee: "变量", pickupThreshold: "9 minutes", reservationClasses: ["ECONOMY"], reservationMinFare: 35, reservationFee: 7, fixedCancelFee: 25, cancelPolicy: "FIXED FEE", minimumTripIncome: 4.0001, driverCancelFee: 3.75, riderCancelFee: 3.75 },
   { id: "uber-pet", name: "Uber Pet", zoneLabel: "New York City", inside: { mile: 1.283, minute: 0.681 }, outside: { mile: 1.283, minute: 0.681 }, baseFare: 0, pickupFee: "变量", pickupThreshold: "9 minutes", reservationClasses: ["ECONOMY", "PREMIUM", "ECONOMY"], reservationMinFare: 35, reservationFee: 7, fixedCancelFee: 25, cancelPolicy: "FIXED FEE", minimumTripIncome: 4.0001, driverCancelFee: 3.75, riderCancelFee: 3.75 },
@@ -166,6 +173,49 @@ async function readSearches() {
     return Array.isArray(rows) ? rows : []
   }
   return readStore()
+}
+
+async function readServiceInfo() {
+  if (hasSupabaseConfig()) {
+    try {
+      const rows = await supabaseRequest(
+        "GET",
+        "service_info",
+        null,
+        "?select=id,title,content,created_at&active=eq.true&order=sort_order.asc,created_at.desc"
+      )
+      if (Array.isArray(rows) && rows.length) return rows
+    } catch (error) {}
+  }
+  return defaultServiceInfo
+}
+
+async function appendFeedback(record) {
+  const feedback = {
+    message: record.message,
+    contact: record.contact,
+    language: record.language,
+    page: record.page,
+    user_agent: record.userAgent
+  }
+
+  if (hasSupabaseConfig()) {
+    await supabaseRequest("POST", "feedback_messages", feedback)
+    return
+  }
+
+  await fsp.mkdir(dataDir, { recursive: true })
+  let items = []
+  try {
+    items = JSON.parse(await fsp.readFile(feedbackFile, "utf8"))
+    if (!Array.isArray(items)) items = []
+  } catch (error) {}
+  items.unshift({
+    id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    ...feedback,
+    created_at: new Date().toISOString()
+  })
+  await fsp.writeFile(feedbackFile, JSON.stringify(items, null, 2), "utf8")
 }
 
 function normalizeFareRates(rows) {
@@ -914,6 +964,37 @@ const server = http.createServer((req, res) => {
     readFareRates()
       .then((rates) => sendJson(res, 200, { ok: true, rates }))
       .catch((error) => sendJson(res, 500, { ok: false, error: error.message || "fare_rates_failed" }))
+    return
+  }
+
+  if (req.url === "/api/service-info" && req.method === "GET") {
+    readServiceInfo()
+      .then((items) => sendJson(res, 200, { ok: true, items }))
+      .catch((error) => sendJson(res, 500, { ok: false, error: error.message || "service_info_failed" }))
+    return
+  }
+
+  if (req.url === "/api/feedback" && req.method === "POST") {
+    collectRequestBody(req, 200_000)
+      .then(async (body) => {
+        const payload = JSON.parse(body || "{}")
+        const message = String(payload.message || "").trim()
+        if (!message) {
+          sendJson(res, 400, { ok: false, error: "message_required" })
+          return
+        }
+        await appendFeedback({
+          message: message.slice(0, 5000),
+          contact: String(payload.contact || "").trim().slice(0, 300),
+          language: String(payload.language || "").trim().slice(0, 16),
+          page: String(payload.page || "").trim().slice(0, 1000),
+          userAgent: String(req.headers["user-agent"] || "").slice(0, 1000)
+        })
+        sendJson(res, 200, { ok: true })
+      })
+      .catch((error) => {
+        sendJson(res, 400, { ok: false, error: error.message || "bad_request" })
+      })
     return
   }
 
