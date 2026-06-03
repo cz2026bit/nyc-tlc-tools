@@ -404,16 +404,20 @@ function proxyTrafficMap(req, res) {
     ? "/map"
     : requestUrl.pathname.replace(/^\/traffic-map/, "") || "/map"
   const targetUrl = new URL(proxiedPath + requestUrl.search, trafficMapOrigin)
+  const requestHeaders = {
+    "User-Agent": "Mozilla/5.0 Codex Traffic Module",
+    Accept: req.headers.accept || "*/*",
+    Referer: `${trafficMapOrigin}/map`,
+    Origin: trafficMapOrigin
+  }
+  if (req.headers["content-type"]) requestHeaders["Content-Type"] = req.headers["content-type"]
 
-  const request = https.request(
+  const upstream = https.request(
     {
       hostname: targetUrl.hostname,
       path: `${targetUrl.pathname}${targetUrl.search}`,
-      method: "GET",
-      headers: {
-        "User-Agent": "Mozilla/5.0 Codex Traffic Module",
-        Accept: req.headers.accept || "*/*"
-      }
+      method: req.method,
+      headers: requestHeaders
     },
     (response) => {
       const chunks = []
@@ -439,8 +443,16 @@ function proxyTrafficMap(req, res) {
       })
     }
   )
-  request.on("error", (error) => sendText(res, 502, error.message || "traffic_proxy_failed"))
-  request.end()
+  upstream.on("error", (error) => sendText(res, 502, error.message || "traffic_proxy_failed"))
+
+  if (req.method === "GET" || req.method === "HEAD") {
+    upstream.end()
+    return
+  }
+
+  req.on("data", (chunk) => upstream.write(chunk))
+  req.on("end", () => upstream.end())
+  req.on("error", () => upstream.end())
 }
 
 function stripTags(value) {
@@ -1180,7 +1192,7 @@ const server = http.createServer((req, res) => {
   }
 
   const routeUrl = new URL(req.url, `http://${req.headers.host || "127.0.0.1"}`)
-  if ((routeUrl.pathname === "/traffic-map" || routeUrl.pathname.startsWith("/traffic-map/")) && req.method === "GET") {
+  if (routeUrl.pathname === "/traffic-map" || routeUrl.pathname.startsWith("/traffic-map/")) {
     proxyTrafficMap(req, res)
     return
   }
