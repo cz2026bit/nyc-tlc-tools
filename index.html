@@ -1540,7 +1540,7 @@
           <button class="feature-card" type="button" data-open-module="fare">
             <span class="feature-icon">U</span>
             <div class="feature-title" data-i18n="fareTitle">车费计算</div>
-            <div class="feature-desc" data-i18n="fareDesc">选择 Uber 车型，查看五区内 / 五区外里程单价、时间单价，并估算行程费用。</div>
+            <div class="feature-desc" data-i18n="fareDesc">选择车型，输入时间和里程，按数据库费率估算车费。</div>
           </button>
           <button class="feature-card" type="button" data-open-module="services">
             <span class="feature-icon">S</span>
@@ -1653,6 +1653,13 @@
             <label>
               <span data-i18n="fareProductLabel">选择产品</span>
               <select id="fare-type"></select>
+            </label>
+            <label>
+              <span data-i18n="fareZoneLabel">价格区域</span>
+              <select id="fare-zone">
+                <option value="inside" data-i18n="fareInsideZone">五区内</option>
+                <option value="outside" data-i18n="fareOutsideZone">五区外</option>
+              </select>
             </label>
           </div>
           <div class="fare-input-grid">
@@ -1804,8 +1811,8 @@
           id: "wav",
           name: "WAV",
           zoneLabel: "New York City",
-          inside: { mile: 1.283, minute: 0.681 },
-          outside: { mile: 1.283, minute: 0.681 },
+          inside: { mile: 1.283, minute: 0.681, extraMileFee: 0.4 },
+          outside: { mile: 1.283, minute: 0.681, extraMileFee: 0.4 },
           baseFare: 0,
           pickupFee: "变量",
           pickupThreshold: "9 minutes",
@@ -1952,8 +1959,11 @@
 
       function renderFareCalculator() {
         const selected = fareRates.find((item) => item.id === $("#fare-type").value) || fareRates[0];
-        const rate = selected.inside || selected.outside || { mile: 0, minute: 0 };
-        const mileRate = Number(rate.mile || 0);
+        const zone = $("#fare-zone")?.value === "outside" ? "outside" : "inside";
+        const rate = selected[zone] || selected.inside || selected.outside || { mile: 0, minute: 0 };
+        const baseMileRate = Number(rate.mile || 0);
+        const extraMileFee = Number(rate.extraMileFee || 0);
+        const mileRate = baseMileRate + extraMileFee;
         const minuteRate = Number(rate.minute || 0);
         const miles = Number($("#fare-miles")?.value || 0);
         const minutes = Number($("#fare-minutes")?.value || 0);
@@ -1963,12 +1973,16 @@
           <article class="fare-zone-card">
             <div class="fare-zone-title">
               <span>${selected.name || ""}</span>
-              <span>${t("fareEstimateLabel")}</span>
+              <span>${zone === "outside" ? t("fareOutsideZone") : t("fareInsideZone")}</span>
             </div>
             <div class="fare-detail-row">
               <div class="fare-rate-label">${t("perMileFee")}</div>
               <div class="fare-rate-value">${fareUsd(mileRate)}</div>
             </div>
+            ${extraMileFee ? `<div class="fare-detail-row">
+              <div class="fare-rate-label">${t("extraMileFee")}</div>
+              <div class="fare-rate-value">${fareUsd(extraMileFee)}</div>
+            </div>` : ""}
             <div class="fare-detail-row">
               <div class="fare-rate-label">${t("perMinuteFee")}</div>
               <div class="fare-rate-value">${fareUsd(minuteRate)}</div>
@@ -2008,7 +2022,7 @@
         select.innerHTML = fareRates.map((item) => `<option value="${item.id}">${item.name}</option>`).join("");
         if (fareRates.some((item) => item.id === currentValue)) select.value = currentValue;
         if (!select.dataset.ready) {
-          ["fare-type", "fare-minutes", "fare-miles"].forEach((id) => {
+          ["fare-type", "fare-zone", "fare-minutes", "fare-miles"].forEach((id) => {
             $(`#${id}`).addEventListener("input", renderFareCalculator);
             $(`#${id}`).addEventListener("change", renderFareCalculator);
           });
@@ -2118,12 +2132,16 @@
           flightLoadFailed: "航班数据加载失败：{message}",
           loadFailed: "加载失败",
           fareProductLabel: "选择车型",
+          fareZoneLabel: "价格区域",
+          fareInsideZone: "五区内",
+          fareOutsideZone: "五区外",
           fareMinutesLabel: "时间（分钟）",
           fareMilesLabel: "里程（英里）",
           fareEstimateLabel: "预估价格",
           fareTripInputLabel: "输入行程",
           fareMinuteUnit: "分钟",
           fareMileUnit: "英里",
+          extraMileFee: "额外每英里费用",
           fareNote: "估算价格只按分钟和里程计算，不包含动态加价、过路费、机场费、小费、等待费、平台服务费和优惠。实际价格以平台显示为准。",
           variableLabel: "可变",
           cancellationFee: "取消费用",
@@ -2272,12 +2290,16 @@
           flightLoadFailed: "Flight data failed to load: {message}",
           loadFailed: "Load failed",
           fareProductLabel: "Vehicle type",
+          fareZoneLabel: "Price area",
+          fareInsideZone: "Inside NYC",
+          fareOutsideZone: "Outside NYC",
           fareMinutesLabel: "Time (minutes)",
           fareMilesLabel: "Distance (miles)",
           fareEstimateLabel: "Estimated fare",
           fareTripInputLabel: "Trip input",
           fareMinuteUnit: "min",
           fareMileUnit: "mi",
+          extraMileFee: "Extra per-mile fee",
           fareNote: "The estimate only uses minute and mileage rates. It does not include surge pricing, tolls, airport fees, tips, wait fees, platform fees, or promotions. Actual pricing is based on the platform.",
           variableLabel: "Variable",
           cancellationFee: "Cancellation fee",

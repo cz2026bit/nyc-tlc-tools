@@ -28,7 +28,7 @@ const defaultServiceInfo = [
 const defaultFareRates = [
   { id: "uberx", name: "UberX", zoneLabel: "New York City", inside: { mile: 1.283, minute: 0.681 }, outside: { mile: 1.283, minute: 0.681 }, baseFare: 0, pickupFee: "变量", pickupThreshold: "9 minutes", reservationClasses: ["ECONOMY"], reservationMinFare: 35, reservationFee: 7, fixedCancelFee: 25, cancelPolicy: "FIXED FEE", minimumTripIncome: 4.0001, driverCancelFee: 3.75, riderCancelFee: 3.75 },
   { id: "uber-pet", name: "Uber Pet", zoneLabel: "New York City", inside: { mile: 1.283, minute: 0.681 }, outside: { mile: 1.283, minute: 0.681 }, baseFare: 0, pickupFee: "变量", pickupThreshold: "9 minutes", reservationClasses: ["ECONOMY", "PREMIUM", "ECONOMY"], reservationMinFare: 35, reservationFee: 7, fixedCancelFee: 25, cancelPolicy: "FIXED FEE", minimumTripIncome: 4.0001, driverCancelFee: 3.75, riderCancelFee: 3.75 },
-  { id: "wav", name: "WAV", zoneLabel: "New York City", inside: { mile: 1.283, minute: 0.681 }, outside: { mile: 1.283, minute: 0.681 }, baseFare: 0, pickupFee: "变量", pickupThreshold: "9 minutes", reservationClasses: ["ECONOMY", "PREMIUM", "ECONOMY", "ECONOMY"], reservationMinFare: 35, reservationFee: 7, fixedCancelFee: 25, cancelPolicy: "FIXED FEE", minimumTripIncome: 4.0001, driverCancelFee: 3.75, riderCancelFee: 3.75 },
+  { id: "wav", name: "WAV", zoneLabel: "New York City", inside: { mile: 1.283, minute: 0.681, extraMileFee: 0.4 }, outside: { mile: 1.283, minute: 0.681, extraMileFee: 0.4 }, baseFare: 0, pickupFee: "变量", pickupThreshold: "9 minutes", reservationClasses: ["ECONOMY", "PREMIUM", "ECONOMY", "ECONOMY"], reservationMinFare: 35, reservationFee: 7, fixedCancelFee: 25, cancelPolicy: "FIXED FEE", minimumTripIncome: 4.0001, driverCancelFee: 3.75, riderCancelFee: 3.75 },
   { id: "comfort", name: "Comfort", zoneLabel: "New York City", inside: { mile: 1.3047, minute: 0.6888 }, outside: { mile: 1.3047, minute: 0.6888 }, baseFare: 0, pickupFee: "变量", pickupThreshold: "9 minutes", reservationClasses: ["ECONOMY", "PREMIUM", "ECONOMY", "ECONOMY", "PREMIUM", "ECONOMY"], reservationMinFare: 38, reservationFee: 10, fixedCancelFee: 30, cancelPolicy: "FIXED FEE", minimumTripIncome: 6.4796, driverCancelFee: 7.1996, riderCancelFee: 3.6095 },
   { id: "xl", name: "UberXL", zoneLabel: "New York City", inside: { mile: 1.2846, minute: 0.6813 }, outside: { mile: 1.2846, minute: 0.6813 }, baseFare: 0, pickupFee: "变量", pickupThreshold: "9 minutes", reservationClasses: ["ECONOMY", "PREMIUM", "ECONOMY", "ECONOMY", "ECONOMY"], reservationMinFare: 38, reservationFee: 10, fixedCancelFee: 30, cancelPolicy: "FIXED FEE", minimumTripIncome: 6.7969, driverCancelFee: 3.609, riderCancelFee: 3.609 },
   { id: "xxl", name: "UberXXL", zoneLabel: "New York City", inside: { mile: 1.5415, minute: 0.8147 }, outside: { mile: 1.5415, minute: 0.8147 }, baseFare: 0, pickupFee: "变量", pickupThreshold: "9 minutes", reservationClasses: ["ECONOMY", "PREMIUM", "ECONOMY", "ECONOMY"], reservationMinFare: 38, reservationFee: 10, fixedCancelFee: 30, cancelPolicy: "FIXED FEE", minimumTripIncome: 8.154, driverCancelFee: 3.609, riderCancelFee: 3.609 },
@@ -251,7 +251,8 @@ function normalizeFareRates(rows) {
       }
       byService.get(id)[zone] = {
         mile: Number(row.mile_rate || 0),
-        minute: Number(row.minute_rate || 0)
+        minute: Number(row.minute_rate || 0),
+        extraMileFee: row.extra_mile_fee === undefined ? (id === "wav" ? 0.4 : 0) : Number(row.extra_mile_fee || 0)
       }
     })
 
@@ -266,11 +267,21 @@ async function readFareRates() {
       "GET",
       "fare_rates",
       null,
-      "?select=service_id,service_name,zone,zone_label,mile_rate,minute_rate,base_fare,pickup_fee_label,pickup_threshold,wait_minute_rate,reservation_classes,reservation_min_fare,reservation_fee,fixed_cancel_fee,cancel_policy,minimum_trip_income,driver_cancel_fee,rider_cancel_fee,sort_order,active&order=sort_order.asc"
+      "?select=service_id,service_name,zone,zone_label,mile_rate,minute_rate,extra_mile_fee,base_fare,pickup_fee_label,pickup_threshold,wait_minute_rate,reservation_classes,reservation_min_fare,reservation_fee,fixed_cancel_fee,cancel_policy,minimum_trip_income,driver_cancel_fee,rider_cancel_fee,sort_order,active&order=sort_order.asc"
     )
     return normalizeFareRates(rows)
   } catch (error) {
-    return defaultFareRates
+    try {
+      const rows = await supabaseRequest(
+        "GET",
+        "fare_rates",
+        null,
+        "?select=service_id,service_name,zone,zone_label,mile_rate,minute_rate,base_fare,pickup_fee_label,pickup_threshold,wait_minute_rate,reservation_classes,reservation_min_fare,reservation_fee,fixed_cancel_fee,cancel_policy,minimum_trip_income,driver_cancel_fee,rider_cancel_fee,sort_order,active&order=sort_order.asc"
+      )
+      return normalizeFareRates(rows)
+    } catch (fallbackError) {
+      return defaultFareRates
+    }
   }
 }
 
