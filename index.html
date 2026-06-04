@@ -369,24 +369,6 @@
         border-radius: 8px;
       }
 
-      .traffic-module {
-        width: min(1180px, calc(100% - 28px));
-      }
-
-      .traffic-tool {
-        padding: 0;
-        overflow: hidden;
-      }
-
-      .traffic-frame {
-        display: block;
-        width: 100%;
-        height: min(760px, calc(100vh - 170px));
-        min-height: 560px;
-        border: 0;
-        background: #edf2f0;
-      }
-
       .service-list {
         display: grid;
         gap: 12px;
@@ -1318,15 +1300,6 @@
           overflow: hidden;
         }
 
-        .traffic-tool {
-          padding: 0;
-        }
-
-        .traffic-frame {
-          height: calc(100vh - 128px);
-          min-height: 520px;
-        }
-
         .flight-controls {
           display: grid;
           grid-template-columns: 1fr;
@@ -1564,11 +1537,6 @@
             <div class="feature-title" data-i18n="flightsTitle">航班信息</div>
           <div class="feature-desc" data-i18n="flightsDesc">查看 JFK / LGA / EWR 当前到港航班、航站楼、预计 / 实际到达时间，以及当天按小时统计。</div>
           </button>
-          <button class="feature-card" type="button" data-open-module="traffic">
-            <span class="feature-icon">C</span>
-            <div class="feature-title" data-i18n="trafficTitle">实时交通</div>
-            <div class="feature-desc" data-i18n="trafficDesc">查看纽约道路摄像头地图，了解当前路况和实时交通画面。</div>
-          </button>
           <button class="feature-card" type="button" data-open-module="fare">
             <span class="feature-icon">U</span>
             <div class="feature-title" data-i18n="fareTitle">车费计算</div>
@@ -1672,16 +1640,6 @@
             <div class="arrivals-list" id="arrivals-list"></div>
             <div class="flight-pagination" id="flight-pagination"></div>
           </section>
-        </section>
-      </section>
-
-      <section class="wrap module traffic-module hidden" id="traffic-module">
-        <div class="module-bar">
-          <button class="back-button" type="button" data-back-home data-i18n="backHome">‹ 返回首页</button>
-          <div class="module-name" data-i18n="trafficTitle">实时交通</div>
-        </div>
-        <section class="tool traffic-tool">
-          <iframe class="traffic-frame" src="/traffic-map/map" title="NYC traffic camera map"></iframe>
         </section>
       </section>
 
@@ -2104,8 +2062,6 @@
           tlcDesc: "输入车牌号，查询 TLC 车辆资料和停车 / 摄像头违章记录。",
           flightsTitle: "航班信息",
           flightsDesc: "查看 JFK / LGA / EWR 当前到港航班、航站楼、预计 / 实际到达时间，以及当天按小时统计。",
-          trafficTitle: "实时交通",
-          trafficDesc: "查看纽约道路摄像头地图，了解当前路况和实时交通画面。",
           fareTitle: "车费计算",
           fareDesc: "选择车型，输入时间和里程，按数据库费率估算车费。",
           servicesTitle: "服务信息",
@@ -2264,8 +2220,6 @@
           tlcDesc: "Enter a plate number to check TLC vehicle details and parking or camera violations.",
           flightsTitle: "Flight Info",
           flightsDesc: "View current JFK / LGA / EWR arrivals, terminals, ETA / actual arrival times, and hourly stats.",
-          trafficTitle: "Live Traffic",
-          trafficDesc: "View the NYC traffic camera map for current road conditions and live camera images.",
           fareTitle: "Fare Calculator",
           fareDesc: "Choose a vehicle type, enter time and mileage, and estimate fare from database rates.",
           servicesTitle: "Service Info",
@@ -2558,7 +2512,6 @@
         $("#home-screen").classList.toggle("hidden", Boolean(name));
         $("#tlc-module").classList.toggle("hidden", name !== "tlc");
         $("#flights-module").classList.toggle("hidden", name !== "flights");
-        $("#traffic-module").classList.toggle("hidden", name !== "traffic");
         $("#fare-module").classList.toggle("hidden", name !== "fare");
         $("#services-module").classList.toggle("hidden", name !== "services");
         $("#receipt-module").classList.toggle("hidden", name !== "receipt");

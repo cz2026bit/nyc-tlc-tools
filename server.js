@@ -21,7 +21,6 @@ const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ""
 const resendApiKey = process.env.RESEND_API_KEY || ""
 const feedbackEmailTo = process.env.FEEDBACK_EMAIL_TO || "chengjiezheng@gmail.com"
 const feedbackEmailFrom = process.env.FEEDBACK_EMAIL_FROM || "NYC TLC Tools <onboarding@resend.dev>"
-const trafficMapOrigin = "https://webcams.nyctmc.org"
 const flightCache = new Map()
 const defaultServiceInfo = [
   {
@@ -396,63 +395,6 @@ function fetchText(targetUrl) {
     request.on("error", reject)
     request.end()
   })
-}
-
-function proxyTrafficMap(req, res) {
-  const requestUrl = new URL(req.url, `http://${req.headers.host || "127.0.0.1"}`)
-  const proxiedPath = requestUrl.pathname === "/traffic-map" || requestUrl.pathname === "/traffic-map/"
-    ? "/map"
-    : requestUrl.pathname.replace(/^\/traffic-map/, "") || "/map"
-  const targetUrl = new URL(proxiedPath + requestUrl.search, trafficMapOrigin)
-  const requestHeaders = {
-    "User-Agent": "Mozilla/5.0 Codex Traffic Module",
-    Accept: req.headers.accept || "*/*",
-    Referer: `${trafficMapOrigin}/map`,
-    Origin: trafficMapOrigin
-  }
-  if (req.headers["content-type"]) requestHeaders["Content-Type"] = req.headers["content-type"]
-
-  const upstream = https.request(
-    {
-      hostname: targetUrl.hostname,
-      path: `${targetUrl.pathname}${targetUrl.search}`,
-      method: req.method,
-      headers: requestHeaders
-    },
-    (response) => {
-      const chunks = []
-      response.on("data", (chunk) => chunks.push(chunk))
-      response.on("end", () => {
-        const contentType = response.headers["content-type"] || "application/octet-stream"
-        let body = Buffer.concat(chunks)
-        if (contentType.includes("text/html")) {
-          body = Buffer.from(
-            body
-              .toString("utf8")
-              .replace('<base href="/">', '<base href="/traffic-map/">'),
-            "utf8"
-          )
-        }
-
-        res.writeHead(response.statusCode || 200, {
-          "Content-Type": contentType,
-          "Access-Control-Allow-Origin": "*",
-          "Cache-Control": "no-store"
-        })
-        res.end(body)
-      })
-    }
-  )
-  upstream.on("error", (error) => sendText(res, 502, error.message || "traffic_proxy_failed"))
-
-  if (req.method === "GET" || req.method === "HEAD") {
-    upstream.end()
-    return
-  }
-
-  req.on("data", (chunk) => upstream.write(chunk))
-  req.on("end", () => upstream.end())
-  req.on("error", () => upstream.end())
 }
 
 function stripTags(value) {
@@ -1192,11 +1134,6 @@ const server = http.createServer((req, res) => {
   }
 
   const routeUrl = new URL(req.url, `http://${req.headers.host || "127.0.0.1"}`)
-  if (routeUrl.pathname === "/traffic-map" || routeUrl.pathname.startsWith("/traffic-map/")) {
-    proxyTrafficMap(req, res)
-    return
-  }
-
   const urlPath = routeUrl.pathname === "/" ? "/index.html" : routeUrl.pathname
   const filePath = path.join(publicRoot, urlPath)
   fsp.readFile(filePath)
