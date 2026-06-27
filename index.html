@@ -2053,6 +2053,24 @@
       const FARE_RATES_API_URL = API_BASE ? `${API_BASE}/api/fare-rates` : (HAS_LOCAL_API ? "/api/fare-rates" : "");
       const SERVICE_INFO_API_URL = API_BASE ? `${API_BASE}/api/service-info` : (HAS_LOCAL_API ? "/api/service-info" : "");
       const FEEDBACK_API_URL = API_BASE ? `${API_BASE}/api/feedback` : (HAS_LOCAL_API ? "/api/feedback" : "");
+
+      // ===== 航班静态兜底配置 =====
+      // 没有可用后端时（例如纯静态托管在 GitHub Pages），浏览器端通过公共 CORS 代理直接抓取机场页面展示航班。
+      // 后续部署了真正的后端后，无需改这里：loadFlights 会优先走后端，本兜底自动让位。
+      // 想彻底关掉静态兜底，把下面置为 false 即可。
+      const FLIGHT_STATIC_FALLBACK_ENABLED = true;
+      // 公共 CORS 代理（按顺序尝试，前一个失败自动用下一个，每个再重试一次）。可按需增删/替换。
+      // build: 把目标 URL 包成代理 URL；unwrap: 从代理响应文本里取出真正的网页 HTML。
+      const FLIGHT_CORS_PROXIES = [
+        { build: (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`, unwrap: (text) => text },
+        { build: (u) => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`, unwrap: (text) => { try { return JSON.parse(text).contents || ""; } catch (e) { return ""; } } },
+        { build: (u) => `https://corsproxy.io/?url=${encodeURIComponent(u)}`, unwrap: (text) => text },
+      ];
+      // 浏览器端经代理逐条抓详情较慢/易被限流，限制详情抓取条数；超出部分用列表页已有信息兜底。
+      const FLIGHT_STATIC_DETAIL_LIMIT = 6;
+      // 单次代理请求超时（毫秒）。卡住的代理会被中断并自动换下一个，避免整页一直转圈。
+      const FLIGHT_STATIC_TIMEOUT_MS = 9000;
+
       const languageCopy = {
         zh: {
           appTitle: "纽约 TLC 工具箱",
@@ -2774,11 +2792,271 @@
         return tf("updatedAt", { time });
       }
 
-      async function loadFlights(silent = false) {
-        if (!FLIGHTS_API_URL) {
-          $("#arrivals-list").innerHTML = `<div class="flight-empty">${t("flightUnavailable")}</div>`;
-          return;
+      // ===== 航班静态兜底：浏览器端抓取（从 server.js 移植，仅在无可用后端时启用） =====
+      const FlightScraper = (function () {
+        async function fetchText(targetUrl) {
+          let lastError = null;
+          for (const proxy of FLIGHT_CORS_PROXIES) {
+            for (let attempt = 0; attempt < 2; attempt++) {
+              const controller = new AbortController();
+              const timer = setTimeout(() => controller.abort(), FLIGHT_STATIC_TIMEOUT_MS);
+              try {
+                const resp = await fetch(proxy.build(targetUrl), { signal: controller.signal });
+                if (!resp.ok) { lastError = new Error("proxy_http_" + resp.status); continue; }
+                const text = proxy.unwrap(await resp.text());
+                if (text && text.length > 200) return text;
+                lastError = new Error("proxy_empty");
+              } catch (error) {
+                lastError = error;
+              } finally {
+                clearTimeout(timer);
+              }
+            }
+          }
+          throw lastError || new Error("proxy_failed");
         }
+
+        function stripTags(value) {
+          return String(value || "")
+            .replace(/<br\s*\/?>/gi, " ")
+            .replace(/<[^>]+>/g, " ")
+            .replace(/&nbsp;/g, " ")
+            .replace(/&amp;/g, "&")
+            .replace(/\s+/g, " ")
+            .trim();
+        }
+
+        function formatDateYmd(date) {
+          const year = date.getFullYear();
+          const month = `${date.getMonth() + 1}`.padStart(2, "0");
+          const day = `${date.getDate()}`.padStart(2, "0");
+          return `${year}-${month}-${day}`;
+        }
+
+        function airportConfig(code) {
+          const n = String(code || "").toUpperCase();
+          if (n === "JFK") return { code: "JFK", name: "John F. Kennedy International Airport", liveUrl: "https://airport-jfk.com/arrivals.php", liveRoot: "https://airport-jfk.com" };
+          if (n === "LGA") return { code: "LGA", name: "LaGuardia Airport", liveUrl: "https://laguardia-airport.com/lga-arrivals", liveRoot: "https://laguardia-airport.com" };
+          if (n === "EWR") return { code: "EWR", name: "Newark Liberty International Airport", liveUrl: "https://www.airport-ewr.com/newark-arrivals", liveRoot: "https://www.airport-ewr.com" };
+          throw new Error("unsupported_airport");
+        }
+
+        function arrivalPeriodUrls(airport) {
+          return [0, 6, 12, 18].map((period) => {
+            const url = new URL(airport.liveUrl);
+            url.searchParams.set("tp", String(period));
+            return url.toString();
+          });
+        }
+
+        function extractInfoValue(section, title) {
+          const pattern = new RegExp(
+            `${title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}:[\\s\\S]*?<div class="flight-info__infobox-text[^"]*">([\\s\\S]*?)<\\/div>`,
+            "i"
+          );
+          const match = section.match(pattern);
+          return match ? stripTags(match[1]) : "";
+        }
+
+        function parseDetail(html) {
+          const statusMatch = html.match(/<div class="flight-status__title">([\s\S]*?)<\/div>/i);
+          const arrivalIndex = html.indexOf("flight-info__title flight-info__title--arr");
+          const section = arrivalIndex >= 0 ? html.slice(arrivalIndex, arrivalIndex + 2400) : html;
+          const timeType = /Actual Arrival Time:/i.test(section) ? "actual" : /Estimated Arrival Time:/i.test(section) ? "estimated" : "";
+          const observedArrival = timeType === "actual" ? extractInfoValue(section, "Actual Arrival Time") : extractInfoValue(section, "Estimated Arrival Time");
+          const scheduledArrivalMatch = section.match(/Scheduled Arrival Time:\s*([^<]+)/i);
+          const status = statusMatch ? stripTags(statusMatch[1]) : "";
+          return {
+            status,
+            terminal: extractInfoValue(section, "Terminal"),
+            gate: extractInfoValue(section, "Gate"),
+            aircraft: extractInfoValue(html, "Aircraft") || extractInfoValue(html, "Equipment") || extractInfoValue(html, "Plane"),
+            scheduledArrival: scheduledArrivalMatch ? stripTags(scheduledArrivalMatch[1]) : "",
+            estimatedArrival: timeType === "estimated" ? observedArrival : "",
+            actualArrival: timeType === "actual" ? observedArrival : /landed/i.test(status) ? observedArrival : ""
+          };
+        }
+
+        function aircraftCapacity(value) {
+          const aircraft = String(value || "").toUpperCase();
+          const rules = [
+            [/A380|A388|AIRBUS 380/, 575], [/B77W|777-300|BOEING 777/, 300], [/B789|787-9|DREAMLINER/, 300],
+            [/B788|787-8/, 240], [/A359|A350/, 300], [/A339|A330-900|A333|A330/, 280], [/A321|AIRBUS 321/, 180],
+            [/A320|AIRBUS 320/, 160], [/A319|AIRBUS 319/, 128], [/B739|737-900/, 178], [/B738|737-800|MAX 8/, 160],
+            [/B737|737-700/, 140], [/E75|E175|EMBRAER 175/, 78], [/CRJ|CR9|CANADAIR/, 76]
+          ];
+          const match = rules.find(([pattern]) => pattern.test(aircraft));
+          return match ? match[1] : null;
+        }
+
+        function inferAircraftType(item) {
+          const flightNumber = String(item.flightNumber || "").toUpperCase();
+          const airline = String(item.airline || "").toUpperCase();
+          const origin = String(item.origin || "").toUpperCase();
+          const exact = { EK205: "A380", B61852: "A320", B61568: "A321", B61802: "A321", AA4390: "E175", AA1044: "B737-900", DL5713: "E175", DL213: "A350", DL4: "A350", AY15: "A350" };
+          if (exact[flightNumber]) return exact[flightNumber];
+          if (/^(FX|5X|QY|8C|D0)/.test(flightNumber)) return "Cargo";
+          if (/^(AA|DL|UA)\d{4}$/.test(flightNumber) && Number(flightNumber.replace(/^[A-Z]+/, "")) >= 4000) return "E175";
+          if (/EMIRATES/.test(airline) || /^EK/.test(flightNumber)) return "A380";
+          if (/FINNAIR|AIR FRANCE|VIRGIN ATLANTIC|TURKISH|ASIANA|EL AL|QATAR|ETIHAD|ANA/.test(airline)) return "A350";
+          if (/JETBLUE/.test(airline) || /^B6/.test(flightNumber)) return /LAX|SFO|LAS|SAN|SEA/.test(origin) ? "A321" : "A320";
+          if (/AMERICAN/.test(airline) || /^AA/.test(flightNumber)) return /LAX|SFO|PHX|DFW|MIA/.test(origin) ? "B737-900" : "B737-800";
+          if (/DELTA/.test(airline) || /^DL/.test(flightNumber)) return /LHR|CDG|FCO|AMS|MAD|GRU|HND|ICN|TLV/.test(origin) ? "A350" : "A320";
+          return "";
+        }
+
+        function estimatePassengers(item) {
+          const airline = String(item.airline || "");
+          const flightNumber = String(item.flightNumber || "").toUpperCase();
+          const origin = String(item.origin || "").toUpperCase();
+          const cargoPattern = /\b(FEDEX|UPS|DHL|CARGO|AIR TRANSPORT INTERNATIONAL|ATLAS AIR|AMERIJET)\b/i;
+          if (cargoPattern.test(airline) || /^(FX|5X|QY|8C|D0)/.test(flightNumber)) {
+            return { passengerCount: 0, passengerLabel: "0", passengerNote: "货运航班", aircraftType: "Cargo" };
+          }
+          const aircraftType = item.aircraft || inferAircraftType(item);
+          const aircraftPassengers = aircraftCapacity(aircraftType);
+          if (aircraftPassengers) {
+            return { passengerCount: aircraftPassengers, passengerLabel: `${aircraftPassengers}`, passengerNote: `按机型 ${aircraftType} 估算，非实际登机人数`, aircraftType };
+          }
+          const regionalOrigins = ["BOS", "DCA", "IAD", "ROC", "BUF", "SYR", "PIT", "RDU", "CLE", "CMH", "ORF"];
+          const longHaulOrigins = ["LHR", "CDG", "FCO", "MAD", "AMS", "FRA", "MUC", "ZRH", "IST", "TLV", "DXB", "DOH", "AUH", "HND", "NRT", "ICN", "PEK", "PVG", "HKG", "TPE", "SIN", "GRU", "EZE", "SCL", "LOS", "ACC"];
+          let passengerCount = 160;
+          if (longHaulOrigins.some((c) => origin.includes(`(${c})`))) passengerCount = 260;
+          else if (regionalOrigins.some((c) => origin.includes(`(${c})`))) passengerCount = 76;
+          else if (/JFK|EWR/.test(String(item.detailUrl || "")) && /\([A-Z]{3}\)/.test(origin)) passengerCount = 180;
+          return { passengerCount, passengerLabel: `约 ${passengerCount}`, passengerNote: "未取得机型，按航线类型估算，非实际登机人数", aircraftType: aircraftType || "" };
+        }
+
+        function toMinutes(value) {
+          const match = String(value || "").trim().match(/^(\d{1,2}):(\d{2})\s*(am|pm)?$/i);
+          if (!match) return 0;
+          let hour = Number(match[1]);
+          const minute = Number(match[2]);
+          const suffix = String(match[3] || "").toLowerCase();
+          if (suffix === "pm" && hour < 12) hour += 12;
+          if (suffix === "am" && hour === 12) hour = 0;
+          return hour * 60 + minute;
+        }
+
+        function getSortMinutes(item) {
+          return toMinutes(item.estimatedArrival || item.actualArrival || item.scheduledArrival);
+        }
+
+        function withFallbackTimes(item) {
+          const isLanded = /landed/i.test(item.status);
+          return {
+            ...item,
+            gate: item.gate || "",
+            estimatedArrival: isLanded ? "" : item.estimatedArrival || item.scheduledArrival,
+            actualArrival: isLanded ? item.actualArrival || item.scheduledArrival : ""
+          };
+        }
+
+        function buildHourly(flights, passengers) {
+          const hourly = Array.from({ length: 24 }, () => 0);
+          flights.forEach((item) => {
+            const hour = Math.floor(getSortMinutes(item) / 60);
+            if (hour >= 0 && hour < 24) hourly[hour] += passengers ? Number(item.passengerCount || 0) : 1;
+          });
+          return hourly;
+        }
+
+        async function fetchLiveArrivals(airport) {
+          // 串行抓取时段页：公共代理对并发很敏感（易限流/超时），逐个抓更稳。部分失败不致命，抓到几个用几个。
+          const pages = [];
+          for (const url of arrivalPeriodUrls(airport)) {
+            try { pages.push(await fetchText(url)); } catch (error) { /* 跳过该时段 */ }
+          }
+          if (!pages.length) throw new Error("flight_fetch_failed");
+          const seen = new Set();
+          const rows = pages
+            .flatMap((html) => html.split('<div class="flight-row">').slice(1))
+            .map((chunk) => {
+              const originMatch = chunk.match(/flight-col__dest-term">([\s\S]*?)<\/div>/i);
+              const timeMatch = chunk.match(/flight-col__hour">([\s\S]*?)<\/div>/i);
+              const flightMatch = chunk.match(/flight-col__flight">\s*<a href="([^"]+)"[^>]*>([^<]+)<\/a>/i);
+              const terminalMatch = chunk.match(/flight-col__terminal">([\s\S]*?)<\/div>/i);
+              const statusMatch = chunk.match(/flight-col__status[\s\S]*?<a[^>]*>([\s\S]*?)<\/a>/i);
+              const airlineMatch = chunk.match(/flight-col__airline[\s\S]*?<a[^>]*>([\s\S]*?)<\/a>/i);
+              if (!flightMatch) return null;
+              const flightNumber = stripTags(flightMatch[2]);
+              const scheduledArrival = stripTags(timeMatch ? timeMatch[1] : "");
+              const detailUrl = new URL(flightMatch[1], airport.liveRoot).toString();
+              const rowKey = `${flightNumber}:${scheduledArrival}:${detailUrl}`;
+              if (seen.has(rowKey)) return null;
+              seen.add(rowKey);
+              return {
+                flightNumber, detailUrl,
+                origin: stripTags(originMatch ? originMatch[1] : ""),
+                scheduledArrival,
+                terminal: stripTags(terminalMatch ? terminalMatch[1] : ""),
+                status: stripTags(statusMatch ? statusMatch[1] : ""),
+                airline: stripTags(airlineMatch ? airlineMatch[1] : "")
+              };
+            })
+            .filter(Boolean);
+
+          // 同样串行抓详情，且仅抓前 FLIGHT_STATIC_DETAIL_LIMIT 条；其余用列表页信息兜底。
+          const enriched = [];
+          for (let index = 0; index < rows.length; index += 1) {
+            const item = rows[index];
+            if (index >= FLIGHT_STATIC_DETAIL_LIMIT) { enriched.push(withFallbackTimes(item)); continue; }
+            try {
+              const detail = parseDetail(await fetchText(item.detailUrl));
+              const fallbackObserved = detail.actualArrival || detail.estimatedArrival || detail.scheduledArrival || item.scheduledArrival;
+              enriched.push({
+                ...item,
+                status: detail.status || item.status,
+                terminal: detail.terminal || item.terminal,
+                gate: detail.gate || "",
+                aircraft: detail.aircraft || "",
+                scheduledArrival: detail.scheduledArrival || item.scheduledArrival,
+                estimatedArrival: detail.estimatedArrival || (/landed/i.test(detail.status || item.status) ? "" : fallbackObserved),
+                actualArrival: detail.actualArrival || (/landed/i.test(detail.status || item.status) ? fallbackObserved : "")
+              });
+            } catch (error) {
+              enriched.push(withFallbackTimes(item));
+            }
+          }
+
+          const flights = enriched.sort((a, b) => getSortMinutes(b) - getSortMinutes(a));
+          return { updatedAt: new Date().toISOString(), flights: flights.map((item) => ({ ...item, ...estimatePassengers(item) })) };
+        }
+
+        async function buildOverview(code) {
+          const airport = airportConfig(code);
+          const live = await fetchLiveArrivals(airport);
+          const delayedCount = live.flights.filter((item) => /delay/i.test(item.status)).length;
+          const landedCount = live.flights.filter((item) => /landed/i.test(item.status)).length;
+          const totalPassengers = live.flights.reduce((sum, item) => sum + Number(item.passengerCount || 0), 0);
+          return {
+            ok: true,
+            airport: airport.code,
+            airportName: airport.name,
+            updatedAt: live.updatedAt,
+            live: { total: live.flights.length, landed: landedCount, delayed: delayedCount, passengers: totalPassengers, flights: live.flights },
+            today: { date: formatDateYmd(new Date()), label: "今天", total: live.flights.length, totalPassengers, hourly: buildHourly(live.flights, false), hourlyPassengers: buildHourly(live.flights, true) }
+          };
+        }
+
+        return { buildOverview };
+      })();
+
+      function applyFlightPayload(payload) {
+        $("#flight-total").textContent = payload.live.total;
+        $("#flight-landed").textContent = payload.live.landed;
+        $("#flight-delayed").textContent = payload.live.delayed;
+        $("#flight-passengers").textContent = formatChartNumber(payload.live.passengers || 0);
+        flightState.updatedAt = payload.updatedAt;
+        $("#flight-updated-at").textContent = formatUpdatedAt(payload.updatedAt);
+        flightState.todayStats = payload.today || null;
+        flightState.flights = payload.live.flights || [];
+        renderTerminalStats();
+        renderFlightHistory();
+        renderFlightList();
+      }
+
+      async function loadFlights(silent = false) {
         if (flightState.loading) return;
         flightState.loading = true;
         $("#refresh-flights").disabled = true;
@@ -2788,23 +3066,27 @@
         }
 
         try {
-          const response = await fetch(`${FLIGHTS_API_URL}?airport=${flightState.airport}`);
-          const payload = await response.json();
-          if (!response.ok || !payload.ok) {
-            throw new Error(payload.error || "flight_fetch_failed");
+          let payload = null;
+
+          // 1) 优先走后端（部署后端、或本地开发时自动生效）
+          if (FLIGHTS_API_URL) {
+            try {
+              const response = await fetch(`${FLIGHTS_API_URL}?airport=${flightState.airport}`);
+              const data = await response.json();
+              if (response.ok && data.ok) payload = data;
+            } catch (error) {
+              // 后端不可用，落到静态兜底
+            }
           }
 
-          $("#flight-total").textContent = payload.live.total;
-          $("#flight-landed").textContent = payload.live.landed;
-          $("#flight-delayed").textContent = payload.live.delayed;
-          $("#flight-passengers").textContent = formatChartNumber(payload.live.passengers || 0);
-          flightState.updatedAt = payload.updatedAt;
-          $("#flight-updated-at").textContent = formatUpdatedAt(payload.updatedAt);
-          flightState.todayStats = payload.today || null;
-          flightState.flights = payload.live.flights || [];
-          renderTerminalStats();
-          renderFlightHistory();
-          renderFlightList();
+          // 2) 没有可用后端时，浏览器端经 CORS 代理直接抓取（静态兜底）
+          if (!payload && FLIGHT_STATIC_FALLBACK_ENABLED) {
+            payload = await FlightScraper.buildOverview(flightState.airport);
+          }
+
+          if (!payload) throw new Error("flight_fetch_failed");
+
+          applyFlightPayload(payload);
         } catch (error) {
           $("#arrivals-list").innerHTML = `<div class="flight-empty">${tf("flightLoadFailed", { message: error.message || t("queryFailed") })}</div>`;
           $("#chart-total").textContent = t("loadFailed");
