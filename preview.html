@@ -2069,7 +2069,9 @@
       // 浏览器端经代理逐条抓详情较慢/易被限流，限制详情抓取条数；超出部分用列表页已有信息兜底。
       const FLIGHT_STATIC_DETAIL_LIMIT = 6;
       // 单次代理请求超时（毫秒）。卡住的代理会被中断并自动换下一个，避免整页一直转圈。
-      const FLIGHT_STATIC_TIMEOUT_MS = 9000;
+      const FLIGHT_STATIC_TIMEOUT_MS = 15000;
+      // 静态模式只采集并展示「最近 N 小时」到港航班，大幅减少代理请求与数据量；设为 0 则抓全天。
+      const FLIGHT_STATIC_RECENT_HOURS = 3;
 
       const languageCopy = {
         zh: {
@@ -2849,6 +2851,36 @@
           });
         }
 
+        // 当前纽约时间的「当天分钟数」(0~1439)
+        function nyNowMinutes() {
+          const parts = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour12: false, hour: "2-digit", minute: "2-digit" }).formatToParts(new Date());
+          const h = Number(parts.find((p) => p.type === "hour").value) % 24;
+          const m = Number(parts.find((p) => p.type === "minute").value);
+          return h * 60 + m;
+        }
+
+        function recentWindow() {
+          const now = nyNowMinutes();
+          return { now, start: now - FLIGHT_STATIC_RECENT_HOURS * 60 };
+        }
+
+        // 到港分钟数是否落在 [start, now] 窗口内（处理跨午夜）
+        function inRecentWindow(minutes, win) {
+          if (win.start >= 0) return minutes >= win.start && minutes <= win.now;
+          return minutes >= win.start + 1440 || minutes <= win.now;
+        }
+
+        // 机场页按 6 小时分段(tp=0/6/12/18)。只取覆盖窗口的 1~2 段，省请求。
+        function periodUrlsForWindow(airport, win) {
+          const blockTp = (m) => Math.floor((((m % 1440) + 1440) % 1440) / 360) * 6;
+          const tps = Array.from(new Set([blockTp(win.start), blockTp(win.now)]));
+          return tps.map((tp) => {
+            const url = new URL(airport.liveUrl);
+            url.searchParams.set("tp", String(tp));
+            return url.toString();
+          });
+        }
+
         function extractInfoValue(section, title) {
           const pattern = new RegExp(
             `${title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}:[\\s\\S]*?<div class="flight-info__infobox-text[^"]*">([\\s\\S]*?)<\\/div>`,
@@ -2962,9 +2994,13 @@
         }
 
         async function fetchLiveArrivals(airport) {
+          // 静态模式默认只看最近 N 小时：只抓覆盖窗口的时段页，并按到港时间过滤。
+          const recent = FLIGHT_STATIC_RECENT_HOURS > 0;
+          const win = recent ? recentWindow() : null;
+          const periodUrls = recent ? periodUrlsForWindow(airport, win) : arrivalPeriodUrls(airport);
           // 串行抓取时段页：公共代理对并发很敏感（易限流/超时），逐个抓更稳。部分失败不致命，抓到几个用几个。
           const pages = [];
-          for (const url of arrivalPeriodUrls(airport)) {
+          for (const url of periodUrls) {
             try { pages.push(await fetchText(url)); } catch (error) { /* 跳过该时段 */ }
           }
           if (!pages.length) throw new Error("flight_fetch_failed");
@@ -2996,10 +3032,13 @@
             })
             .filter(Boolean);
 
+          // 只保留最近 N 小时到港的航班（按列表页排程时间过滤），详情也只对这些抓。
+          const windowRows = recent ? rows.filter((item) => inRecentWindow(toMinutes(item.scheduledArrival), win)) : rows;
+
           // 同样串行抓详情，且仅抓前 FLIGHT_STATIC_DETAIL_LIMIT 条；其余用列表页信息兜底。
           const enriched = [];
-          for (let index = 0; index < rows.length; index += 1) {
-            const item = rows[index];
+          for (let index = 0; index < windowRows.length; index += 1) {
+            const item = windowRows[index];
             if (index >= FLIGHT_STATIC_DETAIL_LIMIT) { enriched.push(withFallbackTimes(item)); continue; }
             try {
               const detail = parseDetail(await fetchText(item.detailUrl));
@@ -3031,6 +3070,8 @@
           const totalPassengers = live.flights.reduce((sum, item) => sum + Number(item.passengerCount || 0), 0);
           return {
             ok: true,
+            staticMode: true,
+            recentHours: FLIGHT_STATIC_RECENT_HOURS > 0 ? FLIGHT_STATIC_RECENT_HOURS : 0,
             airport: airport.code,
             airportName: airport.name,
             updatedAt: live.updatedAt,
@@ -3043,6 +3084,18 @@
       })();
 
       function applyFlightPayload(payload) {
+        // 静态模式（无后端、仅最近 N 小时）下隐藏全天图表与航站楼分布，只留摘要 + 航班列表；
+        // 有后端返回完整数据时（无 staticMode 标记）恢复显示。
+        const staticMode = !!payload.staticMode;
+        const chartCard = document.querySelector("#flights-module .chart-card");
+        if (chartCard) chartCard.style.display = staticMode ? "none" : "";
+        const terminalStats = document.querySelector("#flights-module #terminal-stats");
+        if (terminalStats) terminalStats.style.display = staticMode ? "none" : "";
+        const arrivalsSubtitle = document.querySelector("#flights-module .arrivals-card .panel-subtitle");
+        if (arrivalsSubtitle && staticMode && payload.recentHours) {
+          arrivalsSubtitle.textContent = `仅展示最近 ${payload.recentHours} 小时到港航班（静态模式，数据经公共代理抓取，可能较慢或偶有缺失）。`;
+        }
+
         $("#flight-total").textContent = payload.live.total;
         $("#flight-landed").textContent = payload.live.landed;
         $("#flight-delayed").textContent = payload.live.delayed;
@@ -3051,7 +3104,7 @@
         $("#flight-updated-at").textContent = formatUpdatedAt(payload.updatedAt);
         flightState.todayStats = payload.today || null;
         flightState.flights = payload.live.flights || [];
-        renderTerminalStats();
+        if (!staticMode) renderTerminalStats();
         renderFlightHistory();
         renderFlightList();
       }
